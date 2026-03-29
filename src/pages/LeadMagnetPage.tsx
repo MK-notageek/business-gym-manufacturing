@@ -76,7 +76,7 @@ export default function LeadMagnetPage(){
 
   useEffect(()=>{const h=()=>setSticky(scrollY>innerHeight*.8);addEventListener('scroll',h,{passive:true});return()=>removeEventListener('scroll',h)},[])
   useEffect(()=>{const s=document.createElement('script');s.src='https://link.msgsndr.com/js/form_embed.js';s.async=true;document.body.appendChild(s);return()=>{document.body.removeChild(s)}},[])
-  useEffect(()=>{let fired=false;const h=(e:MessageEvent)=>{if(fired)return;if(e.origin!=='https://api.leadconnectorhq.com')return;const d=e.data;if(Array.isArray(d)&&d[0]==='set-sticky-contacts'){fired=true;const w=window as any;if(typeof w.fbq==='function')w.fbq('track','Lead')}};window.addEventListener('message',h);return()=>window.removeEventListener('message',h)},[])
+  useEffect(()=>{let partial=false;let full=false;const w=window as any;const fbq=()=>typeof w.fbq==='function';const h=(e:MessageEvent)=>{if(e.origin!=='https://api.leadconnectorhq.com')return;const d=e.data;if(!Array.isArray(d)||d[0]!=='set-sticky-contacts')return;const str=JSON.stringify(d);if(!partial){partial=true;if(fbq())w.fbq('track','InitiateCheckout')}if(!full&&str.includes('customer_id')){full=true;if(fbq())w.fbq('track','Lead')}};window.addEventListener('message',h);return()=>window.removeEventListener('message',h)},[])
   const go=()=>document.getElementById('form')?.scrollIntoView({behavior:'smooth'})
 
 
