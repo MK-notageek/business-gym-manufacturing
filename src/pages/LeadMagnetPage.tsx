@@ -76,6 +76,7 @@ export default function LeadMagnetPage(){
 
   useEffect(()=>{const h=()=>setSticky(scrollY>innerHeight*.8);addEventListener('scroll',h,{passive:true});return()=>removeEventListener('scroll',h)},[])
   useEffect(()=>{const s=document.createElement('script');s.src='https://link.msgsndr.com/js/form_embed.js';s.async=true;document.body.appendChild(s);return()=>{document.body.removeChild(s)}},[])
+  useEffect(()=>{const h=(e:MessageEvent)=>{if(e.data&&(e.data.event==='form_submitted'||e.data.type==='form-submitted'||e.data.event==='survey_submitted'||e.data.type==='surveySubmitted')){const w=window as any;if(typeof w.fbq==='function')w.fbq('track','Lead')}};window.addEventListener('message',h);return()=>window.removeEventListener('message',h)},[])
   const go=()=>document.getElementById('form')?.scrollIntoView({behavior:'smooth'})
 
 
