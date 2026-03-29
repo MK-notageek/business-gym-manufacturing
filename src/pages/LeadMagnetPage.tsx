@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 /* ═══════════════════════════════════════════════════════
    LEAD MAGNET LP  - Lean, Outcome-Focused
@@ -71,12 +71,11 @@ function YT({id,name,stat}:{id:string;name:string;stat:string}){
 
 export default function LeadMagnetPage(){
   const[sticky,setSticky]=useState(false)
-  const[step,setStep]=useState(1)
-  const[email,setEmail]=useState('')
   const[faq,setFaq]=useState<number|null>(null)
   const s1=useReveal(),s2=useReveal(),s3=useReveal(),s4=useReveal(),s5=useReveal(),s6=useReveal(),s7=useReveal()
 
   useEffect(()=>{const h=()=>setSticky(scrollY>innerHeight*.8);addEventListener('scroll',h,{passive:true});return()=>removeEventListener('scroll',h)},[])
+  useEffect(()=>{const s=document.createElement('script');s.src='https://link.msgsndr.com/js/form_embed.js';s.async=true;document.body.appendChild(s);return()=>{document.body.removeChild(s)}},[])
   const go=()=>document.getElementById('form')?.scrollIntoView({behavior:'smooth'})
 
 
@@ -255,12 +254,12 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
     <section className="sec" id="proof" style={{background:'var(--bg)'}} ref={s1.ref}>
       <div className="mx">
         <div className={`rv ${s1.v?'vi':''}`} style={{marginBottom:48}}>
-          <div className="pill" style={{marginBottom:16}}>Real Results</div>
-          <h2 className="P h2">NZ business owners who worked with Bernard.</h2>
+          <h2 className="P h2" style={{textAlign:'center'}}>Listen to what these <em style={{fontStyle:'normal',background:'var(--g)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>NZ business owners</em> have to say about working with Bernard.</h2>
         </div>
         <div className={`vg rv ${s1.v?'vi':''}`} style={{transitionDelay:'.15s'}}>
           {VIDEOS.map((v,i)=><YT key={i} {...v}/>)}
         </div>
+        <p style={{textAlign:'center',marginTop:24,fontSize:20,fontWeight:700,background:'var(--g)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',letterSpacing:'.02em'}}>500+ more success stories like these.</p>
         <div style={{textAlign:'center',marginTop:48}}>
           <button className="btn btn-lg" onClick={go}>Get My Free Profit Roadmap →</button>
         </div>
@@ -296,7 +295,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
               <span style={{fontSize:14,fontWeight:600,color:'#5f6368'}}>Google Reviews</span>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <span className="rev-rating">4.9</span>
+              <span className="rev-rating">5.0</span>
               <span style={{color:'#f59e0b',fontSize:20}}>★★★★★</span>
               <span className="rev-count">(125)</span>
             </div>
@@ -363,31 +362,15 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       </div></div>
     </section>
 
-    {/* FORM  - Multi-step */}
+    {/* FORM — GHL Survey */}
     <section className="sec" id="form" style={{background:'var(--bg)'}} ref={s5.ref}>
       <div className="mx">
         <div className={`rv ${s5.v?'vi':''}`} style={{textAlign:'center',marginBottom:48}}>
           <h2 className="P h2">Get your <em className="G">free Profit Roadmap.</em></h2>
-          <p style={{fontSize:16,color:'var(--dim)',marginTop:12}}>4 stages. 7 profit areas. One clear priority. Takes 30 seconds.</p>
+          <p style={{fontSize:16,color:'var(--dim)',marginTop:12}}>Takes 30 seconds. Completely free.</p>
         </div>
-        <div className={`fc rv ${s5.v?'vi':''}`} style={{transitionDelay:'.1s'}}>
-          {step===1?(
-            <form onSubmit={e=>{e.preventDefault();if(email)setStep(2)}}>
-              <div className="P" style={{fontSize:22,fontWeight:700,marginBottom:8}}>Where should we send your roadmap?</div>
-              <div style={{fontSize:14,color:'var(--dim)',marginBottom:24}}>Get your personalised Profit Roadmap in under 30 seconds.</div>
-              <input className="fi" type="email" placeholder="Business email address" value={email} onChange={e=>setEmail(e.target.value)} required />
-              <button type="submit" className="btn" style={{width:'100%',justifyContent:'center'}}>Continue</button>
-            </form>
-          ):(
-            <form onSubmit={e=>{e.preventDefault();alert('Roadmap submitted!')}}>
-              {/* GHL: POST to https://services.leadconnectorhq.com/hooks/WEBHOOK_ID */}
-              <div className="P" style={{fontSize:22,fontWeight:700,marginBottom:8}}>Tell us about your factory.</div>
-              <div style={{fontSize:14,color:'var(--dim)',marginBottom:24}}>So we send you the right roadmap for your stage.</div>
-              {[{p:'Number of staff',o:['1–3','4–10','11–20','20+']},{p:'Annual revenue',o:['Under $500K','$500K–$1M','$1M–$1.5M','$1.5M+']},{p:'Biggest challenge',o:['Margins shrinking','Stuck on the floor','Cash flow','Staff retention','Growth']},{p:'Hours/week on floor',o:['Under 20','20–40','40–60','60+']}].map((f,i)=><select key={i} className="fs" required defaultValue=""><option value="" disabled>{f.p}</option>{f.o.map((o,j)=><option key={j}>{o}</option>)}</select>)}
-              <button type="submit" className="btn btn-lg" style={{width:'100%',justifyContent:'center',marginTop:8}}>Get My Roadmap →</button>
-              <div style={{fontSize:11,color:'var(--mut)',marginTop:14,textAlign:'center'}}>Free. No credit card. NZ Privacy Act 2020.</div>
-            </form>
-          )}
+        <div className={`rv ${s5.v?'vi':''}`} style={{transitionDelay:'.1s',maxWidth:720,margin:'0 auto',borderRadius:18,overflow:'hidden'}}>
+          <iframe src="https://api.leadconnectorhq.com/widget/survey/Ncu4ns5ogTyXrhcIdY9H" style={{border:'none',width:'100%',display:'block'}} scrolling="no" id="Ncu4ns5ogTyXrhcIdY9H" title="survey"/>
         </div>
       </div>
     </section>
