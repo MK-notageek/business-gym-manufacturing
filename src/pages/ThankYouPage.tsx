@@ -65,7 +65,7 @@ export default function ThankYouPage() {
           </p>
         )}
         <p style={{fontSize:15,color:'var(--mut)',marginBottom:48}}>
-          Check your inbox — it'll arrive within a few minutes.
+          Check your inbox , it'll arrive within a few minutes.
         </p>
 
         {isHigh ? (
@@ -78,11 +78,11 @@ export default function ThankYouPage() {
               You also qualify to speak with <span className="G">Bernard directly.</span>
             </h2>
             <p style={{fontSize:15,color:'var(--dim)',textAlign:'center',marginBottom:6,maxWidth:500,margin:'0 auto 6px'}}>
-              45 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$1,000</strong>. Free for qualified NZ business owners.
+              30 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$1,000</strong>. Free for qualified NZ business owners.
             </p>
             <p style={{fontSize:13,color:'var(--mut)',textAlign:'center',marginBottom:24}}>No obligation. No sales pitch. Just answers.</p>
             <div className="steps">
-              <div className="step"><div className="step-n">1</div><div><div className="step-t">Pick a time below</div><div className="step-d">45 minutes is all it takes.</div></div></div>
+              <div className="step"><div className="step-n">1</div><div><div className="step-t">Pick a time below</div><div className="step-d">30 minutes is all it takes.</div></div></div>
               <div className="step"><div className="step-n">2</div><div><div className="step-t">You'll get a confirmation + WhatsApp reminder</div><div className="step-d">Reminders at 48h, 24h, 2h, and 15 minutes before.</div></div></div>
               <div className="step"><div className="step-n">3</div><div><div className="step-t">Show up, get answers</div><div className="step-d">You leave knowing exactly what to fix first.</div></div></div>
             </div>
@@ -100,7 +100,7 @@ export default function ThankYouPage() {
           <div className="box">
             <h2 className="P" style={{fontSize:22,fontWeight:700,marginBottom:10}}>Your roadmap is personalised to your stage.</h2>
             <p style={{fontSize:15,color:'var(--dim)',lineHeight:1.7}}>
-              Based on where your business is right now, we've put together a roadmap with the specific steps and priorities most relevant to you — not a generic checklist.<br/><br/>
+              Based on where your business is right now, we've put together a roadmap with the specific steps and priorities most relevant to you , not a generic checklist.<br/><br/>
               Open the email, work through it, and you'll know exactly what to focus on first.
             </p>
           </div>
