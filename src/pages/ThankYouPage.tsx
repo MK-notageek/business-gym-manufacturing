@@ -20,7 +20,14 @@ export default function ThankYouPage() {
       s.src = 'https://link.msgsndr.com/js/form_embed.js'
       s.async = true
       document.body.appendChild(s)
-      return () => { document.body.removeChild(s) }
+      const onMessage = (e: MessageEvent) => {
+        if (e.data && e.data.type === 'iFrameResize') {
+          const iframe = document.getElementById('KD9dnIgB2U3E76hgS3MW_1775052923721') as HTMLIFrameElement | null
+          if (iframe && e.data.height) iframe.style.height = e.data.height + 'px'
+        }
+      }
+      window.addEventListener('message', onMessage)
+      return () => { document.body.removeChild(s); window.removeEventListener('message', onMessage) }
     }
   }, [isHigh])
 
@@ -44,7 +51,7 @@ export default function ThankYouPage() {
         .step-n{width:28px;height:28px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
         .step-t{font-size:15px;font-weight:600;margin-bottom:2px}
         .step-d{font-size:13px;color:var(--dim)}
-        .cal-embed{width:100%;min-height:600px;border:none;border-radius:16px;margin-top:28px}
+        .cal-embed{width:100%;height:750px;border:none;border-radius:16px;margin-top:28px;transition:height .3s ease}
       `}</style>
 
       <div className="orb" style={{width:500,height:500,background:'radial-gradient(circle,rgba(139,83,236,.18),transparent 70%)',top:-100,right:-150}} />
@@ -78,7 +85,7 @@ export default function ThankYouPage() {
               You also qualify to speak with <span className="G">Bernard directly.</span>
             </h2>
             <p style={{fontSize:15,color:'var(--dim)',textAlign:'center',marginBottom:6,maxWidth:500,margin:'0 auto 6px'}}>
-              30 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$1,000</strong>. Free for qualified NZ business owners.
+              30 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
             </p>
             <p style={{fontSize:13,color:'var(--mut)',textAlign:'center',marginBottom:24}}>No obligation. No sales pitch. Just answers.</p>
             <div className="steps">
