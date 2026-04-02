@@ -16,18 +16,14 @@ export default function ThankYouPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
     if (isHigh) {
-      const s = document.createElement('script')
-      s.src = 'https://link.msgsndr.com/js/form_embed.js'
-      s.async = true
-      document.body.appendChild(s)
-      const onMessage = (e: MessageEvent) => {
+const onMessage = (e: MessageEvent) => {
         if (e.data && e.data.type === 'iFrameResize') {
           const iframe = document.getElementById('KD9dnIgB2U3E76hgS3MW_1775052923721') as HTMLIFrameElement | null
           if (iframe && e.data.height) iframe.style.height = e.data.height + 'px'
         }
       }
       window.addEventListener('message', onMessage)
-      return () => { document.body.removeChild(s); window.removeEventListener('message', onMessage) }
+      return () => { window.removeEventListener('message', onMessage) }
     }
   }, [isHigh])
 
