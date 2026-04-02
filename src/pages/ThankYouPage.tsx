@@ -16,10 +16,18 @@ export default function ThankYouPage() {
   useEffect(() => {
     window.scrollTo(0, 0)
     if (isHigh) {
-const onMessage = (e: MessageEvent) => {
+      const w = window as any
+      const onMessage = (e: MessageEvent) => {
+        // Calendar iframe resize
         if (e.data && e.data.type === 'iFrameResize') {
           const iframe = document.getElementById('KD9dnIgB2U3E76hgS3MW_1775052923721') as HTMLIFrameElement | null
           if (iframe && e.data.height) iframe.style.height = e.data.height + 'px'
+        }
+        // GHL calendar booking confirmed
+        const d = e.data
+        if (d && (d.event === 'booking_complete' || d.action === 'booking_complete' || d.type === 'booking_complete' || d.event === 'appointment_booked')) {
+          if (typeof w.fbq === 'function') w.fbq('track', 'Schedule')
+          if (typeof w.clarity === 'function') w.clarity('event', 'booking_confirmed')
         }
       }
       window.addEventListener('message', onMessage)
