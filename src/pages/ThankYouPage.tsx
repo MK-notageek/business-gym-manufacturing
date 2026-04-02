@@ -7,8 +7,9 @@ export default function ThankYouPage() {
   const { search, state } = useLocation() as { search: string; state: { name?: string; email?: string; rev?: string } | null }
   const params = new URLSearchParams(search)
 
-  const firstName = params.get('first_name') || (params.get('name') || '').split(' ')[0] || 'there'
-  const lastName  = params.get('last_name')  || (params.get('name') || '').split(' ').slice(1).join(' ')
+  const rawName   = params.get('full_name') || params.get('name') || ''
+  const firstName = params.get('first_name') || rawName.split(' ')[0] || 'there'
+  const lastName  = params.get('last_name')  || rawName.split(' ').slice(1).join(' ')
   const name      = firstName + (lastName ? ' ' + lastName : '')
   const email     = params.get('email') || state?.email || ''
   const phone     = params.get('phone') || ''
