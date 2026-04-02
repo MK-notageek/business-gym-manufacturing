@@ -15,7 +15,7 @@ export default function ThankYouPage() {
 
   const firstName = name.split(' ')[0]
   const lastName  = name.split(' ').slice(1).join(' ')
-  const calSrc = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}`
+  const calSrc = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(params.get(`phone`) || ``)}`
 
   useEffect(() => {
     window.scrollTo(0, 0)
