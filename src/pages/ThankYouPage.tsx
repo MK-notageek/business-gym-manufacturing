@@ -13,6 +13,10 @@ export default function ThankYouPage() {
   const rev   = params.get('rev')   || state?.rev   || ''
   const isHigh = rev === 'high'
 
+  const firstName = name.split(' ')[0]
+  const lastName  = name.split(' ').slice(1).join(' ')
+  const calSrc = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}`
+
   useEffect(() => {
     window.scrollTo(0, 0)
     if (isHigh) {
@@ -55,7 +59,7 @@ export default function ThankYouPage() {
         .step-n{width:28px;height:28px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
         .step-t{font-size:15px;font-weight:600;margin-bottom:2px}
         .step-d{font-size:13px;color:var(--dim)}
-        .cal-embed{width:100%;height:750px;border:none;border-radius:16px;margin-top:28px;transition:height .3s ease}
+        .cal-embed{width:100%;height:900px;border:none;border-radius:16px;margin-top:28px;transition:height .3s ease}
       `}</style>
 
       <div className="orb" style={{width:500,height:500,background:'radial-gradient(circle,rgba(139,83,236,.18),transparent 70%)',top:-100,right:-150}} />
@@ -98,9 +102,9 @@ export default function ThankYouPage() {
               <div className="step"><div className="step-n">3</div><div><div className="step-t">Show up, get answers</div><div className="step-d">You leave knowing exactly what to fix first.</div></div></div>
             </div>
             <iframe
-              src="https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW"
-              style={{width:'100%',border:'none',overflow:'hidden'}}
-              scrolling="no"
+              src={calSrc}
+              style={{width:'100%',border:'none'}}
+              scrolling="yes"
               id="KD9dnIgB2U3E76hgS3MW_1775052923721"
               className="cal-embed"
               title="Book your Straight Talk Session"
