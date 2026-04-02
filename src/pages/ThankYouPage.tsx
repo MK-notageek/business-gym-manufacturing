@@ -7,15 +7,14 @@ export default function ThankYouPage() {
   const { search, state } = useLocation() as { search: string; state: { name?: string; email?: string; rev?: string } | null }
   const params = new URLSearchParams(search)
 
-  // URL params (from GHL redirect) take priority, fall back to React router state
-  const name  = params.get('name')  || state?.name  || 'there'
-  const email = params.get('email') || state?.email || ''
-  const rev   = params.get('rev')   || state?.rev   || ''
-  const isHigh = rev === 'high'
-
-  const firstName = name.split(' ')[0]
-  const lastName  = name.split(' ').slice(1).join(' ')
-  const calSrc = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(params.get(`phone`) || ``)}`
+  const firstName = params.get('first_name') || (params.get('name') || '').split(' ')[0] || 'there'
+  const lastName  = params.get('last_name')  || (params.get('name') || '').split(' ').slice(1).join(' ')
+  const name      = firstName + (lastName ? ' ' + lastName : '')
+  const email     = params.get('email') || state?.email || ''
+  const phone     = params.get('phone') || ''
+  const rev       = params.get('rev')   || state?.rev   || ''
+  const isHigh    = rev === 'high'
+  const calSrc    = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
 
   useEffect(() => {
     window.scrollTo(0, 0)
