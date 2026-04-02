@@ -15,7 +15,7 @@ export default function ThankYouPage() {
   const phone     = params.get('phone') || ''
   const rev       = params.get('rev')   || state?.rev   || ''
   const isHigh    = rev === 'high'
-  const calSrc    = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?full_name=${encodeURIComponent(name)}&first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
+  const calSrc    = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
 
   useEffect(() => {
     window.scrollTo(0, 0)
