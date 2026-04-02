@@ -18,6 +18,21 @@ export default function ThankYouPage() {
   const calSrc    = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
 
   useEffect(() => {
+    // If full_name came in, split and redirect so form_embed.js sees first_name/last_name in page URL
+    const fullName = params.get('full_name') || params.get('name')
+    if (fullName && !params.get('first_name')) {
+      const [first, ...rest] = fullName.split(' ')
+      const newParams = new URLSearchParams(search)
+      newParams.delete('full_name')
+      newParams.delete('name')
+      newParams.set('first_name', first)
+      if (rest.length) newParams.set('last_name', rest.join(' '))
+      window.location.replace(`/thank-you?${newParams.toString()}`)
+      return
+    }
+  }, [])
+
+  useEffect(() => {
     window.scrollTo(0, 0)
     if (isHigh) {
       const w = window as any
