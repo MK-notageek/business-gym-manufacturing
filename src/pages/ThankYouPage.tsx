@@ -42,10 +42,9 @@ export default function ThankYouPage() {
           const iframe = document.getElementById('KD9dnIgB2U3E76hgS3MW_1775052923721') as HTMLIFrameElement | null
           if (iframe && e.data.height) iframe.style.height = e.data.height + 'px'
         }
-        // GHL calendar booking confirmed
+        // GHL calendar booking confirmed — Schedule pixel handled natively by GHL
         const d = e.data
         if (Array.isArray(d) && d[0] === 'msgsndr-booking-complete') {
-          if (typeof w.fbq === 'function') w.fbq('track', 'Schedule')
           if (typeof w.clarity === 'function') w.clarity('event', 'booking_confirmed')
         }
       }
