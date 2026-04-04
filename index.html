@@ -17,7 +17,11 @@
       t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
       document,'script','https://connect.facebook.net/en_US/fbevents.js');
       fbq('init','1420845489575315');
-      fbq('track','PageView');
+      // Skip PageView if we're about to redirect (full_name present, no first_name)
+      var _p = new URLSearchParams(window.location.search);
+      if (!(_p.get('full_name') || _p.get('name')) || _p.get('first_name')) {
+        fbq('track','PageView');
+      }
     </script>
     <!-- End Meta Pixel -->
     <!-- Microsoft Clarity -->
