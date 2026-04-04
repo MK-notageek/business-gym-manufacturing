@@ -17,11 +17,10 @@
       t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
       document,'script','https://connect.facebook.net/en_US/fbevents.js');
       fbq('init','1420845489575315');
-      // Skip PageView if we're about to redirect (full_name present, no first_name)
+      // On thank-you page: skip PageView if full_name is present (about to redirect), fire normally everywhere else
       var _p = new URLSearchParams(window.location.search);
-      if (!(_p.get('full_name') || _p.get('name')) || _p.get('first_name')) {
-        fbq('track','PageView');
-      }
+      var _skipPageView = window.location.pathname === '/thank-you' && (_p.get('full_name') || _p.get('name')) && !_p.get('first_name');
+      if (!_skipPageView) fbq('track','PageView');
     </script>
     <!-- End Meta Pixel -->
     <!-- Microsoft Clarity -->
