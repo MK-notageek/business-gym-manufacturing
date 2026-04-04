@@ -111,11 +111,6 @@ export default function ThankYouPage() {
               30 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
             </p>
             <p style={{fontSize:13,color:'var(--mut)',textAlign:'center',marginBottom:24}}>No obligation. No sales pitch. Just answers.</p>
-            <div className="steps">
-              <div className="step"><div className="step-n">1</div><div><div className="step-t">Pick a time below</div><div className="step-d">30 minutes is all it takes.</div></div></div>
-              <div className="step"><div className="step-n">2</div><div><div className="step-t">You'll get a confirmation + WhatsApp reminder</div><div className="step-d">Reminders at 48h, 24h, 2h, and 15 minutes before.</div></div></div>
-              <div className="step"><div className="step-n">3</div><div><div className="step-t">Show up, get answers</div><div className="step-d">You leave knowing exactly what to fix first.</div></div></div>
-            </div>
             <iframe
               src={calSrc}
               style={{width:'100%',border:'none'}}
@@ -124,6 +119,11 @@ export default function ThankYouPage() {
               className="cal-embed"
               title="Book your Straight Talk Session"
             />
+            <div className="steps">
+              <div className="step"><div className="step-n">1</div><div><div className="step-t">Pick a time above</div><div className="step-d">30 minutes is all it takes.</div></div></div>
+              <div className="step"><div className="step-n">2</div><div><div className="step-t">You'll get a confirmation + WhatsApp reminder</div><div className="step-d">Reminders at 48h, 24h, 2h, and 15 minutes before.</div></div></div>
+              <div className="step"><div className="step-n">3</div><div><div className="step-t">Show up, get answers</div><div className="step-d">You leave knowing exactly what to fix first.</div></div></div>
+            </div>
           </div>
         ) : (
           /* ── NURTURE: personalised roadmap message ── */
