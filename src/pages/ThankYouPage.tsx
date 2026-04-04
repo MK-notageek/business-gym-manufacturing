@@ -44,7 +44,7 @@ export default function ThankYouPage() {
         }
         // GHL calendar booking confirmed
         const d = e.data
-        if (d && (d.event === 'booking_complete' || d.action === 'booking_complete' || d.type === 'booking_complete' || d.event === 'appointment_booked')) {
+        if (Array.isArray(d) && d[0] === 'msgsndr-booking-complete') {
           if (typeof w.fbq === 'function') w.fbq('track', 'Schedule')
           if (typeof w.clarity === 'function') w.clarity('event', 'booking_confirmed')
         }
