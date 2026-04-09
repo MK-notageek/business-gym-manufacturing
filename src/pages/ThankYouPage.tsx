@@ -72,7 +72,7 @@ export default function ThankYouPage() {
             <div className="priority-box">
               <h3 style={{fontSize:18,fontWeight:700,marginBottom:10}}>You've been added to the priority list.</h3>
               <p style={{fontSize:15,color:'var(--dim)',lineHeight:1.7}}>
-                Bernard only takes a handful of calls each week. Expect to hear from us within <strong style={{color:'#fff'}}>1–2 business days</strong> to lock in a time.
+                Bernard only takes a handful of calls each week. Expect to hear from us within <strong style={{color:'#fff'}}>under 24 hours</strong> to lock in a time.
               </p>
             </div>
           </div>
