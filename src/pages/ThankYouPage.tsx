@@ -12,47 +12,12 @@ export default function ThankYouPage() {
   const lastName  = params.get('last_name')  || rawName.split(' ').slice(1).join(' ')
   const name      = firstName + (lastName ? ' ' + lastName : '')
   const email     = params.get('email') || state?.email || ''
-  const phone     = params.get('phone') || ''
   const rev       = params.get('rev')   || state?.rev   || ''
   const isHigh    = rev === 'high'
-  const calSrc    = `https://api.leadconnectorhq.com/widget/booking/KD9dnIgB2U3E76hgS3MW?first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`
-
-  useEffect(() => {
-    // If full_name came in, split and redirect so form_embed.js sees first_name/last_name in page URL
-    const fullName = params.get('full_name') || params.get('name')
-    if (fullName && !params.get('first_name')) {
-      const [first, ...rest] = fullName.split(' ')
-      const newParams = new URLSearchParams(search)
-      newParams.delete('full_name')
-      newParams.delete('name')
-      newParams.set('first_name', first)
-      if (rest.length) newParams.set('last_name', rest.join(' '))
-      window.location.replace(`/thank-you?${newParams.toString()}`)
-      return
-    }
-  }, [])
 
   useEffect(() => {
     window.scrollTo(0, 0)
-    if (isHigh) {
-      const w = window as any
-      const onMessage = (e: MessageEvent) => {
-        // Calendar iframe resize
-        if (e.data && e.data.type === 'iFrameResize') {
-          const iframe = document.getElementById('KD9dnIgB2U3E76hgS3MW_1775052923721') as HTMLIFrameElement | null
-          if (iframe && e.data.height) iframe.style.height = e.data.height + 'px'
-        }
-        // GHL calendar booking confirmed
-        const d = e.data
-        if (Array.isArray(d) && d[0] === 'msgsndr-booking-complete') {
-          if (typeof w.fbq === 'function') w.fbq('track', 'Schedule')
-          if (typeof w.clarity === 'function') w.clarity('event', 'booking_confirmed')
-        }
-      }
-      window.addEventListener('message', onMessage)
-      return () => { window.removeEventListener('message', onMessage) }
-    }
-  }, [isHigh])
+  }, [])
 
   return (
     <>
@@ -69,12 +34,7 @@ export default function ThankYouPage() {
         .pill{display:inline-block;background:rgba(139,83,236,.12);border:1px solid rgba(139,83,236,.3);border-radius:999px;padding:6px 20px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:20px}
         .box{background:var(--card);border:1px solid rgba(139,83,236,.25);border-radius:20px;padding:clamp(24px,4vw,44px);position:relative;overflow:hidden}
         .box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--g);border-radius:20px 20px 0 0}
-        .steps{display:flex;flex-direction:column;gap:12px;margin:28px 0}
-        .step{display:flex;gap:16px;align-items:flex-start;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px 20px}
-        .step-n{width:28px;height:28px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
-        .step-t{font-size:15px;font-weight:600;margin-bottom:2px}
-        .step-d{font-size:13px;color:var(--dim)}
-        .cal-embed{width:100%;height:900px;border:none;border-radius:16px;margin-top:28px;transition:height .3s ease}
+        .priority-box{background:rgba(139,83,236,.08);border:1px solid rgba(139,83,236,.2);border-radius:16px;padding:24px;text-align:center;margin-top:24px}
       `}</style>
 
       <div className="orb" style={{width:500,height:500,background:'radial-gradient(circle,rgba(139,83,236,.18),transparent 70%)',top:-100,right:-150}} />
@@ -99,30 +59,21 @@ export default function ThankYouPage() {
         </p>
 
         {isHigh ? (
-          /* ── HIGH VALUE: show calendar ── */
-          <div className="box" style={{textAlign:'left'}}>
-            <div style={{textAlign:'center',marginBottom:8}}>
-              <div className="pill">You Qualify</div>
-            </div>
-            <h2 className="P" style={{fontSize:'clamp(22px,3vw,32px)',fontWeight:700,marginBottom:12,textAlign:'center',lineHeight:1.2}}>
+          /* ── HIGH VALUE: priority list ── */
+          <div className="box" style={{textAlign:'center'}}>
+            <div className="pill">You Qualify</div>
+            <h2 className="P" style={{fontSize:'clamp(22px,3vw,32px)',fontWeight:700,margin:'16px 0 12px',lineHeight:1.2}}>
               You also qualify to speak with <span className="G">Bernard directly.</span>
             </h2>
-            <p style={{fontSize:15,color:'var(--dim)',textAlign:'center',marginBottom:6,maxWidth:500,margin:'0 auto 6px'}}>
+            <p style={{fontSize:15,color:'var(--dim)',marginBottom:6}}>
               30 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
             </p>
-            <p style={{fontSize:13,color:'var(--mut)',textAlign:'center',marginBottom:24}}>No obligation. No sales pitch. Just answers.</p>
-            <iframe
-              src={calSrc}
-              style={{width:'100%',border:'none'}}
-              scrolling="yes"
-              id="KD9dnIgB2U3E76hgS3MW_1775052923721"
-              className="cal-embed"
-              title="Book your Straight Talk Session"
-            />
-            <div className="steps">
-              <div className="step"><div className="step-n">1</div><div><div className="step-t">Pick a time above</div><div className="step-d">30 minutes is all it takes.</div></div></div>
-              <div className="step"><div className="step-n">2</div><div><div className="step-t">You'll get a confirmation + WhatsApp reminder</div><div className="step-d">Reminders at 48h, 24h, 2h, and 15 minutes before.</div></div></div>
-              <div className="step"><div className="step-n">3</div><div><div className="step-t">Show up, get answers</div><div className="step-d">You leave knowing exactly what to fix first.</div></div></div>
+            <p style={{fontSize:13,color:'var(--mut)',marginBottom:0}}>No obligation. No sales pitch. Just answers.</p>
+            <div className="priority-box">
+              <h3 style={{fontSize:18,fontWeight:700,marginBottom:10}}>You've been added to the priority list.</h3>
+              <p style={{fontSize:15,color:'var(--dim)',lineHeight:1.7}}>
+                Bernard only takes a handful of calls each week. Expect to hear from us within <strong style={{color:'#fff'}}>1–2 business days</strong> to lock in a time.
+              </p>
             </div>
           </div>
         ) : (
