@@ -28,6 +28,28 @@ function readVariantCookie(): 'a' | 'b' {
   return (m?.[1] as 'a' | 'b') ?? 'a'
 }
 
+function readAttribution() {
+  if (typeof window === 'undefined') return {}
+  const u = new URL(window.location.href)
+  const p = u.searchParams
+  return {
+    url: window.location.href,
+    page_url: window.location.origin + window.location.pathname,
+    referrer: document.referrer || '',
+    user_agent: navigator.userAgent,
+    utm_source: p.get('utm_source') || '',
+    utm_medium: p.get('utm_medium') || '',
+    utm_campaign: p.get('utm_campaign') || '',
+    utm_content: p.get('utm_content') || '',
+    utm_term: p.get('utm_term') || '',
+    utm_id: p.get('utm_id') || '',
+    fbclid: p.get('fbclid') || '',
+    gclid: p.get('gclid') || '',
+    msclkid: p.get('msclkid') || '',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+  }
+}
+
 export default function LeadMagnetForm() {
   const [step, setStep] = useState<1 | 2>(1)
   const [values, setValues] = useState<Values>(EMPTY)
@@ -52,7 +74,7 @@ export default function LeadMagnetForm() {
       const res = await fetch('/api/partial-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...buf, lp_variant: readVariantCookie() }),
+        body: JSON.stringify({ ...buf, lp_variant: readVariantCookie(), attribution: readAttribution() }),
       })
       const data = await res.json().catch(() => ({} as any))
       if (res.ok && data.contactId) {
@@ -153,14 +175,23 @@ export default function LeadMagnetForm() {
       const res = await fetch('/api/submit-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, contactId: contactIdRef.current, lp_variant: readVariantCookie() }),
+        body: JSON.stringify({ ...values, contactId: contactIdRef.current, lp_variant: readVariantCookie(), attribution: readAttribution() }),
       })
       if (!res.ok) throw new Error('failed')
       if (typeof window !== 'undefined' && (window as any).fbq) {
         (window as any).fbq('track', 'Lead')
       }
       const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
-      window.location.href = `/thank-you?rev=${rev}`
+      const [first, ...rest] = values.full_name.trim().split(/\s+/)
+      const qs = new URLSearchParams({ rev })
+      if (first) qs.set('first_name', first)
+      if (rest.length) qs.set('last_name', rest.join(' '))
+      const trimmedEmail = values.email.trim()
+      if (trimmedEmail) qs.set('email', trimmedEmail)
+      const trimmedPhone = values.phone.trim()
+      if (trimmedPhone) qs.set('phone', trimmedPhone)
+      if (contactIdRef.current) qs.set('cid', contactIdRef.current)
+      window.location.href = `/thank-you?${qs.toString()}`
     } catch {
       setStatus('error')
     }
