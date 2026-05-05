@@ -83,20 +83,42 @@ export default function ThankYouPage() {
   useEffect(() => {
     // calendar always renders now; keep the effect running regardless of rev
     function onMsg(e: MessageEvent) {
-      if (window.__pbaScheduleFired) return
       if (!e.origin || !/growthhub|msgsndr|leadconnector/i.test(e.origin)) return
       const raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data ?? '')
-      if (/booking[-_ ]?confirmed|appointment[-_ ]?booked|event[-_ ]?scheduled|hsBookingConfirmed|hsAppointmentBooked|onCalendarBooked/i.test(raw)) {
-        window.__pbaScheduleFired = true
-        try { window.fbq?.('track', 'Schedule') } catch {}
-        try { window.clarity?.('event', 'call_booked') } catch {}
-        if (cid) {
-          fetch('/api/calendar-booked', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contactId: cid }),
-          }).catch(() => { /* swallow */ })
-        }
+      // Debug — leave on temporarily so we can confirm the actual event names GHL uses.
+      // Remove or comment after verifying.
+      if (typeof console !== 'undefined') console.log('[GHL msg]', raw.slice(0, 250))
+
+      if (window.__pbaScheduleFired) return
+
+      // Broad detection. GHL's booking widget appears to fire one of several event
+      // shapes when an appointment is created — different account configs / widget
+      // versions emit different keys, so we match any of the common signatures
+      // *except* clearly non-booking lifecycle events like load / init / sticky-fill.
+      const isInitNoise = /set-sticky-contacts|fetch-(query-params|sticky-contacts)|iframeLoaded|iframe-ready|set-iframe-height|scrollTo|inPageLink/i.test(raw)
+      if (isInitNoise) return
+
+      const isBookingEvent =
+        /appointment[-_ ]?(created|booked|confirmed|scheduled|success)/i.test(raw) ||
+        /booking[-_ ]?(created|confirmed|booked|success|complete)/i.test(raw) ||
+        /event[-_ ]?scheduled/i.test(raw) ||
+        /slot[-_ ]?(booked|confirmed)/i.test(raw) ||
+        /(hsBookingConfirmed|hsAppointmentBooked|onCalendarBooked)/i.test(raw) ||
+        /"status"\s*:\s*"(confirmed|booked|scheduled|success)"/i.test(raw) ||
+        /"appointmentId"/i.test(raw)
+
+      if (!isBookingEvent) return
+
+      window.__pbaScheduleFired = true
+      console.log('[GHL booking detected] firing Schedule + tagging contact', cid)
+      try { window.fbq?.('track', 'Schedule') } catch {}
+      try { window.clarity?.('event', 'call_booked') } catch {}
+      if (cid) {
+        fetch('/api/calendar-booked', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contactId: cid }),
+        }).catch(() => { /* swallow */ })
       }
     }
     window.addEventListener('message', onMsg)
