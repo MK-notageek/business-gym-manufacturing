@@ -160,7 +160,16 @@ export default function LeadMagnetForm() {
         (window as any).fbq('track', 'Lead')
       }
       const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
-      window.location.href = `/thank-you?rev=${rev}`
+      const [first, ...rest] = values.full_name.trim().split(/\s+/)
+      const qs = new URLSearchParams({ rev })
+      if (first) qs.set('first_name', first)
+      if (rest.length) qs.set('last_name', rest.join(' '))
+      const trimmedEmail = values.email.trim()
+      if (trimmedEmail) qs.set('email', trimmedEmail)
+      const trimmedPhone = values.phone.trim()
+      if (trimmedPhone) qs.set('phone', trimmedPhone)
+      if (contactIdRef.current) qs.set('cid', contactIdRef.current)
+      window.location.href = `/thank-you?${qs.toString()}`
     } catch {
       setStatus('error')
     }

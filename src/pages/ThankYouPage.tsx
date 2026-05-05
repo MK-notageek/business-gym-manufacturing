@@ -1,23 +1,115 @@
 import { useLocation, Link } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 // GHL passes rev=high or rev=low
 
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void
+    clarity?: (...args: unknown[]) => void
+    __pbaScheduleFired?: boolean
+  }
+}
+
 export default function ThankYouPage() {
-  const { search, state } = useLocation() as { search: string; state: { name?: string; email?: string; rev?: string } | null }
+  const { search, state } = useLocation() as { search: string; state: { name?: string; email?: string; phone?: string; rev?: string } | null }
   const params = new URLSearchParams(search)
 
   const rawName   = params.get('full_name') || params.get('name') || ''
-  const firstName = params.get('first_name') || rawName.split(' ')[0] || 'there'
+  const firstNameRaw = params.get('first_name') || rawName.split(' ')[0] || ''
+  const firstName = firstNameRaw || 'there'
   const lastName  = params.get('last_name')  || rawName.split(' ').slice(1).join(' ')
-  const name      = firstName + (lastName ? ' ' + lastName : '')
+  const name      = firstNameRaw ? firstNameRaw + (lastName ? ' ' + lastName : '') : 'there'
   const email     = params.get('email') || state?.email || ''
+  const phone     = params.get('phone') || state?.phone || ''
   const rev       = params.get('rev')   || state?.rev   || ''
+  const cid       = params.get('cid')   || ''
   const isHigh    = rev === 'high'
 
+  // Split full_name into first_name / last_name on the page URL so form_embed.js can pre-fill the calendar.
   useEffect(() => {
+    const fullName = params.get('full_name') || params.get('name')
+    if (fullName && !params.get('first_name')) {
+      const parts = fullName.trim().split(/\s+/)
+      const next = new URLSearchParams(search)
+      next.delete('full_name')
+      next.delete('name')
+      next.set('first_name', parts[0])
+      if (parts.length > 1) next.set('last_name', parts.slice(1).join(' '))
+      window.location.replace(`/thank-you?${next.toString()}`)
+      return
+    }
     window.scrollTo(0, 0)
   }, [])
+
+  // form_embed.js attaches iFrameResize to matching iframes ONCE on DOMContentLoaded.
+  // Because this iframe is mounted later by React Router after the script's initial
+  // scan, it never gets resized — the iframe stays at its CSS height (1180px) even
+  // when GHL's content view (e.g. the time-slot picker) is much shorter, leaving a
+  // big block of white below the widget. Fix: manually invoke window.iFrameResize on
+  // our iframe once it's in the DOM. iFrameResize then listens to GHL's postMessage
+  // events and shrinks/grows the iframe to match content.
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  useEffect(() => {
+    if (!isHigh) return
+    const iframe = iframeRef.current
+    if (!iframe) return
+    let cancelled = false
+    const tryInit = (attempt = 0) => {
+      if (cancelled) return
+      const fn = (window as unknown as { iFrameResize?: (opts: object, target: HTMLIFrameElement) => void }).iFrameResize
+      if (typeof fn === 'function') {
+        try {
+          fn({
+            log: false,
+            checkOrigin: false,
+            enablePublicMethods: true,
+            scrolling: false,
+            heightCalculationMethod: 'offset',
+            autoResize: true,
+            sizeWidth: false,
+            sizeHeight: true,
+          }, iframe)
+        } catch { /* ignore */ }
+        return
+      }
+      if (attempt < 50) setTimeout(() => tryInit(attempt + 1), 100)
+    }
+    tryInit()
+    return () => { cancelled = true }
+  }, [isHigh])
+
+  // Fire Meta "Schedule" event when GHL calendar reports a confirmed booking.
+  useEffect(() => {
+    if (!isHigh) return
+    function onMsg(e: MessageEvent) {
+      if (window.__pbaScheduleFired) return
+      if (!e.origin || !/growthhub|msgsndr|leadconnector/i.test(e.origin)) return
+      const raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data ?? '')
+      if (/booking[-_ ]?confirmed|appointment[-_ ]?booked|event[-_ ]?scheduled|hsBookingConfirmed|hsAppointmentBooked|onCalendarBooked/i.test(raw)) {
+        window.__pbaScheduleFired = true
+        try { window.fbq?.('track', 'Schedule') } catch {}
+        try { window.clarity?.('event', 'call_booked') } catch {}
+        if (cid) {
+          fetch('/api/calendar-booked', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contactId: cid }),
+          }).catch(() => { /* swallow */ })
+        }
+      }
+    }
+    window.addEventListener('message', onMsg)
+    return () => window.removeEventListener('message', onMsg)
+  }, [isHigh, cid])
+
+  const calendarParams = new URLSearchParams()
+  if (firstNameRaw) calendarParams.set('first_name', firstNameRaw)
+  if (lastName) calendarParams.set('last_name', lastName)
+  if (email) calendarParams.set('email', email)
+  if (phone) calendarParams.set('phone', phone)
+  const qs = calendarParams.toString()
+  const calendarSrc = `https://link.growthhub.net.nz/widget/bookings/profit-roadmap-session${qs ? `?${qs}` : ''}`
 
   return (
     <>
@@ -35,45 +127,81 @@ export default function ThankYouPage() {
         .box{background:var(--card);border:1px solid rgba(139,83,236,.25);border-radius:20px;padding:clamp(24px,4vw,44px);position:relative;overflow:hidden}
         .box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--g);border-radius:20px 20px 0 0}
         .priority-box{background:rgba(139,83,236,.08);border:1px solid rgba(139,83,236,.2);border-radius:16px;padding:24px;text-align:center;margin-top:24px}
+        .cal-card{background:#fff;border-radius:14px;margin-top:18px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+        .cal-frame{width:100%;border:0;display:block;background:#fff;height:1180px;transition:height .25s ease}
+        .cal-cta{margin-top:28px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em}
+        .cal-sub{margin-top:6px;font-size:14px;color:var(--mut)}
+        .ty-page{padding-top:clamp(60px,10vw,100px);padding-bottom:80px}
+        .ty-check{display:flex}
+        .ty-h1{font-size:clamp(32px,5vw,52px);margin-bottom:16px}
+        .ty-email{font-size:17px;margin-bottom:8px}
+        .ty-sub{font-size:15px;margin-bottom:48px}
+        .ty-qualify-pill{display:inline-block}
+        .ty-h2{font-size:clamp(22px,3vw,32px);margin:16px 0 12px}
+        .ty-desc{font-size:15px;margin-bottom:6px}
+        .ty-pressure{font-size:13px;margin-bottom:0}
+        .ty-cta-h3{display:block}
+        .ty-cta-sub{display:block}
+        @media (max-width:640px){
+          .ty-page{padding-top:24px;padding-bottom:48px}
+          .ty-check{display:none}
+          .ty-h1{font-size:24px;margin-bottom:8px}
+          .ty-email{font-size:14px;margin-bottom:4px}
+          .ty-sub{font-size:13px;margin-bottom:18px}
+          .box{padding:18px!important}
+          .ty-qualify-pill{display:none}
+          .ty-h2{font-size:18px;line-height:1.25;margin:0 0 10px}
+          .ty-desc{font-size:13px;line-height:1.5;margin-bottom:8px}
+          .ty-pressure{display:none}
+          .ty-cta-h3{display:none}
+          .ty-cta-sub{display:none}
+          .cal-card{margin-top:10px}
+        }
       `}</style>
 
       <div className="orb" style={{width:500,height:500,background:'radial-gradient(circle,rgba(139,83,236,.18),transparent 70%)',top:-100,right:-150}} />
       <div className="orb" style={{width:400,height:400,background:'radial-gradient(circle,rgba(35,175,254,.14),transparent 70%)',bottom:-100,left:-100}} />
 
-      <div className="mx" style={{paddingTop:'clamp(60px,10vw,100px)',paddingBottom:80,position:'relative',zIndex:1,textAlign:'center'}}>
+      <div className="mx ty-page" style={{position:'relative',zIndex:1,textAlign:'center'}}>
 
-        <div className="check">✓</div>
+        <div className="check ty-check">✓</div>
         <div className="pill">Roadmap on its way</div>
 
-        <h1 className="P G" style={{fontSize:'clamp(32px,5vw,52px)',fontWeight:800,lineHeight:1.1,marginBottom:16}}>
+        <h1 className="P G ty-h1" style={{fontWeight:800,lineHeight:1.1}}>
           {isHigh ? `You're in, ${name}.` : `Check your inbox, ${name}.`}
         </h1>
 
         {email && (
-          <p style={{fontSize:17,color:'var(--dim)',marginBottom:8}}>
+          <p className="ty-email" style={{color:'var(--dim)'}}>
             Your NZ Business Profit Roadmap is heading to <strong style={{color:'#fff'}}>{email}</strong>.
           </p>
         )}
-        <p style={{fontSize:15,color:'var(--mut)',marginBottom:48}}>
+        <p className="ty-sub" style={{color:'var(--mut)'}}>
           Check your inbox , it'll arrive within a few minutes.
         </p>
 
         {isHigh ? (
           /* ── HIGH VALUE: priority list ── */
           <div className="box" style={{textAlign:'center'}}>
-            <div className="pill">You Qualify</div>
-            <h2 className="P" style={{fontSize:'clamp(22px,3vw,32px)',fontWeight:700,margin:'16px 0 12px',lineHeight:1.2}}>
-              You also qualify to speak with <span className="G">Bernard directly.</span>
+            <div className="pill ty-qualify-pill">You Qualify</div>
+            <h2 className="P ty-h2" style={{fontWeight:700,lineHeight:1.2}}>
+              You also qualify for a free <span className="G">Manufacturer's Strategy Session.</span>
             </h2>
-            <p style={{fontSize:15,color:'var(--dim)',marginBottom:6}}>
-              30 minutes with Bernard. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
+            <p className="ty-desc" style={{color:'var(--dim)'}}>
+              30 minutes with a senior PBA strategist. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
             </p>
-            <p style={{fontSize:13,color:'var(--mut)',marginBottom:0}}>No obligation. No sales pitch. Just answers.</p>
-            <div className="priority-box">
-              <h3 style={{fontSize:18,fontWeight:700,marginBottom:10}}>You've been added to the priority list.</h3>
-              <p style={{fontSize:15,color:'var(--dim)',lineHeight:1.7}}>
-                Bernard only takes a handful of calls each week. Expect to hear from us within <strong style={{color:'#fff'}}>under 24 hours</strong> to lock in a time.
-              </p>
+            <p className="ty-pressure" style={{color:'var(--mut)'}}>No pressure. By the end you'll know what to fix — and whether we're the right team to help.</p>
+            <h3 className="cal-cta ty-cta-h3">Choose a time and book your slot.</h3>
+            <p className="cal-sub ty-cta-sub">Pick what works for you, we'll see you on the call.</p>
+            <div className="cal-card">
+              <iframe
+                ref={iframeRef}
+                src={calendarSrc}
+                id="profit-roadmap-session"
+                title="Book your Manufacturer's Strategy Session"
+                className="cal-frame"
+                scrolling="no"
+              />
             </div>
           </div>
         ) : (
