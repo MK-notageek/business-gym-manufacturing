@@ -38,7 +38,7 @@ export default async function handler(req, res) {
   // Accept new ('50k' / '500k') or legacy ('a' / 'b') variant labels.
   const variantLabel = lp_variant === 'a' ? '50k' : lp_variant === 'b' ? '500k'
     : (lp_variant === '50k' || lp_variant === '500k') ? lp_variant : null
-  if (variantLabel) tags.push(`lp-${variantLabel}`)
+  if (variantLabel) tags.push(`${variantLabel}-variant`)
 
   const customFields = []
   if (annual_revenue)    customFields.push({ id: CF.annual_revenue,    value: annual_revenue })
