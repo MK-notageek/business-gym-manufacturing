@@ -39,14 +39,16 @@ export default async function handler(req, res) {
 
   const tags = ['lead-magnet', 'roadmap-download', 'partial']
   if (isTest) tags.push('test')
-  if (lp_variant === 'a' || lp_variant === 'b') tags.push(`lp-variant-${lp_variant}`)
+  const variantLabel = lp_variant === 'a' ? '50k' : lp_variant === 'b' ? '500k'
+    : (lp_variant === '50k' || lp_variant === '500k') ? lp_variant : null
+  if (variantLabel) tags.push(`lp-${variantLabel}`)
 
   const customFields = []
   if (annual_revenue)    customFields.push({ id: CF.annual_revenue,    value: annual_revenue })
   if (number_of_staff)   customFields.push({ id: CF.number_of_staff,   value: number_of_staff })
   if (biggest_challenge) customFields.push({ id: CF.biggest_challenge, value: biggest_challenge })
   if (hours_on_floor)    customFields.push({ id: CF.hours_on_floor,    value: hours_on_floor })
-  if (lp_variant)        customFields.push({ id: CF.lp_variant,        value: lp_variant })
+  if (variantLabel)      customFields.push({ id: CF.lp_variant,        value: variantLabel })
 
   const body = {
     email: trimmedEmail,

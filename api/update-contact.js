@@ -43,7 +43,11 @@ export default async function handler(req, res) {
   if (typeof number_of_staff === 'string'   && number_of_staff.trim())   customFields.push({ id: CF.number_of_staff,   value: number_of_staff.trim() })
   if (typeof biggest_challenge === 'string' && biggest_challenge.trim()) customFields.push({ id: CF.biggest_challenge, value: biggest_challenge.trim() })
   if (typeof hours_on_floor === 'string'    && hours_on_floor.trim())    customFields.push({ id: CF.hours_on_floor,    value: hours_on_floor.trim() })
-  if (typeof lp_variant === 'string'        && lp_variant.trim())        customFields.push({ id: CF.lp_variant,        value: lp_variant.trim() })
+  if (typeof lp_variant === 'string' && lp_variant.trim()) {
+    const v = lp_variant.trim()
+    const variantLabel = v === 'a' ? '50k' : v === 'b' ? '500k' : (v === '50k' || v === '500k') ? v : null
+    if (variantLabel) customFields.push({ id: CF.lp_variant, value: variantLabel })
+  }
   if (customFields.length) body.customFields = customFields
 
   if (Object.keys(body).length === 0) {

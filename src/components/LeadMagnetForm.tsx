@@ -22,10 +22,13 @@ const EMPTY: Values = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
-function readVariantCookie(): 'a' | 'b' {
-  if (typeof document === 'undefined') return 'a'
-  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(a|b)/)
-  return (m?.[1] as 'a' | 'b') ?? 'a'
+function readVariantCookie(): '50k' | '500k' {
+  if (typeof document === 'undefined') return '50k'
+  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(50k|500k|a|b)/)
+  const v = m?.[1]
+  if (v === 'a') return '50k'
+  if (v === 'b') return '500k'
+  return (v as '50k' | '500k') ?? '50k'
 }
 
 export default function LeadMagnetForm() {

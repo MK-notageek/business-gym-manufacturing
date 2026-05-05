@@ -51,7 +51,7 @@ export default function ThankYouPage() {
   // events and shrinks/grows the iframe to match content.
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   useEffect(() => {
-    if (!isHigh) return
+    // calendar always renders now; keep the effect running regardless of rev
     const iframe = iframeRef.current
     if (!iframe) return
     let cancelled = false
@@ -77,11 +77,11 @@ export default function ThankYouPage() {
     }
     tryInit()
     return () => { cancelled = true }
-  }, [isHigh])
+  }, [])
 
   // Fire Meta "Schedule" event when GHL calendar reports a confirmed booking.
   useEffect(() => {
-    if (!isHigh) return
+    // calendar always renders now; keep the effect running regardless of rev
     function onMsg(e: MessageEvent) {
       if (window.__pbaScheduleFired) return
       if (!e.origin || !/growthhub|msgsndr|leadconnector/i.test(e.origin)) return
@@ -101,7 +101,7 @@ export default function ThankYouPage() {
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
-  }, [isHigh, cid])
+  }, [cid])
 
   const calendarParams = new URLSearchParams()
   if (firstNameRaw) calendarParams.set('first_name', firstNameRaw)
@@ -168,7 +168,7 @@ export default function ThankYouPage() {
         <div className="pill">Roadmap on its way</div>
 
         <h1 className="P G ty-h1" style={{fontWeight:800,lineHeight:1.1}}>
-          {isHigh ? `You're in, ${name}.` : `Check your inbox, ${name}.`}
+          You're in, {name}.
         </h1>
 
         {email && (
@@ -180,40 +180,28 @@ export default function ThankYouPage() {
           Check your inbox , it'll arrive within a few minutes.
         </p>
 
-        {isHigh ? (
-          /* ── HIGH VALUE: priority list ── */
-          <div className="box" style={{textAlign:'center'}}>
-            <div className="pill ty-qualify-pill">You Qualify</div>
-            <h2 className="P ty-h2" style={{fontWeight:700,lineHeight:1.2}}>
-              You also qualify for a free <span className="G">Manufacturer's Strategy Session.</span>
-            </h2>
-            <p className="ty-desc" style={{color:'var(--dim)'}}>
-              30 minutes with a senior PBA strategist. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
-            </p>
-            <p className="ty-pressure" style={{color:'var(--mut)'}}>No pressure. By the end you'll know what to fix — and whether we're the right team to help.</p>
-            <h3 className="cal-cta ty-cta-h3">Choose a time and book your slot.</h3>
-            <p className="cal-sub ty-cta-sub">Pick what works for you, we'll see you on the call.</p>
-            <div className="cal-card">
-              <iframe
-                ref={iframeRef}
-                src={calendarSrc}
-                id="profit-roadmap-session"
-                title="Book your Manufacturer's Strategy Session"
-                className="cal-frame"
-                scrolling="no"
-              />
-            </div>
+        <div className="box" style={{textAlign:'center'}}>
+          <div className="pill ty-qualify-pill">You Qualify</div>
+          <h2 className="P ty-h2" style={{fontWeight:700,lineHeight:1.2}}>
+            You also qualify for a free <span className="G">Manufacturer's Strategy Session.</span>
+          </h2>
+          <p className="ty-desc" style={{color:'var(--dim)'}}>
+            30 minutes with a senior PBA strategist. Normally <strong style={{color:'#fff'}}>$2,500</strong>. Free for qualified NZ business owners.
+          </p>
+          <p className="ty-pressure" style={{color:'var(--mut)'}}>No pressure. By the end you'll know what to fix — and whether we're the right team to help.</p>
+          <h3 className="cal-cta ty-cta-h3">Choose a time and book your slot.</h3>
+          <p className="cal-sub ty-cta-sub">Pick what works for you, we'll see you on the call.</p>
+          <div className="cal-card">
+            <iframe
+              ref={iframeRef}
+              src={calendarSrc}
+              id="profit-roadmap-session"
+              title="Book your Manufacturer's Strategy Session"
+              className="cal-frame"
+              scrolling="no"
+            />
           </div>
-        ) : (
-          /* ── NURTURE: personalised roadmap message ── */
-          <div className="box">
-            <h2 className="P" style={{fontSize:22,fontWeight:700,marginBottom:10}}>Your roadmap is personalised to your stage.</h2>
-            <p style={{fontSize:15,color:'var(--dim)',lineHeight:1.7}}>
-              Based on where your business is right now, we've put together a roadmap with the specific steps and priorities most relevant to you , not a generic checklist.<br/><br/>
-              Open the email, work through it, and you'll know exactly what to focus on first.
-            </p>
-          </div>
-        )}
+        </div>
 
         <p style={{marginTop:40,fontSize:14,color:'var(--mut)'}}>
           Over the next two weeks we'll also send you practical tips that go deeper on your roadmap.
