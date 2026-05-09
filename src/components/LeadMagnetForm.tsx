@@ -31,11 +31,19 @@ function readVariantCookie(): '50k' | '500k' {
   return (v as '50k' | '500k') ?? '50k'
 }
 
+// Pre-warm the GHL calendar widget once the user starts engaging with the form,
+// so by the time they reach /thank-you the iframe's HTML/JS/CSS/fonts/slot API
+// responses are already in the browser HTTP cache. URL is intentionally params-
+// less — assets cache by path, so the real iframe (with first_name/email/etc.)
+// reuses every sub-resource even though its document URL differs.
+const WARM_CAL_URL = 'https://link.growthhub.net.nz/widget/bookings/profit-roadmap-session'
+
 export default function LeadMagnetForm() {
   const [step, setStep] = useState<1 | 2>(1)
   const [values, setValues] = useState<Values>(EMPTY)
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errors, setErrors] = useState<Partial<Record<keyof Values, string>>>({})
+  const [warmCal, setWarmCal] = useState(false)
 
   const valuesRef = useRef<Values>(values)
   const contactIdRef = useRef<string | null>(null)
@@ -44,10 +52,15 @@ export default function LeadMagnetForm() {
 
   valuesRef.current = values
 
+  function triggerWarm() {
+    if (!warmCal) setWarmCal(true)
+  }
+
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const name = e.target.name as keyof Values
     setValues(v => ({ ...v, [name]: e.target.value }))
     if (errors[name]) setErrors(x => ({ ...x, [name]: undefined }))
+    triggerWarm()
   }
 
   async function createPartialContact(buf: Values): Promise<string | null> {
@@ -163,10 +176,15 @@ export default function LeadMagnetForm() {
         (window as any).fbq('track', 'Lead')
       }
       const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
-      const [first, ...rest] = values.full_name.trim().split(/\s+/)
+      const fullName = values.full_name.trim()
       const qs = new URLSearchParams({ rev })
-      if (first) qs.set('first_name', first)
-      if (rest.length) qs.set('last_name', rest.join(' '))
+      // GHL booking widget for this calendar uses a single "Full Name" field —
+      // it reads `full_name` from the URL, not first_name/last_name. Keep both
+      // aliases so we tolerate any GHL config drift.
+      if (fullName) {
+        qs.set('full_name', fullName)
+        qs.set('name', fullName)
+      }
       const trimmedEmail = values.email.trim()
       if (trimmedEmail) qs.set('email', trimmedEmail)
       const trimmedPhone = values.phone.trim()
@@ -179,10 +197,10 @@ export default function LeadMagnetForm() {
   }
 
   return (
-    <form className="lm-form" onSubmit={handleSubmit} noValidate>
+    <form className="lm-form" onSubmit={handleSubmit} onFocusCapture={triggerWarm} noValidate>
       <style>{`
-        .lm-form{max-width:520px;margin:0 auto;background:rgba(255,255,255,.04);border:1px solid rgba(139,83,236,.25);border-radius:24px;padding:clamp(28px,4vw,40px);position:relative;backdrop-filter:blur(20px);box-shadow:0 24px 80px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:18px}
-        .lm-form::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(135deg,#8b53ec,#23affe);border-radius:24px 24px 0 0}
+        .lm-form{max-width:520px;margin:0 auto;background:linear-gradient(180deg,rgba(22,20,42,.78),rgba(10,10,20,.85));border:1px solid rgba(139,83,236,.28);border-radius:24px;padding:clamp(28px,4vw,40px);position:relative;backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:0 24px 80px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.06) inset;display:flex;flex-direction:column;gap:20px}
+        .lm-form::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(139,83,236,.7),rgba(35,175,254,.7),transparent);border-radius:24px 24px 0 0}
 
         .lm-steps{display:flex;gap:8px;margin-bottom:6px}
         .lm-step{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
@@ -190,21 +208,23 @@ export default function LeadMagnetForm() {
         .lm-step-label{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5)}
         .lm-step-label b{color:#fff;background:linear-gradient(135deg,#8b53ec,#23affe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-        .lm-field{display:flex;flex-direction:column;gap:6px}
-        .lm-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.02em}
+        .lm-field{display:flex;flex-direction:column;gap:6px;position:relative}
+        .lm-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;transition:color .2s ease}
+        .lm-field:focus-within .lm-label{color:rgba(255,255,255,.9)}
         .lm-req{color:#ff7a8a;margin-left:2px}
-        .lm-input,.lm-select{width:100%;background:rgba(10,10,20,.6);border:1.5px solid rgba(139,83,236,.25);border-radius:12px;padding:13px 16px;font-size:15px;color:#fff;font-family:inherit;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
-        .lm-input::placeholder{color:rgba(255,255,255,.35)}
-        .lm-input:hover,.lm-select:hover{border-color:rgba(139,83,236,.45)}
-        .lm-input:focus,.lm-select:focus{border-color:#8b53ec;background:rgba(10,10,20,.85);box-shadow:0 0 0 4px rgba(139,83,236,.15)}
+        .lm-input,.lm-select{width:100%;background:rgba(10,10,20,.55);border:1.5px solid rgba(139,83,236,.18);border-radius:12px;padding:14px 16px;font-size:15px;color:#fff;font-family:inherit;outline:none;transition:border-color .25s ease,background .25s ease,box-shadow .25s ease;appearance:none;-webkit-appearance:none;font-variant-numeric:tabular-nums}
+        .lm-input::placeholder{color:rgba(255,255,255,.32)}
+        .lm-input:hover,.lm-select:hover{border-color:rgba(139,83,236,.4);background:rgba(10,10,20,.7)}
+        .lm-input:focus,.lm-select:focus{border-color:rgba(139,83,236,.75);background:rgba(10,10,20,.92);box-shadow:0 0 0 4px rgba(139,83,236,.16)}
         .lm-select{cursor:pointer;padding-right:40px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='white' stroke-opacity='.65' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 16px center}
         .lm-select option{background:#0a0a14;color:#fff}
         .lm-select:invalid{color:rgba(255,255,255,.45)}
         .lm-err-field{border-color:#ef4444 !important}
         .lm-err-msg{font-size:12px;color:#fca5a5;margin-top:2px}
 
-        .lm-btn{background:linear-gradient(135deg,#8b53ec,#23affe);color:#fff;font-weight:700;font-size:16px;padding:16px 32px;border-radius:999px;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(139,83,236,.35);transition:transform .15s,box-shadow .15s;margin-top:6px}
-        .lm-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(139,83,236,.5)}
+        .lm-btn{background:linear-gradient(135deg,#8b53ec,#23affe);color:#fff;font-weight:700;font-size:15px;padding:16px 32px;border-radius:999px;border:none;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 20px rgba(139,83,236,.32);transition:transform .18s ease,box-shadow .18s ease,opacity .18s;margin-top:4px;letter-spacing:-.005em;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px}
+        .lm-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 36px rgba(139,83,236,.45)}
+        .lm-btn:active:not(:disabled){transform:translateY(0)}
         .lm-btn:disabled{opacity:.6;cursor:not-allowed}
         .lm-btn-back{background:transparent;border:1.5px solid rgba(255,255,255,.2);box-shadow:none;color:rgba(255,255,255,.8);font-weight:600;font-size:14px;padding:13px 24px}
         .lm-btn-back:hover:not(:disabled){border-color:rgba(255,255,255,.4);transform:none;box-shadow:none}
@@ -303,6 +323,16 @@ export default function LeadMagnetForm() {
           </button>
           {status === 'error' && <p className="lm-err">Something went wrong. Please try again.</p>}
         </>
+      )}
+
+      {warmCal && (
+        <iframe
+          src={WARM_CAL_URL}
+          title=""
+          aria-hidden="true"
+          tabIndex={-1}
+          style={{position:'absolute',width:1,height:1,opacity:0,pointerEvents:'none',left:-9999,top:-9999,border:0}}
+        />
       )}
     </form>
   )

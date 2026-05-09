@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // GHL passes rev=high or rev=low
 
@@ -15,46 +15,47 @@ export default function ThankYouPage() {
   const { search, state } = useLocation() as { search: string; state: { name?: string; email?: string; phone?: string; rev?: string } | null }
   const params = new URLSearchParams(search)
 
-  const rawName   = params.get('full_name') || params.get('name') || ''
-  const firstNameRaw = params.get('first_name') || rawName.split(' ')[0] || ''
-  const firstName = firstNameRaw || 'there'
-  const lastName  = params.get('last_name')  || rawName.split(' ').slice(1).join(' ')
-  const name      = firstNameRaw ? firstNameRaw + (lastName ? ' ' + lastName : '') : 'there'
-  const email     = params.get('email') || state?.email || ''
-  const phone     = params.get('phone') || state?.phone || ''
-  const rev       = params.get('rev')   || state?.rev   || ''
-  const cid       = params.get('cid')   || ''
-  const isHigh    = rev === 'high'
+  // Pull the user's name from any of the historical URL shapes:
+  //   ?full_name=... | ?name=... | ?first_name=...&last_name=...
+  // The widget only pre-fills its single "Full Name" field from `full_name`/`name`,
+  // so we normalise to that on the iframe URL.
+  const rawName      = (params.get('full_name') || params.get('name') || '').trim()
+  const firstFromUrl = params.get('first_name') || ''
+  const lastFromUrl  = params.get('last_name')  || ''
+  const composedName = rawName || [firstFromUrl, lastFromUrl].filter(Boolean).join(' ').trim()
+  const firstNameRaw = firstFromUrl || composedName.split(/\s+/)[0] || ''
+  const firstName    = firstNameRaw || 'there'
+  const lastName     = lastFromUrl  || composedName.split(/\s+/).slice(1).join(' ')
+  const name         = composedName || 'there'
+  const email        = params.get('email') || state?.email || ''
+  const phone        = params.get('phone') || state?.phone || ''
+  const rev          = params.get('rev')   || state?.rev   || ''
+  const cid          = params.get('cid')   || ''
+  const isHigh       = rev === 'high'
 
-  // Split full_name into first_name / last_name on the page URL so form_embed.js can pre-fill the calendar.
   useEffect(() => {
-    const fullName = params.get('full_name') || params.get('name')
-    if (fullName && !params.get('first_name')) {
-      const parts = fullName.trim().split(/\s+/)
-      const next = new URLSearchParams(search)
-      next.delete('full_name')
-      next.delete('name')
-      next.set('first_name', parts[0])
-      if (parts.length > 1) next.set('last_name', parts.slice(1).join(' '))
-      window.location.replace(`/thank-you?${next.toString()}`)
-      return
-    }
     window.scrollTo(0, 0)
   }, [])
 
+  const [iframeReady, setIframeReady] = useState(false)
+
   // form_embed.js attaches iFrameResize to matching iframes ONCE on DOMContentLoaded.
   // Because this iframe is mounted later by React Router after the script's initial
-  // scan, it never gets resized — the iframe stays at its CSS height (1180px) even
-  // when GHL's content view (e.g. the time-slot picker) is much shorter, leaving a
-  // big block of white below the widget. Fix: manually invoke window.iFrameResize on
-  // our iframe once it's in the DOM. iFrameResize then listens to GHL's postMessage
-  // events and shrinks/grows the iframe to match content.
+  // scan, it never gets resized. We invoke window.iFrameResize manually here.
+  //
+  // We reveal the iframe on the first sign of life — first onResized OR 500ms
+  // after iframe.onLoad (handler on the JSX), whichever comes first — to keep
+  // perceived load time short. A hard 3s ceiling guarantees the user is never
+  // stranded behind the spinner if iFrameResize fails to wire up at all.
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   useEffect(() => {
-    // calendar always renders now; keep the effect running regardless of rev
     const iframe = iframeRef.current
     if (!iframe) return
     let cancelled = false
+    const reveal = () => {
+      if (cancelled) return
+      setIframeReady(true)
+    }
     const tryInit = (attempt = 0) => {
       if (cancelled) return
       const fn = (window as unknown as { iFrameResize?: (opts: object, target: HTMLIFrameElement) => void }).iFrameResize
@@ -69,6 +70,7 @@ export default function ThankYouPage() {
             autoResize: true,
             sizeWidth: false,
             sizeHeight: true,
+            onResized: reveal,
           }, iframe)
         } catch { /* ignore */ }
         return
@@ -76,7 +78,11 @@ export default function ThankYouPage() {
       if (attempt < 50) setTimeout(() => tryInit(attempt + 1), 100)
     }
     tryInit()
-    return () => { cancelled = true }
+    const hardTimer = setTimeout(reveal, 3000)
+    return () => {
+      cancelled = true
+      clearTimeout(hardTimer)
+    }
   }, [])
 
   // Fire Meta "Schedule" event when GHL calendar reports a confirmed booking.
@@ -126,8 +132,10 @@ export default function ThankYouPage() {
   }, [cid])
 
   const calendarParams = new URLSearchParams()
-  if (firstNameRaw) calendarParams.set('first_name', firstNameRaw)
-  if (lastName) calendarParams.set('last_name', lastName)
+  if (composedName) {
+    calendarParams.set('full_name', composedName)
+    calendarParams.set('name', composedName)
+  }
   if (email) calendarParams.set('email', email)
   if (phone) calendarParams.set('phone', phone)
   const qs = calendarParams.toString()
@@ -138,28 +146,36 @@ export default function ThankYouPage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
         :root{--p:#8b53ec;--b:#23affe;--g:linear-gradient(135deg,#8b53ec,#23affe);--bg:#0a0a14;--dim:rgba(255,255,255,.7);--mut:rgba(255,255,255,.45);--card:rgba(255,255,255,.04);--bdr:rgba(139,83,236,.15);--e:cubic-bezier(.16,1,.3,1)}
-        *{margin:0;padding:0;box-sizing:border-box}html{-webkit-font-smoothing:antialiased}
-        body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+        *{margin:0;padding:0;box-sizing:border-box}html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+        body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;min-height:100vh;font-feature-settings:'ss01','cv11','cv02';font-variant-numeric:tabular-nums;text-rendering:optimizeLegibility}
         .mx{max-width:720px;margin:0 auto;padding:0 clamp(20px,5vw,48px)}
         .G{background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
         .P{font-family:'DM Sans',sans-serif}
         .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none}
         .check{width:72px;height:72px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 32px;box-shadow:0 8px 32px rgba(139,83,236,.4)}
         .pill{display:inline-block;background:rgba(139,83,236,.12);border:1px solid rgba(139,83,236,.3);border-radius:999px;padding:6px 20px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:20px}
-        .box{background:var(--card);border:1px solid rgba(139,83,236,.25);border-radius:20px;padding:clamp(24px,4vw,44px);position:relative;overflow:hidden}
-        .box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--g);border-radius:20px 20px 0 0}
+        .box{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:clamp(24px,4vw,44px);position:relative;overflow:hidden}
         .priority-box{background:rgba(139,83,236,.08);border:1px solid rgba(139,83,236,.2);border-radius:16px;padding:24px;text-align:center;margin-top:24px}
-        .cal-card{background:#fff;border-radius:14px;margin-top:18px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)}
-        .cal-frame{width:100%;border:0;display:block;background:#fff;height:1180px;transition:height .25s ease}
+        .cal-card{background:#fff;border-radius:14px;margin-top:18px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.4),0 8px 32px rgba(0,0,0,.22);position:relative;min-height:520px}
+        /* Default height generous enough to fit the GHL widget's first view
+           (description text + Enter Details form). iFrameResize takes over
+           after that and animates as the widget steps through calendar/confirm. */
+        .cal-frame{width:100%;border:0;display:block;background:#fff;height:760px;transition:height .25s ease}
+        .cal-frame.is-loading{visibility:hidden}
+        .cal-loader{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:1;transition:opacity .25s ease}
+        .cal-loader.is-hidden{opacity:0;pointer-events:none}
+        .cal-spinner{width:34px;height:34px;border:3px solid rgba(139,83,236,.18);border-top-color:#8b53ec;border-radius:50%;animation:cal-spin .8s linear infinite}
+        .cal-loader-text{font-size:14px;color:#6b7280;font-weight:500;letter-spacing:.01em}
+        @keyframes cal-spin{to{transform:rotate(360deg)}}
         .cal-cta{margin-top:28px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:clamp(20px,2.6vw,26px);line-height:1.25;letter-spacing:-.01em}
         .cal-sub{margin-top:6px;font-size:14px;color:var(--mut)}
         .ty-page{padding-top:clamp(60px,10vw,100px);padding-bottom:80px}
         .ty-check{display:flex}
-        .ty-h1{font-size:clamp(32px,5vw,52px);margin-bottom:16px}
+        .ty-h1{font-size:clamp(32px,5vw,52px);margin-bottom:16px;letter-spacing:-.025em;line-height:1.06}
         .ty-email{font-size:17px;margin-bottom:8px}
         .ty-sub{font-size:15px;margin-bottom:48px}
         .ty-qualify-pill{display:inline-block}
-        .ty-h2{font-size:clamp(22px,3vw,32px);margin:16px 0 12px}
+        .ty-h2{font-size:clamp(22px,3vw,32px);margin:16px 0 12px;letter-spacing:-.02em;line-height:1.12}
         .ty-desc{font-size:15px;margin-bottom:6px}
         .ty-pressure{font-size:13px;margin-bottom:0}
         .ty-cta-h3{display:block}
@@ -214,13 +230,18 @@ export default function ThankYouPage() {
           <h3 className="cal-cta ty-cta-h3">Choose a time and book your slot.</h3>
           <p className="cal-sub ty-cta-sub">Pick what works for you, we'll see you on the call.</p>
           <div className="cal-card">
+            <div className={`cal-loader ${iframeReady ? 'is-hidden' : ''}`} aria-hidden={iframeReady}>
+              <div className="cal-spinner" />
+              <div className="cal-loader-text">Loading your booking calendar…</div>
+            </div>
             <iframe
               ref={iframeRef}
               src={calendarSrc}
               id="profit-roadmap-session"
               title="Book your Manufacturer's Strategy Session"
-              className="cal-frame"
+              className={`cal-frame ${iframeReady ? '' : 'is-loading'}`}
               scrolling="no"
+              onLoad={() => { setTimeout(() => setIframeReady(true), 500) }}
             />
           </div>
         </div>
