@@ -99,3 +99,53 @@ export async function sendCapiEvent({
     return { ok: false, error: err && err.message }
   }
 }
+
+export async function sendCrmEvent({ eventName, email, phone, fullName, leadId, testEventCode }) {
+  const pixelId = process.env.META_PIXEL_ID && process.env.META_PIXEL_ID.trim()
+  const token = process.env.META_CAPI_TOKEN && process.env.META_CAPI_TOKEN.trim()
+  if (!pixelId || !token) {
+    console.warn(`[meta-crm] missing META_PIXEL_ID or META_CAPI_TOKEN — skipping ${eventName}`)
+    return { ok: false, skipped: true }
+  }
+
+  const { fn, ln } = splitName(fullName)
+  const userData = {
+    em: email ? [sha256(email)] : undefined,
+    ph: phone ? [sha256(normalizePhone(phone))] : undefined,
+    fn: fn ? [sha256(fn)] : undefined,
+    ln: ln ? [sha256(ln)] : undefined,
+    lead_id: leadId || undefined,
+  }
+  for (const k of Object.keys(userData)) if (userData[k] === undefined) delete userData[k]
+
+  const event = {
+    event_name: eventName,
+    event_time: Math.floor(Date.now() / 1000),
+    action_source: 'system_generated',
+    event_source: 'crm',
+    lead_event_source: 'ghl',
+    user_data: userData,
+  }
+
+  const body = { data: [event] }
+  if (testEventCode) body.test_event_code = testEventCode
+
+  const url = `https://graph.facebook.com/${GRAPH_VERSION}/${pixelId}/events?access_token=${encodeURIComponent(token)}`
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const txt = await r.text()
+    if (!r.ok) {
+      console.error(`[meta-crm] ${eventName} → ${r.status}`, txt.slice(0, 500))
+      return { ok: false, status: r.status, response: txt }
+    }
+    console.log(`[meta-crm] ${eventName} → ${r.status}`, txt.slice(0, 200))
+    return { ok: true, status: r.status, response: txt }
+  } catch (err) {
+    console.error(`[meta-crm] ${eventName} threw:`, err && err.message)
+    return { ok: false, error: err && err.message }
+  }
+}

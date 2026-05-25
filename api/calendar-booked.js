@@ -1,4 +1,4 @@
-import { sendCapiEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
+import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -67,6 +67,14 @@ export default async function handler(req, res) {
     fbc: meta_fbc,
     clientIp: clientIpFromReq(req),
     userAgent: userAgentFromReq(req),
+    testEventCode: meta_test_event_code || undefined,
+  }).catch(() => {})
+
+  await sendCrmEvent({
+    eventName: 'booked_call',
+    email,
+    phone,
+    fullName: full_name,
     testEventCode: meta_test_event_code || undefined,
   }).catch(() => {})
 

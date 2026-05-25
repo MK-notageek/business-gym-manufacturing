@@ -1,4 +1,4 @@
-import { sendCapiEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
+import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -88,6 +88,15 @@ export default async function handler(req, res) {
       userAgent: userAgentFromReq(req),
       testEventCode: meta_test_event_code || undefined,
     }).catch(() => {})
+    if (annual_revenue === '$10M+') {
+      await sendCrmEvent({
+        eventName: 'qualified_lead',
+        email: trimmedEmail,
+        phone,
+        fullName: full_name,
+        testEventCode: meta_test_event_code || undefined,
+      }).catch(() => {})
+    }
     return res.status(200).json({ ok: true, contactId })
   }
 
@@ -128,6 +137,15 @@ export default async function handler(req, res) {
       userAgent: userAgentFromReq(req),
       testEventCode: meta_test_event_code || undefined,
     }).catch(() => {})
+    if (annual_revenue === '$10M+') {
+      await sendCrmEvent({
+        eventName: 'qualified_lead',
+        email: trimmedEmail,
+        phone,
+        fullName: full_name,
+        testEventCode: meta_test_event_code || undefined,
+      }).catch(() => {})
+    }
     return res.status(200).json({ ok: true, contactId })
   } catch (err) {
     console.error('[submit-form CREATE] threw:', err.message)
