@@ -1,5 +1,4 @@
-// Final submit. If a partial contactId already exists, PUT with clean tags (drops `partial`).
-// Otherwise POST a fresh contact. Either way returns { ok, contactId }.
+import { sendCapiEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -26,6 +25,7 @@ export default async function handler(req, res) {
     annual_revenue, number_of_staff, biggest_challenge, hours_on_floor,
     lp_variant,
     contactId: incomingContactId,
+    meta_event_id, meta_fbp, meta_fbc, meta_source_url,
   } = req.body || {}
 
   const [firstName, ...rest] = (full_name || '').trim().split(' ')
@@ -75,6 +75,18 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error('[submit-form UPDATE] threw:', err.message)
     }
+    sendCapiEvent({
+      eventName: 'Lead',
+      eventId: meta_event_id,
+      eventSourceUrl: meta_source_url,
+      email: trimmedEmail,
+      phone,
+      fullName: full_name,
+      fbp: meta_fbp,
+      fbc: meta_fbc,
+      clientIp: clientIpFromReq(req),
+      userAgent: userAgentFromReq(req),
+    }).catch(() => {})
     return res.status(200).json({ ok: true, contactId })
   }
 
@@ -102,6 +114,18 @@ export default async function handler(req, res) {
       if (existingId) contactId = existingId
       else console.error('[submit-form CREATE] failed:', r.status, text)
     }
+    sendCapiEvent({
+      eventName: 'Lead',
+      eventId: meta_event_id,
+      eventSourceUrl: meta_source_url,
+      email: trimmedEmail,
+      phone,
+      fullName: full_name,
+      fbp: meta_fbp,
+      fbc: meta_fbc,
+      clientIp: clientIpFromReq(req),
+      userAgent: userAgentFromReq(req),
+    }).catch(() => {})
     return res.status(200).json({ ok: true, contactId })
   } catch (err) {
     console.error('[submit-form CREATE] threw:', err.message)

@@ -77,7 +77,9 @@ export default function LeadMagnetPageB(){
 
   useEffect(()=>{const h=()=>setSticky(scrollY>innerHeight*.8);addEventListener('scroll',h,{passive:true});return()=>removeEventListener('scroll',h)},[])
 
-  useEffect(()=>{let partial=false;let full=false;const w=window as any;const fbq=()=>typeof w.fbq==='function';const h=(e:MessageEvent)=>{if(e.origin!=='https://api.leadconnectorhq.com')return;const d=e.data;if(!Array.isArray(d)||d[0]!=='set-sticky-contacts')return;const str=JSON.stringify(d);if(!partial){partial=true;if(fbq())w.fbq('track','InitiateCheckout')}if(!full&&str.includes('customer_id')){full=true;if(fbq())w.fbq('track','Lead')}};window.addEventListener('message',h);return()=>window.removeEventListener('message',h)},[])
+  // Pixel events (InitiateCheckout, Lead) are now fired from LeadMagnetForm with
+  // eventID dedup for CAPI. The old GHL-message listener is removed to prevent
+  // double-counting.
   const go=()=>document.getElementById('form')?.scrollIntoView({behavior:'smooth'})
 
 

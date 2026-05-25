@@ -22,6 +22,15 @@ const EMPTY: Values = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+function getCookie(name: string): string {
+  const m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'))
+  return m ? decodeURIComponent(m[1]) : ''
+}
+
+function genEventId(): string {
+  return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+}
+
 function readVariantCookie(): '50k' | '500k' {
   if (typeof document === 'undefined') return '50k'
   const m = document.cookie.match(/(?:^|;\s*)pba-variant=(50k|500k|a|b)/)
@@ -65,10 +74,18 @@ export default function LeadMagnetForm() {
 
   async function createPartialContact(buf: Values): Promise<string | null> {
     try {
+      const eid = genEventId()
       const res = await fetch('/api/partial-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...buf, lp_variant: readVariantCookie() }),
+        body: JSON.stringify({
+          ...buf,
+          lp_variant: readVariantCookie(),
+          meta_event_id: eid,
+          meta_fbp: getCookie('_fbp'),
+          meta_fbc: getCookie('_fbc'),
+          meta_source_url: window.location.href,
+        }),
       })
       const data = await res.json().catch(() => ({} as any))
       if (res.ok && data.contactId) {
@@ -77,7 +94,7 @@ export default function LeadMagnetForm() {
           if (typeof v === 'string' && v.trim()) lastSentRef.current[k] = v
         }
         if (typeof window !== 'undefined' && (window as any).fbq) {
-          (window as any).fbq('track', 'InitiateCheckout')
+          (window as any).fbq('track', 'InitiateCheckout', {}, { eventID: eid })
         }
         return data.contactId
       }
@@ -166,14 +183,23 @@ export default function LeadMagnetForm() {
     if (!validateStep2()) return
     setStatus('loading')
     try {
+      const eid = genEventId()
       const res = await fetch('/api/submit-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, contactId: contactIdRef.current, lp_variant: readVariantCookie() }),
+        body: JSON.stringify({
+          ...values,
+          contactId: contactIdRef.current,
+          lp_variant: readVariantCookie(),
+          meta_event_id: eid,
+          meta_fbp: getCookie('_fbp'),
+          meta_fbc: getCookie('_fbc'),
+          meta_source_url: window.location.href,
+        }),
       })
       if (!res.ok) throw new Error('failed')
       if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'Lead')
+        (window as any).fbq('track', 'Lead', {}, { eventID: eid })
       }
       const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
       const fullName = values.full_name.trim()

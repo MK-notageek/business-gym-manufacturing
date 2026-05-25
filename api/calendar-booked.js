@@ -1,13 +1,11 @@
-// Triggered from ThankYouPage when GHL's calendar widget posts a booking-confirmed
-// message. Adds the `call-booked` tag (preserving existing tags) and posts a note
-// to the contact created earlier in the lead-magnet flow.
+import { sendCapiEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { contactId } = req.body || {}
+  const { contactId, meta_event_id, meta_fbp, meta_fbc, meta_source_url, email, phone, full_name } = req.body || {}
   if (!contactId) return res.status(400).json({ error: 'contactId required' })
 
   const GHL_API_KEY = process.env.GHL_PIT_BERNARD?.trim()
@@ -57,6 +55,19 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('[calendar-booked] note threw:', err && err.message)
   }
+
+  sendCapiEvent({
+    eventName: 'Schedule',
+    eventId: meta_event_id,
+    eventSourceUrl: meta_source_url,
+    email,
+    phone,
+    fullName: full_name,
+    fbp: meta_fbp,
+    fbc: meta_fbc,
+    clientIp: clientIpFromReq(req),
+    userAgent: userAgentFromReq(req),
+  }).catch(() => {})
 
   return res.status(200).json({ ok: true })
 }

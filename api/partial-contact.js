@@ -1,5 +1,4 @@
-// Creates a GHL contact with a `partial` tag the moment full_name + email are both present
-// (mirrors VirtuPro five-star pattern). Returns { ok, contactId } the client stores.
+import { sendCapiEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -26,6 +25,7 @@ export default async function handler(req, res) {
     full_name, email, phone,
     annual_revenue, number_of_staff, biggest_challenge, hours_on_floor,
     lp_variant,
+    meta_event_id, meta_fbp, meta_fbc, meta_source_url,
   } = req.body || {}
 
   const trimmedEmail = (email || '').trim()
@@ -76,11 +76,34 @@ export default async function handler(req, res) {
     console.log('[partial-contact] →', r.status, JSON.stringify(data).slice(0, 400))
 
     if (r.ok && data?.contact?.id) {
+      sendCapiEvent({
+        eventName: 'InitiateCheckout',
+        eventId: meta_event_id,
+        eventSourceUrl: meta_source_url,
+        email: trimmedEmail,
+        phone,
+        fullName: full_name,
+        fbp: meta_fbp,
+        fbc: meta_fbc,
+        clientIp: clientIpFromReq(req),
+        userAgent: userAgentFromReq(req),
+      }).catch(() => {})
       return res.status(200).json({ ok: true, contactId: data.contact.id })
     }
-    // GHL returns 400 with meta.contactId when email already exists — reuse.
     const existingId = data?.meta?.contactId || data?.contact?.id
     if (existingId) {
+      sendCapiEvent({
+        eventName: 'InitiateCheckout',
+        eventId: meta_event_id,
+        eventSourceUrl: meta_source_url,
+        email: trimmedEmail,
+        phone,
+        fullName: full_name,
+        fbp: meta_fbp,
+        fbc: meta_fbc,
+        clientIp: clientIpFromReq(req),
+        userAgent: userAgentFromReq(req),
+      }).catch(() => {})
       return res.status(200).json({ ok: true, contactId: existingId, existing: true })
     }
     console.error('[partial-contact] create failed:', r.status, text)

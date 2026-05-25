@@ -171,14 +171,26 @@ export default function ThankYouPage() {
       if (!isBookingEvent) return
 
       window.__pbaScheduleFired = true
-      console.log('[GHL booking detected] firing Schedule + tagging contact', cid)
-      try { window.fbq?.('track', 'Schedule') } catch {}
+      const eid = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      console.log('[GHL booking detected] firing Schedule + tagging contact', cid, 'eid', eid)
+      try { window.fbq?.('track', 'Schedule', {}, { eventID: eid }) } catch {}
       try { window.clarity?.('event', 'call_booked') } catch {}
+      const fbpCookie = document.cookie.match(/(?:^|;\s*)_fbp=([^;]*)/)?.[1] || ''
+      const fbcCookie = document.cookie.match(/(?:^|;\s*)_fbc=([^;]*)/)?.[1] || ''
       if (cid) {
         fetch('/api/calendar-booked', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contactId: cid }),
+          body: JSON.stringify({
+            contactId: cid,
+            meta_event_id: eid,
+            meta_fbp: fbpCookie,
+            meta_fbc: fbcCookie,
+            meta_source_url: window.location.href,
+            email,
+            phone,
+            full_name: composedName,
+          }),
         }).catch(() => { /* swallow */ })
       }
     }
