@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     console.error('[calendar-booked] note threw:', err && err.message)
   }
 
-  sendCapiEvent({
+  await sendCapiEvent({
     eventName: 'Schedule',
     eventId: meta_event_id,
     eventSourceUrl: meta_source_url,

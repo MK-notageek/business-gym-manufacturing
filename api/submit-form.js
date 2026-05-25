@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error('[submit-form UPDATE] threw:', err.message)
     }
-    sendCapiEvent({
+    await sendCapiEvent({
       eventName: 'Lead',
       eventId: meta_event_id,
       eventSourceUrl: meta_source_url,
@@ -115,7 +115,7 @@ export default async function handler(req, res) {
       if (existingId) contactId = existingId
       else console.error('[submit-form CREATE] failed:', r.status, text)
     }
-    sendCapiEvent({
+    await sendCapiEvent({
       eventName: 'Lead',
       eventId: meta_event_id,
       eventSourceUrl: meta_source_url,

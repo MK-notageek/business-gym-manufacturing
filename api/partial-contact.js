@@ -76,7 +76,7 @@ export default async function handler(req, res) {
     console.log('[partial-contact] →', r.status, JSON.stringify(data).slice(0, 400))
 
     if (r.ok && data?.contact?.id) {
-      sendCapiEvent({
+      await sendCapiEvent({
         eventName: 'InitiateCheckout',
         eventId: meta_event_id,
         eventSourceUrl: meta_source_url,
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     }
     const existingId = data?.meta?.contactId || data?.contact?.id
     if (existingId) {
-      sendCapiEvent({
+      await sendCapiEvent({
         eventName: 'InitiateCheckout',
         eventId: meta_event_id,
         eventSourceUrl: meta_source_url,
