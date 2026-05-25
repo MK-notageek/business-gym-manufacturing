@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { contactId, meta_event_id, meta_fbp, meta_fbc, meta_source_url, email, phone, full_name } = req.body || {}
+  const { contactId, meta_event_id, meta_fbp, meta_fbc, meta_source_url, meta_test_event_code, email, phone, full_name } = req.body || {}
   if (!contactId) return res.status(400).json({ error: 'contactId required' })
 
   const GHL_API_KEY = process.env.GHL_PIT_BERNARD?.trim()
@@ -67,6 +67,7 @@ export default async function handler(req, res) {
     fbc: meta_fbc,
     clientIp: clientIpFromReq(req),
     userAgent: userAgentFromReq(req),
+    testEventCode: meta_test_event_code || undefined,
   }).catch(() => {})
 
   return res.status(200).json({ ok: true })

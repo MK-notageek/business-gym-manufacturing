@@ -27,6 +27,11 @@ function getCookie(name: string): string {
   return m ? decodeURIComponent(m[1]) : ''
 }
 
+function getMetaTest(): string {
+  if (typeof window === 'undefined') return ''
+  return new URLSearchParams(window.location.search).get('meta_test') || ''
+}
+
 function genEventId(): string {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
@@ -85,6 +90,7 @@ export default function LeadMagnetForm() {
           meta_fbp: getCookie('_fbp'),
           meta_fbc: getCookie('_fbc'),
           meta_source_url: window.location.href,
+          meta_test_event_code: getMetaTest(),
         }),
       })
       const data = await res.json().catch(() => ({} as any))
@@ -195,6 +201,7 @@ export default function LeadMagnetForm() {
           meta_fbp: getCookie('_fbp'),
           meta_fbc: getCookie('_fbc'),
           meta_source_url: window.location.href,
+          meta_test_event_code: getMetaTest(),
         }),
       })
       if (!res.ok) throw new Error('failed')
@@ -216,6 +223,8 @@ export default function LeadMagnetForm() {
       const trimmedPhone = values.phone.trim()
       if (trimmedPhone) qs.set('phone', trimmedPhone)
       if (contactIdRef.current) qs.set('cid', contactIdRef.current)
+      const mt = getMetaTest()
+      if (mt) qs.set('meta_test', mt)
       window.location.href = `/thank-you?${qs.toString()}`
     } catch {
       setStatus('error')

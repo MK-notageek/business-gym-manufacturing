@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     full_name, email, phone,
     annual_revenue, number_of_staff, biggest_challenge, hours_on_floor,
     lp_variant,
-    meta_event_id, meta_fbp, meta_fbc, meta_source_url,
+    meta_event_id, meta_fbp, meta_fbc, meta_source_url, meta_test_event_code,
   } = req.body || {}
 
   const trimmedEmail = (email || '').trim()
@@ -87,6 +87,7 @@ export default async function handler(req, res) {
         fbc: meta_fbc,
         clientIp: clientIpFromReq(req),
         userAgent: userAgentFromReq(req),
+        testEventCode: meta_test_event_code || undefined,
       }).catch(() => {})
       return res.status(200).json({ ok: true, contactId: data.contact.id })
     }
@@ -103,6 +104,7 @@ export default async function handler(req, res) {
         fbc: meta_fbc,
         clientIp: clientIpFromReq(req),
         userAgent: userAgentFromReq(req),
+        testEventCode: meta_test_event_code || undefined,
       }).catch(() => {})
       return res.status(200).json({ ok: true, contactId: existingId, existing: true })
     }

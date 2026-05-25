@@ -177,6 +177,7 @@ export default function ThankYouPage() {
       try { window.clarity?.('event', 'call_booked') } catch {}
       const fbpCookie = document.cookie.match(/(?:^|;\s*)_fbp=([^;]*)/)?.[1] || ''
       const fbcCookie = document.cookie.match(/(?:^|;\s*)_fbc=([^;]*)/)?.[1] || ''
+      const metaTest = new URLSearchParams(window.location.search).get('meta_test') || ''
       if (cid) {
         fetch('/api/calendar-booked', {
           method: 'POST',
@@ -187,6 +188,7 @@ export default function ThankYouPage() {
             meta_fbp: fbpCookie,
             meta_fbc: fbcCookie,
             meta_source_url: window.location.href,
+            meta_test_event_code: metaTest,
             email,
             phone,
             full_name: composedName,
