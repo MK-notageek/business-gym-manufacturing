@@ -122,9 +122,11 @@ export async function sendCrmEvent({ eventName, email, phone, fullName, leadId, 
     event_name: eventName,
     event_time: Math.floor(Date.now() / 1000),
     action_source: 'system_generated',
-    event_source: 'crm',
-    lead_event_source: 'ghl',
     user_data: userData,
+    custom_data: {
+      event_source: 'crm',
+      lead_event_source: 'ghl',
+    },
   }
 
   const body = { data: [event] }
