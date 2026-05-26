@@ -85,6 +85,7 @@ export default function LeadMagnetPage(){
 
   return(<>
 <style>{`
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
 :root{--p:#8b53ec;--b:#23affe;--g:linear-gradient(135deg,#8b53ec,#23affe);--bg:#0a0a14;--lt:#f8f7ff;--dim:rgba(255,255,255,.7);--mut:rgba(255,255,255,.45);--card:rgba(255,255,255,.04);--bdr:rgba(139,83,236,.15);--e:cubic-bezier(.16,1,.3,1)}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
 body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;font-feature-settings:'ss01','cv11','cv02';font-variant-numeric:tabular-nums;text-rendering:optimizeLegibility}
@@ -198,7 +199,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
     {/* NAV */}
     <nav className="nav"><div className="mx nav-in">
-      <img src="/images/pba-logo-full.webp" alt="Premier Business Academy" width="160" height="30" decoding="async" style={{height:30,width:'auto'}} />
+      <img src="/images/pba-logo-full.webp" alt="Premier Business Academy" style={{height:30}} />
       <button className="btn" onClick={go}>Get Free Roadmap →</button>
     </div></nav>
 
@@ -230,7 +231,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         </div>
         {/* Desktop-only: image with overlays */}
         <div className="hero-photo">
-          <div className="hero-frame"><img src="/images/1750066266064.webp" alt="Bernard Powell" width="480" height="600" decoding="async" fetchPriority="high" /></div>
+          <div className="hero-frame"><img src="/images/1750066266064.webp" alt="Bernard Powell" /></div>
           <div className="hero-trust">
             {[
               {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,text:'500+ Owners Helped'},
@@ -330,10 +331,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         <div className={`bg2 rv ${s4.v?'vi':''}`} style={{display:'grid',gridTemplateColumns:'1fr 1.2fr',gap:'clamp(40px,6vw,80px)',alignItems:'center'}}>
           <div style={{position:'relative'}}>
             <div style={{width:'75%',aspectRatio:'3/4',borderRadius:24,overflow:'hidden',border:'2px solid rgba(139,83,236,.25)'}}>
-              <img src="/images/warehouse-visit.webp" alt="Bernard at Premier Group factory" width="720" height="960" loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}} />
+              <img src="/images/warehouse-visit.webp" alt="Bernard at Premier Group factory" style={{width:'100%',height:'100%',objectFit:'cover'}} />
             </div>
             <div style={{position:'absolute',bottom:-16,right:0,width:'55%',aspectRatio:'4/3',borderRadius:16,overflow:'hidden',border:'4px solid var(--bg)',zIndex:2}}>
-              <img src="/images/1765583997480.webp" alt="Bernard with team" width="480" height="360" loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}} />
+              <img src="/images/1765583997480.webp" alt="Bernard with team" style={{width:'100%',height:'100%',objectFit:'cover'}} />
             </div>
           </div>
           <div>
@@ -400,7 +401,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
     {/* STICKY */}
     <div className={`sk ${sticky?'show':''}`}><div className="mx sk-in">
-      <img src="/images/pba-logo-full.webp" alt="Premier Business Academy" width="120" height="22" decoding="async" loading="lazy" style={{height:22,width:'auto'}} className="sk-brand" />
+      <img src="/images/pba-logo-full.webp" alt="Premier Business Academy" style={{height:22}} className="sk-brand" />
       <button className="btn" onClick={go}>Get Free Roadmap →</button>
     </div></div>
   </>)

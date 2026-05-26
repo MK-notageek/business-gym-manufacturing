@@ -2,74 +2,42 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="The Business Gym — Business coaching for NZ manufacturers. Free Profit Leak Checklist." />
-    <link rel="icon" type="image/svg+xml" href="/images/pba-logo.svg" />
-    <title>The Business Gym | NZ Manufacturing Business Coaching</title>
-
-    <!-- Self-hosted fonts: preload + inline @font-face -->
-    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/dm-sans-var.woff2" as="font" type="font/woff2" crossorigin />
-
-    <!-- Preload LCP candidate (desktop hero portrait) -->
-    <link rel="preload" as="image" href="/images/1750066266064.webp" fetchpriority="high" media="(min-width: 901px)" />
-
-    <!-- Origins for deferred third-parties (DNS warm-up only — scripts load after user interaction) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://link.growthhub.net.nz" />
+    <link rel="preconnect" href="https://link.growthhub.net.nz" crossorigin />
     <link rel="dns-prefetch" href="https://link.msgsndr.com" />
-    <link rel="dns-prefetch" href="https://connect.facebook.net" />
-    <link rel="dns-prefetch" href="https://www.clarity.ms" />
-
-    <style>
-      @font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('/fonts/inter-var.woff2') format('woff2-variations')}
-      @font-face{font-family:'DM Sans';font-style:normal;font-weight:100 1000;font-display:swap;src:url('/fonts/dm-sans-var.woff2') format('woff2-variations')}
-      /* Reduce CLS from font swap — fallback metrics tuned for Inter */
-      @font-face{font-family:'Inter-fallback';src:local('Arial');size-adjust:107%;ascent-override:90%;descent-override:22%;line-gap-override:0%}
-      html,body{margin:0;background:#0a0a14;color:#fff;font-family:'Inter','Inter-fallback',system-ui,sans-serif}
-      #root{min-height:100vh}
-    </style>
+    <link rel="preconnect" href="https://link.msgsndr.com" crossorigin />
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+    <link rel="preconnect" href="https://www.clarity.ms" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <title>The Business Gym | NZ Manufacturing Business Coaching</title>
+    <!-- Meta Pixel -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init','1420845489575315');
+      // On thank-you page: skip PageView if full_name is present (about to redirect), fire normally everywhere else
+      var _p = new URLSearchParams(window.location.search);
+      var _skipPageView = window.location.pathname === '/thank-you' && (_p.get('full_name') || _p.get('name')) && !_p.get('first_name');
+      if (!_skipPageView) fbq('track','PageView');
+    </script>
+    <!-- End Meta Pixel -->
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","w5fr8yyvek");
+    </script>
+    <!-- End Microsoft Clarity -->
   </head>
   <body>
     <div id="root"></div>
-
+    <script src="https://link.msgsndr.com/js/form_embed.js"></script>
     <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Deferred third-party scripts: load after first user interaction OR 3s after load -->
-    <script>
-      (function () {
-        var loaded = false;
-        function loadThirdParty() {
-          if (loaded) return;
-          loaded = true;
-
-          // Meta Pixel
-          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-          window.fbq('init','1420845489575315');
-          var _p = new URLSearchParams(window.location.search);
-          var _skipPageView = window.location.pathname === '/thank-you' && (_p.get('full_name') || _p.get('name')) && !_p.get('first_name');
-          if (!_skipPageView) window.fbq('track','PageView');
-
-          // Microsoft Clarity
-          (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","w5fr8yyvek");
-
-          // GHL form embed — only needed on the thank-you page calendar widget
-          if (window.location.pathname === '/thank-you') {
-            var g = document.createElement('script');
-            g.src = 'https://link.msgsndr.com/js/form_embed.js';
-            g.defer = true;
-            document.body.appendChild(g);
-          }
-        }
-
-        ['scroll','click','touchstart','keydown','mousemove'].forEach(function (e) {
-          window.addEventListener(e, loadThirdParty, { once: true, passive: true });
-        });
-        if (document.readyState === 'complete') {
-          setTimeout(loadThirdParty, 3000);
-        } else {
-          window.addEventListener('load', function () { setTimeout(loadThirdParty, 3000); });
-        }
-      })();
-    </script>
   </body>
 </html>

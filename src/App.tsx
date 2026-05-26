@@ -1,9 +1,7 @@
-import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
-
-const LeadMagnetPage = lazy(() => import('./pages/LeadMagnetPage'))
-const LeadMagnetPageB = lazy(() => import('./pages/LeadMagnetPageB'))
-const ThankYouPage = lazy(() => import('./pages/ThankYouPage'))
+import LeadMagnetPage from './pages/LeadMagnetPage'
+import LeadMagnetPageB from './pages/LeadMagnetPageB'
+import ThankYouPage from './pages/ThankYouPage'
 
 function pickVariant(): '50k' | '500k' {
   if (typeof document === 'undefined') return '50k'
@@ -18,11 +16,9 @@ const variant = pickVariant()
 
 export default function App() {
   return (
-    <Suspense fallback={null}>
-      <Routes>
-        <Route path="/" element={variant === '500k' ? <LeadMagnetPageB /> : <LeadMagnetPage />} />
-        <Route path="/thank-you" element={<ThankYouPage />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route path="/" element={variant === '500k' ? <LeadMagnetPageB /> : <LeadMagnetPage />} />
+      <Route path="/thank-you" element={<ThankYouPage />} />
+    </Routes>
   )
 }
