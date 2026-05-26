@@ -1,1 +1,25 @@
-{"rewrites":[{"source":"/((?!api/|@|src/|node_modules/|assets/|images/|.+\\..+).*)", "destination":"/index.html"}]}
+{
+  "rewrites": [
+    { "source": "/((?!api/|@|src/|node_modules/|assets/|images/|fonts/|.+\\..+).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=2592000" }
+      ]
+    }
+  ]
+}
