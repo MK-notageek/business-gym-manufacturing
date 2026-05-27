@@ -33,11 +33,11 @@ export default async function handler(req, res) {
   const trimmedEmail = (email || '').trim()
 
   const isTest = /\btest\b/i.test(full_name || '') || /\+test/i.test(trimmedEmail)
+  const VALID_VARIANTS = ['headline-profit', 'headline-10hrs']
+  const variantLabel = VALID_VARIANTS.includes(lp_variant) ? lp_variant : null
+
   const tags = ['lead-magnet', 'roadmap-download', 'lead-magnet-survey-submitted']
   if (isTest) tags.push('test')
-  // Accept new ('50k' / '500k') or legacy ('a' / 'b') variant labels.
-  const variantLabel = lp_variant === 'a' ? '50k' : lp_variant === 'b' ? '500k'
-    : (lp_variant === '50k' || lp_variant === '500k') ? lp_variant : null
   if (variantLabel) tags.push(`${variantLabel}-variant`)
 
   const customFields = []

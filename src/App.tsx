@@ -1,23 +1,21 @@
 import { Routes, Route } from 'react-router-dom'
 import LeadMagnetPage from './pages/LeadMagnetPage'
-import LeadMagnetPageB from './pages/LeadMagnetPageB'
 import ThankYouPage from './pages/ThankYouPage'
 
-function pickVariant(): '50k' | '500k' {
-  if (typeof document === 'undefined') return '50k'
-  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(50k|500k|a|b)/)
-  const v = m?.[1]
-  if (v === 'a') return '50k'
-  if (v === 'b') return '500k'
-  return (v as '50k' | '500k') ?? '50k'
+function pickHeadlineVariant(): 'headline-profit' | 'headline-10hrs' {
+  if (typeof document === 'undefined') return 'headline-profit'
+  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(headline-profit|headline-10hrs)/)
+  return (m?.[1] as 'headline-profit' | 'headline-10hrs') ?? 'headline-profit'
 }
 
-const variant = pickVariant()
+const headlineVariant = pickHeadlineVariant()
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={variant === '500k' ? <LeadMagnetPageB /> : <LeadMagnetPage />} />
+      <Route path="/" element={<LeadMagnetPage headlineVariant={headlineVariant} />} />
+      <Route path="/a" element={<LeadMagnetPage headlineVariant="headline-profit" />} />
+      <Route path="/b" element={<LeadMagnetPage headlineVariant="headline-10hrs" />} />
       <Route path="/thank-you" element={<ThankYouPage />} />
     </Routes>
   )

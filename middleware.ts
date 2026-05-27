@@ -9,14 +9,14 @@ const ONE_YEAR = 60 * 60 * 24 * 365
 
 export default function middleware(request: Request) {
   const cookieHeader = request.headers.get('cookie') || ''
-  // Accept legacy 'a' / 'b' cookies so existing visitors aren't reshuffled.
-  const match = cookieHeader.match(/(?:^|;\s*)pba-variant=(50k|500k|a|b)/)
+  const match = cookieHeader.match(/(?:^|;\s*)pba-variant=(headline-profit|headline-10hrs)/)
 
   if (match) {
     return next()
   }
 
-  const variant = Math.random() < 0.5 ? '50k' : '500k'
+  // New visitor or legacy cookie — assign to headline A/B test.
+  const variant = Math.random() < 0.5 ? 'headline-profit' : 'headline-10hrs'
   const response = next()
   response.headers.append(
     'Set-Cookie',

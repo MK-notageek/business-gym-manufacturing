@@ -70,7 +70,7 @@ function YT({id,name,stat}:{id:string;name:string;stat:string}){
   </div>)
 }
 
-export default function LeadMagnetPage(){
+export default function LeadMagnetPage({ headlineVariant = 'headline-profit' }: { headlineVariant?: 'headline-profit' | 'headline-10hrs' }){
   const[sticky,setSticky]=useState(false)
   const[faq,setFaq]=useState<number|null>(null)
   const s1=useReveal(),s2=useReveal(),s3=useReveal(),s4=useReveal(),s5=useReveal(),s6=useReveal(),s7=useReveal()
@@ -209,7 +209,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       <div className="mx hero-g" style={{position:'relative',zIndex:1}}>
         <div>
           <div className="pill" style={{marginBottom:24}}>For Kiwi Manufacturers</div>
-          <h1 className="P">Get your free roadmap to add <em className="G">$50K+ more profit</em> without working more</h1>
+          <h1 className="P">{headlineVariant === 'headline-10hrs'
+            ? <>Get your free roadmap to add <em className="G">$500K+ more profit</em> while working 10 fewer hours every week</>
+            : <>Get your free roadmap to add <em className="G">$500K+ more profit</em> without working more</>
+          }</h1>
           <p className="hero-desc">See exactly where your factory is leaking money and the one fix that recovers it fastest. Free. Takes 30 seconds.</p>
           <div className="hero-ctas">
             <button className="btn btn-lg" onClick={go}>Get My Free Profit Roadmap →</button>

@@ -36,13 +36,10 @@ function genEventId(): string {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-function readVariantCookie(): '50k' | '500k' {
-  if (typeof document === 'undefined') return '50k'
-  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(50k|500k|a|b)/)
-  const v = m?.[1]
-  if (v === 'a') return '50k'
-  if (v === 'b') return '500k'
-  return (v as '50k' | '500k') ?? '50k'
+function readVariantCookie(): string {
+  if (typeof document === 'undefined') return 'headline-profit'
+  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(headline-profit|headline-10hrs)/)
+  return m?.[1] ?? 'headline-profit'
 }
 
 // Pre-warm the GHL calendar widget once the user starts engaging with the form,
