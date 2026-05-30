@@ -97,6 +97,9 @@ export default function LeadMagnetForm() {
           if (typeof v === 'string' && v.trim()) lastSentRef.current[k] = v
         }
         if (typeof window !== 'undefined' && (window as any).fbq) {
+          if (buf.email || buf.phone) {
+            (window as any).fbq('init', '1420845489575315', { ...(buf.email ? { em: buf.email } : {}), ...(buf.phone ? { ph: buf.phone } : {}) });
+          }
           (window as any).fbq('track', 'InitiateCheckout', {}, { eventID: eid })
         }
         return data.contactId
@@ -203,6 +206,9 @@ export default function LeadMagnetForm() {
       })
       if (!res.ok) throw new Error('failed')
       if (typeof window !== 'undefined' && (window as any).fbq) {
+        if (values.email || values.phone) {
+          (window as any).fbq('init', '1420845489575315', { ...(values.email ? { em: values.email } : {}), ...(values.phone ? { ph: values.phone } : {}) });
+        }
         (window as any).fbq('track', 'Lead', {}, { eventID: eid })
       }
       const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
