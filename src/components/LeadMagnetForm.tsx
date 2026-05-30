@@ -24,14 +24,16 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 // NZ phone validation. type="tel" only changes the mobile keyboard — it does NOT
 // enforce a format — so junk ("asdf", "123") passes unless we check here. Accepts
-// +64 / 64 / leading-0 forms with spaces, dashes, parens, dots; rejects letters
-// and too-short input. NZ national significant numbers run 8 (landline) to 10
-// (mobile) digits once the country code / leading 0 is stripped.
+// +64 / 0064 / 64 / leading-0 forms with spaces, dashes, parens, dots; rejects
+// letters and too-short input. NZ national significant numbers run 8 (landline)
+// to 10 (mobile) digits once the country code / leading 0 is stripped.
 function isValidNZPhone(raw: string): boolean {
   const cleaned = raw.trim().replace(/[\s().-]/g, '')
   if (!/^\+?\d{6,}$/.test(cleaned)) return false
   let national = cleaned.replace(/\D/g, '')
-  if (national.startsWith('64')) national = national.slice(2)
+  // Strip country code (0064 exit-code form first, then bare 64) or leading trunk 0.
+  if (national.startsWith('0064')) national = national.slice(4)
+  else if (national.startsWith('64')) national = national.slice(2)
   else if (national.startsWith('0')) national = national.slice(1)
   return national.length >= 8 && national.length <= 10
 }
