@@ -1,4 +1,5 @@
 import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
+import { mirrorToTeamCrm } from './_lib/team-crm.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -51,6 +52,13 @@ export default async function handler(req, res) {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${GHL_API_KEY}`,
     'Version': '2021-07-28',
+  }
+
+  // Mirror every real submission into Bernard's TEAM CRM (separate location),
+  // tagged `FB Ads-Token` to route it to the right pipeline stage on their end.
+  // Fire-and-forget so it never blocks or breaks the primary write. Skip tests.
+  if (!isTest) {
+    mirrorToTeamCrm({ firstName, lastName, email: trimmedEmail, phone }).catch(() => {})
   }
 
   let contactId = incomingContactId || null
