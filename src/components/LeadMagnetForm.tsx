@@ -52,12 +52,6 @@ function genEventId(): string {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-function readVariantCookie(): string {
-  if (typeof document === 'undefined') return 'headline-30pct'
-  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(headline-30pct|headline-10hrs)/)
-  return m?.[1] ?? 'headline-30pct'
-}
-
 // Pre-warm the GHL calendar widget once the user starts engaging with the form,
 // so by the time they reach /thank-you the iframe's HTML/JS/CSS/fonts/slot API
 // responses are already in the browser HTTP cache. URL is intentionally params-
@@ -65,7 +59,10 @@ function readVariantCookie(): string {
 // reuses every sub-resource even though its document URL differs.
 const WARM_CAL_URL = 'https://link.growthhub.net.nz/widget/bookings/profit-roadmap-session'
 
-export default function LeadMagnetForm() {
+// `variant` is the headline actually shown on the page (route-forced on /a,/b;
+// cookie-derived on /). Reporting it directly keeps the displayed headline and
+// the lp_variant field/tag in sync — reading the cookie here desynced them on /a,/b.
+export default function LeadMagnetForm({ variant }: { variant: string }) {
   const [step, setStep] = useState<1 | 2>(1)
   const [values, setValues] = useState<Values>(EMPTY)
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -98,7 +95,7 @@ export default function LeadMagnetForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...buf,
-          lp_variant: readVariantCookie(),
+          lp_variant: variant,
           meta_event_id: eid,
           meta_fbp: getCookie('_fbp'),
           meta_fbc: getCookie('_fbc'),
@@ -134,7 +131,7 @@ export default function LeadMagnetForm() {
       const res = await fetch('/api/update-contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contactId: contactIdRef.current, [field]: value, lp_variant: readVariantCookie() }),
+        body: JSON.stringify({ contactId: contactIdRef.current, [field]: value, lp_variant: variant }),
       })
       if (res.ok) lastSentRef.current[field] = value
       else console.warn('[partial] update failed', res.status)
@@ -214,7 +211,7 @@ export default function LeadMagnetForm() {
         body: JSON.stringify({
           ...values,
           contactId: contactIdRef.current,
-          lp_variant: readVariantCookie(),
+          lp_variant: variant,
           meta_event_id: eid,
           meta_fbp: getCookie('_fbp'),
           meta_fbc: getCookie('_fbc'),

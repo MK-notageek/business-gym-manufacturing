@@ -376,7 +376,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           <p style={{fontSize:16,color:'var(--dim)',marginTop:12}}>Takes 30 seconds. Completely free.</p>
         </div>
         <div className={`rv ${s5.v?'vi':''}`} style={{transitionDelay:'.1s',maxWidth:720,margin:'0 auto'}}>
-          <LeadMagnetForm />
+          <LeadMagnetForm variant={headlineVariant} />
         </div>
       </div>
     </section>
