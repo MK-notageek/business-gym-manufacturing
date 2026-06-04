@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   if (typeof biggest_challenge === 'string' && biggest_challenge.trim()) customFields.push({ id: CF.biggest_challenge, value: biggest_challenge.trim() })
   if (typeof hours_on_floor === 'string'    && hours_on_floor.trim())    customFields.push({ id: CF.hours_on_floor,    value: hours_on_floor.trim() })
   if (typeof lp_variant === 'string' && lp_variant.trim()) {
-    const VALID_VARIANTS = ['headline-profit', 'headline-10hrs']
+    const VALID_VARIANTS = ['headline-30pct', 'headline-10hrs']
     if (VALID_VARIANTS.includes(lp_variant.trim())) {
       customFields.push({ id: CF.lp_variant, value: lp_variant.trim() })
     }

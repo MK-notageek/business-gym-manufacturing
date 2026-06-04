@@ -53,9 +53,9 @@ function genEventId(): string {
 }
 
 function readVariantCookie(): string {
-  if (typeof document === 'undefined') return 'headline-profit'
-  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(headline-profit|headline-10hrs)/)
-  return m?.[1] ?? 'headline-profit'
+  if (typeof document === 'undefined') return 'headline-30pct'
+  const m = document.cookie.match(/(?:^|;\s*)pba-variant=(headline-30pct|headline-10hrs)/)
+  return m?.[1] ?? 'headline-30pct'
 }
 
 // Pre-warm the GHL calendar widget once the user starts engaging with the form,

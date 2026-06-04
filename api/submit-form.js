@@ -34,7 +34,7 @@ export default async function handler(req, res) {
   const trimmedEmail = (email || '').trim()
 
   const isTest = /\btest\b/i.test(full_name || '') || /\+test/i.test(trimmedEmail)
-  const VALID_VARIANTS = ['headline-profit', 'headline-10hrs']
+  const VALID_VARIANTS = ['headline-30pct', 'headline-10hrs']
   const variantLabel = VALID_VARIANTS.includes(lp_variant) ? lp_variant : null
 
   const tags = ['lead-magnet', 'roadmap-download', 'lead-magnet-survey-submitted']
