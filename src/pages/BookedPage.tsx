@@ -30,8 +30,10 @@ const VSL_POSTER = 'https://pba-confirmation-page.vercel.app/vsl-poster.jpg'
 
 function VSLPlayer() {
   const ref = useRef<HTMLVideoElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const [muted, setMuted] = useState(true)
   const [pct, setPct] = useState(0)
+  const [buffering, setBuffering] = useState(false)
   useEffect(() => {
     const v = ref.current
     if (!v) return
@@ -51,6 +53,22 @@ function VSLPlayer() {
     if (v.muted) { unmute(); return }
     if (v.paused) v.play(); else v.pause()
   }
+  const seekTo = (clientX: number) => {
+    const v = ref.current, t = trackRef.current
+    if (!v || !t || !v.duration) return
+    const r = t.getBoundingClientRect()
+    const frac = Math.min(Math.max((clientX - r.left) / r.width, 0), 1)
+    v.currentTime = frac * v.duration
+    setPct(frac * 100)
+  }
+  const onScrub = (e: { clientX: number; stopPropagation: () => void }) => {
+    e.stopPropagation()
+    seekTo(e.clientX)
+    const move = (ev: PointerEvent) => seekTo(ev.clientX)
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
   return (
     <>
       <video
@@ -62,6 +80,10 @@ function VSLPlayer() {
         preload="auto"
         poster={VSL_POSTER}
         onClick={toggle}
+        onWaiting={() => setBuffering(true)}
+        onStalled={() => setBuffering(true)}
+        onPlaying={() => setBuffering(false)}
+        onCanPlay={() => setBuffering(false)}
         onTimeUpdate={(e) => { const v = e.currentTarget; if (v.duration) setPct((v.currentTime / v.duration) * 100) }}
       >
         <source src={VSL_SRC} type="video/mp4" />
@@ -73,7 +95,10 @@ function VSLPlayer() {
           <div className="vsl-cue-sub">▶ Tap for sound</div>
         </div>
       )}
-      <div className="vsl-bar" style={{ width: pct + '%' }} />
+      {buffering && <div className="vsl-spinner" aria-hidden="true"><span /></div>}
+      <div className="vsl-track" ref={trackRef} onPointerDown={onScrub}>
+        <div className="vsl-bar" style={{ width: pct + '%' }}><i className="vsl-knob" /></div>
+      </div>
     </>
   )
 }
@@ -130,7 +155,15 @@ body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;font-size:16
 @keyframes vslpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 .vsl-cue-lbl{font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.55)}
 .vsl-cue-sub{font-size:11px;color:rgba(255,255,255,.72);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-top:-4px}
-.vsl-bar{position:absolute;left:0;bottom:0;height:4px;background:var(--g);z-index:3;transition:width .15s linear;pointer-events:none}
+.vsl-track{position:absolute;left:0;right:0;bottom:0;height:16px;display:flex;align-items:flex-end;cursor:pointer;z-index:4}
+.vsl-track::before{content:'';position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.2)}
+.vsl-bar{position:relative;height:4px;background:var(--g);transition:height .12s ease;pointer-events:none}
+.vsl-track:hover .vsl-bar{height:6px}
+.vsl-knob{position:absolute;right:-6px;bottom:-4px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.5);opacity:0;transition:opacity .15s ease}
+.vsl-track:hover .vsl-knob{opacity:1}
+.vsl-spinner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:3}
+.vsl-spinner span{width:54px;height:54px;border-radius:50%;border:4px solid rgba(255,255,255,.22);border-top-color:#fff;animation:vslspin .8s linear infinite}
+@keyframes vslspin{to{transform:rotate(360deg)}}
 .sec{padding:clamp(40px,7vw,72px) 0}
 .h2{font-size:clamp(24px,3.4vw,38px);font-weight:700;line-height:1.1;letter-spacing:-.02em;text-align:center;margin-bottom:32px}
 .expect{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:860px;margin:0 auto}
