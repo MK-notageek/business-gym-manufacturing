@@ -195,6 +195,14 @@ export default function ThankYouPage() {
           }),
         }).catch(() => { /* swallow */ })
       }
+
+      // Move to the post-booking VSL page (mirrors the tradie funnel; the shared
+      // GHL calendar's own redirect stays untouched).
+      const bp = new URLSearchParams()
+      if (composedName) bp.set('name', composedName)
+      if (email) bp.set('email', email)
+      if (cid) bp.set('cid', cid)
+      setTimeout(() => { window.location.href = `/booked?${bp.toString()}` }, 1600)
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)

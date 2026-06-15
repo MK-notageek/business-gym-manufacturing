@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import LeadMagnetPage from './pages/LeadMagnetPage'
 import ThankYouPage from './pages/ThankYouPage'
+import BookedPage from './pages/BookedPage'
 
 function pickHeadlineVariant(): 'headline-30pct' | 'headline-10hrs' {
   if (typeof document === 'undefined') return 'headline-30pct'
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/a" element={<LeadMagnetPage headlineVariant="headline-30pct" />} />
       <Route path="/b" element={<LeadMagnetPage headlineVariant="headline-10hrs" />} />
       <Route path="/thank-you" element={<ThankYouPage />} />
+      <Route path="/booked" element={<BookedPage />} />
     </Routes>
   )
 }
