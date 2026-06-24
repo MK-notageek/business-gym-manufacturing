@@ -8,6 +8,9 @@
 
 const TEAM_LOCATION_ID = 'jezTc8yt2U6hWfDNIvxa'
 const TEAM_TAG = 'FB Ads-Token'
+// Funnel-source tag so the team CRM can tell manufacturer leads from trades
+// leads. Sent ALONGSIDE FB Ads-Token, which stays their routing trigger.
+const FUNNEL_TAG = 'FB Ads-Manufacturer'
 const SOURCE = 'PBA Roadmap (FB Ads)'
 
 export async function mirrorToTeamCrm({ firstName, lastName, email, phone }) {
@@ -32,7 +35,7 @@ export async function mirrorToTeamCrm({ firstName, lastName, email, phone }) {
   const body = {
     locationId: TEAM_LOCATION_ID,
     source: SOURCE,
-    tags: [TEAM_TAG],
+    tags: [TEAM_TAG, FUNNEL_TAG],
   }
   if (firstName)    body.firstName = firstName
   if (lastName)     body.lastName  = lastName
@@ -54,7 +57,7 @@ export async function mirrorToTeamCrm({ firstName, lastName, email, phone }) {
     const existingId = data?.meta?.contactId || data?.contact?.id
     if (existingId) {
       const tr = await fetch(`https://services.leadconnectorhq.com/contacts/${existingId}/tags`, {
-        method: 'POST', headers, body: JSON.stringify({ tags: [TEAM_TAG] }),
+        method: 'POST', headers, body: JSON.stringify({ tags: [TEAM_TAG, FUNNEL_TAG] }),
       })
       console.log('[team-crm TAG existing]', existingId, '→', tr.status)
       return existingId
