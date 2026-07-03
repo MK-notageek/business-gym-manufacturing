@@ -22,8 +22,8 @@ const EMPTY: Values = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
-// NZ phone validation. type="tel" only changes the mobile keyboard — it does NOT
-// enforce a format — so junk ("asdf", "123") passes unless we check here. Accepts
+// NZ phone validation. type="tel" only changes the mobile keyboard, it does NOT
+// enforce a format, so junk ("asdf", "123") passes unless we check here. Accepts
 // +64 / 0064 / 64 / leading-0 forms with spaces, dashes, parens, dots; rejects
 // letters and too-short input. NZ national significant numbers run 8 (landline)
 // to 10 (mobile) digits once the country code / leading 0 is stripped.
@@ -55,13 +55,13 @@ function genEventId(): string {
 // Pre-warm the GHL calendar widget once the user starts engaging with the form,
 // so by the time they reach /thank-you the iframe's HTML/JS/CSS/fonts/slot API
 // responses are already in the browser HTTP cache. URL is intentionally params-
-// less — assets cache by path, so the real iframe (with first_name/email/etc.)
+// less, assets cache by path, so the real iframe (with first_name/email/etc.)
 // reuses every sub-resource even though its document URL differs.
-const WARM_CAL_URL = 'https://link.growthhub.net.nz/widget/bookings/profit-roadmap-session'
+const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/profit-roadmap-session'
 
 // `variant` is the headline actually shown on the page (route-forced on /a,/b;
 // cookie-derived on /). Reporting it directly keeps the displayed headline and
-// the lp_variant field/tag in sync — reading the cookie here desynced them on /a,/b.
+// the lp_variant field/tag in sync, reading the cookie here desynced them on /a,/b.
 export default function LeadMagnetForm({ variant }: { variant: string }) {
   const [step, setStep] = useState<1 | 2>(1)
   const [values, setValues] = useState<Values>(EMPTY)
@@ -82,9 +82,16 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const name = e.target.name as keyof Values
-    setValues(v => ({ ...v, [name]: e.target.value }))
+    const value = e.target.value
+    setValues(v => ({ ...v, [name]: value }))
     if (errors[name]) setErrors(x => ({ ...x, [name]: undefined }))
     triggerWarm()
+    // A <select> commits the instant it's picked, the chosen option IS the answer,
+    // there's no mid-typing state to wait out. Persist on change (not just blur) so
+    // the last dropdown a user touches before abandoning is captured even if no blur
+    // ever fires (tab-close / focus never leaves the element). Text inputs stay on
+    // blur, we don't want to persist half-typed values.
+    if (e.target.tagName === 'SELECT') persistField(name, value)
   }
 
   async function createPartialContact(buf: Values): Promise<string | null> {
@@ -140,9 +147,13 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     }
   }
 
-  async function handleBlur(e: FocusEvent<HTMLInputElement | HTMLSelectElement>) {
-    const field = e.target.name as keyof Values
-    const value = (e.target.value || '').trim()
+  // Single capture path for every field. Called on blur (all fields) and on change
+  // (selects only). Once a contact exists, PUTs the one field to the same contact;
+  // before that, bundles current values and creates the partial as soon as name +
+  // valid email are present. `lastSentRef` makes repeat calls (blur after change,
+  // or an unchanged value) no-ops, and lets a genuinely changed value re-send.
+  async function persistField(field: keyof Values, rawValue: string) {
+    const value = (rawValue || '').trim()
 
     if (!value) return
     if (field === 'email' && !EMAIL_RE.test(value)) return
@@ -167,6 +178,10 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     }
   }
 
+  function handleBlur(e: FocusEvent<HTMLInputElement | HTMLSelectElement>) {
+    persistField(e.target.name as keyof Values, e.target.value)
+  }
+
   function validateStep1(): boolean {
     const next: typeof errors = {}
     if (!values.full_name.trim()) next.full_name = 'Required'
@@ -180,7 +195,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   async function handleContinue() {
     if (!validateStep1()) return
-    // Fire partial create if blur hasn't already — e.g. user tabbed fast.
+    // Fire partial create if blur hasn't already, e.g. user tabbed fast.
     if (!contactIdRef.current && !creatingPromiseRef.current) {
       creatingPromiseRef.current = createPartialContact(valuesRef.current)
       await creatingPromiseRef.current
@@ -229,7 +244,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
       const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
       const fullName = values.full_name.trim()
       const qs = new URLSearchParams({ rev })
-      // GHL booking widget for this calendar uses a single "Full Name" field —
+      // GHL booking widget for this calendar uses a single "Full Name" field,
       // it reads `full_name` from the URL, not first_name/last_name. Keep both
       // aliases so we tolerate any GHL config drift.
       if (fullName) {

@@ -38,9 +38,9 @@ export default function ThankYouPage() {
   }, [])
 
   // Step detection: GHL widget heights vary by step.
-  //   step-1 (form):       ~838px — crop header, land on form
-  //   step-2 (calendar):   >=1000px — crop deeper, land on month header
-  //   step-3 (time slots): drops back to ~600-1000px AFTER step-2 was seen —
+  //   step-1 (form):       ~838px, crop header, land on form
+  //   step-2 (calendar):   >=1000px, crop deeper, land on month header
+  //   step-3 (time slots): drops back to ~600-1000px AFTER step-2 was seen,
   //                        no crop, show entire iframe so all slots are visible
   // We track whether step-2 was ever reached to disambiguate step-1 vs step-3
   // (their iframe heights can overlap).
@@ -64,7 +64,7 @@ export default function ThankYouPage() {
       } else if (h >= 400) {
         setStepClass(everSawStep2Ref.current ? 'step-3' : 'step-1')
       }
-      // Debug — remove after step detection is verified in the wild.
+      // Debug, remove after step detection is verified in the wild.
       if (typeof console !== 'undefined') console.log(`[step-detect ${src}]`, h, everSawStep2Ref.current ? '(post-2)' : '')
     }
     let ro: ResizeObserver | null = null
@@ -128,13 +128,13 @@ export default function ThankYouPage() {
   useEffect(() => {
     // calendar always renders now; keep the effect running regardless of rev
     function onMsg(e: MessageEvent) {
-      if (!e.origin || !/growthhub|msgsndr|leadconnector/i.test(e.origin)) return
+      if (!e.origin || !/growthhub|msgsndr|leadconnector|link\.premierbusinessacademy/i.test(e.origin)) return
       const raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data ?? '')
-      // Debug — leave on temporarily so we can confirm the actual event names GHL uses.
+      // Debug, leave on temporarily so we can confirm the actual event names GHL uses.
       // Remove or comment after verifying.
       if (typeof console !== 'undefined') console.log('[GHL msg]', raw.slice(0, 250))
 
-      // Reveal the iframe as soon as the widget signals it has rendered — most
+      // Reveal the iframe as soon as the widget signals it has rendered, most
       // commonly via set-iframe-height. This is far faster than waiting for
       // iFrameResize's onResized debounce or the safety hard timer.
       // Also drive step detection from the reported height so the crop adjusts
@@ -153,7 +153,7 @@ export default function ThankYouPage() {
       if (window.__pbaScheduleFired) return
 
       // Broad detection. GHL's booking widget appears to fire one of several event
-      // shapes when an appointment is created — different account configs / widget
+      // shapes when an appointment is created, different account configs / widget
       // versions emit different keys, so we match any of the common signatures
       // *except* clearly non-booking lifecycle events like load / init / sticky-fill.
       const isInitNoise = /set-sticky-contacts|fetch-(query-params|sticky-contacts)|iframeLoaded|iframe-ready|set-iframe-height|scrollTo|inPageLink/i.test(raw)
@@ -216,7 +216,7 @@ export default function ThankYouPage() {
   if (email) calendarParams.set('email', email)
   if (phone) calendarParams.set('phone', phone)
   const qs = calendarParams.toString()
-  const calendarSrc = `https://link.growthhub.net.nz/widget/bookings/profit-roadmap-session${qs ? `?${qs}` : ''}`
+  const calendarSrc = `https://link.premierbusinessacademy.co.nz/widget/bookings/profit-roadmap-session${qs ? `?${qs}` : ''}`
 
   return (
     <>
