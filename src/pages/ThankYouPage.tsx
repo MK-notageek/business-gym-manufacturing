@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 // GHL passes rev=high or rev=low
 
@@ -37,52 +37,21 @@ export default function ThankYouPage() {
     window.scrollTo(0, 0)
   }, [])
 
-  // Step detection: GHL widget heights vary by step.
-  //   step-1 (form):       ~838px, crop header, land on form
-  //   step-2 (calendar):   >=1000px, crop deeper, land on month header
-  //   step-3 (time slots): drops back to ~600-1000px AFTER step-2 was seen,
-  //                        no crop, show entire iframe so all slots are visible
-  // We track whether step-2 was ever reached to disambiguate step-1 vs step-3
-  // (their iframe heights can overlap).
-  const [stepClass, setStepClass] = useState<'step-1' | 'step-2' | 'step-3'>('step-1')
-  const everSawStep2Ref = useRef(false)
-
-  // A native ResizeObserver on the iframe element is more reliable than
-  // iFrameResize's onResized callback (which depends on the widget's internal
-  // postMessage protocol firing correctly). A 750ms poll is also installed as a
-  // belt-and-suspenders fallback in case ResizeObserver doesn't fire on the
-  // step-1 -> step-2 height transition.
-  const iframeStepRef = useRef<HTMLIFrameElement | null>(null)
-  useEffect(() => {
-    const el = iframeStepRef.current
-    if (!el) return
-    const applyForHeight = (h: number, src: string) => {
-      if (!h) return
-      if (h >= 900) {
-        everSawStep2Ref.current = true
-        setStepClass('step-2')
-      } else if (h >= 400) {
-        setStepClass(everSawStep2Ref.current ? 'step-3' : 'step-1')
-      }
-      // Debug, remove after step detection is verified in the wild.
-      if (typeof console !== 'undefined') console.log(`[step-detect ${src}]`, h, everSawStep2Ref.current ? '(post-2)' : '')
-    }
-    let ro: ResizeObserver | null = null
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(entries => {
-        for (const entry of entries) applyForHeight(entry.contentRect.height, 'ro')
-      })
-      ro.observe(el)
-    }
-    const id = setInterval(() => applyForHeight(el.offsetHeight, 'poll'), 750)
-    return () => { if (ro) ro.disconnect(); clearInterval(id) }
-  }, [])
+  // The GHL booking widget reports its own content height via postMessage
+  // (`set-iframe-height`) and via iframe-resizer (form_embed.js). We size the
+  // iframe to exactly that height on every device instead of forcing a fixed
+  // height and pixel-cropping the header off. A fixed-height crop is calibrated
+  // to one browser's rendered widget height (e.g. DevTools desktop emulation)
+  // and lands on the wrong slice on real phones, leaving a broken sliver +
+  // white void. Auto-sizing to the widget's declared height can't do that.
+  // See onMsg for the direct `set-iframe-height` application and the
+  // iFrameResize effect below for the iframe-resizer handshake.
 
   // form_embed.js attaches iFrameResize to matching iframes ONCE on DOMContentLoaded.
   // Because this iframe is mounted later by React Router after the script's initial
   // scan, it never gets resized. We invoke window.iFrameResize manually here so
-  // the iframe element auto-resizes to its widget content height. onResized also
-  // updates stepClass so the crop tracks the current step.
+  // the iframe element auto-resizes to its widget content height. onResized
+  // also mirrors the reported height onto the element as a belt-and-suspenders.
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   useEffect(() => {
     const iframe = iframeRef.current
@@ -90,14 +59,7 @@ export default function ThankYouPage() {
     let cancelled = false
     const onResized = (info?: { height?: number }) => {
       if (cancelled) return
-      if (info?.height) {
-        if (info.height >= 1000) {
-          everSawStep2Ref.current = true
-          setStepClass('step-2')
-        } else if (info.height >= 400) {
-          setStepClass(everSawStep2Ref.current ? 'step-3' : 'step-1')
-        }
-      }
+      if (info?.height && iframe) iframe.style.height = `${info.height}px`
     }
     const tryInit = (attempt = 0) => {
       if (cancelled) return
@@ -134,20 +96,15 @@ export default function ThankYouPage() {
       // Remove or comment after verifying.
       if (typeof console !== 'undefined') console.log('[GHL msg]', raw.slice(0, 250))
 
-      // Reveal the iframe as soon as the widget signals it has rendered, most
-      // commonly via set-iframe-height. This is far faster than waiting for
-      // iFrameResize's onResized debounce or the safety hard timer.
-      // Also drive step detection from the reported height so the crop adjusts
-      // when the user advances from form (step 1) to calendar (step 2).
+      // Size the iframe to the widget's own declared content height as soon as
+      // it signals `set-iframe-height` (grows and shrinks between form /
+      // calendar / time-slot steps). This is the reliable cross-device source
+      // of truth, replacing the old fixed-height pixel crop that only matched
+      // one browser's rendered heights.
       if (/set[-_ ]?iframe[-_ ]?height|iframe[-_ ]?(loaded|ready)/i.test(raw)) {
         const m = raw.match(/"height"\s*:\s*(\d+)/i)
         const h = m ? parseInt(m[1], 10) : 0
-        if (h >= 900) {
-          everSawStep2Ref.current = true
-          setStepClass('step-2')
-        } else if (h >= 400) {
-          setStepClass(everSawStep2Ref.current ? 'step-3' : 'step-1')
-        }
+        if (h >= 200 && iframeRef.current) iframeRef.current.style.height = `${h}px`
       }
 
       if (window.__pbaScheduleFired) return
@@ -236,9 +193,7 @@ export default function ThankYouPage() {
            Measured at the form title (step 1) and the "May 2026" month header
            (step 2). Step 2 crop is larger because the widget keeps the info
            pane visible above the calendar grid. */
-        .cal-frame{width:100%;border:0;display:block;background:#fff;height:760px;transition:height .25s ease,margin-top .2s ease;margin-top:-310px}
-        .cal-frame.step-2{margin-top:-420px}
-        .cal-frame.step-3{margin-top:0}
+        .cal-frame{width:100%;border:0;display:block;background:#fff;min-height:380px;transition:height .25s ease}
         .ty-page{padding-top:clamp(20px,4vw,40px);padding-bottom:64px}
         .ty-email{font-size:13px;margin-bottom:14px;font-weight:500;letter-spacing:.01em}
         .ty-cta-line{font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.3;letter-spacing:-.015em;color:#fff;max-width:680px;margin:0 auto}
@@ -249,9 +204,6 @@ export default function ThankYouPage() {
           .ty-email{font-size:12px;margin-bottom:10px}
           .ty-cta-line{font-size:19px;line-height:1.3;padding:0 2px}
           .cal-card{margin-top:12px}
-          .cal-frame{margin-top:-335px}
-          .cal-frame.step-2{margin-top:-490px}
-          .cal-frame.step-3{margin-top:0}
         }
       `}</style>
 
@@ -271,11 +223,11 @@ export default function ThankYouPage() {
         <div className="cal-card">
           <div className="cal-clip">
             <iframe
-              ref={(el) => { iframeRef.current = el; iframeStepRef.current = el }}
+              ref={iframeRef}
               src={calendarSrc}
               id="profit-roadmap-session"
               title="Book your call"
-              className={`cal-frame ${stepClass}`}
+              className="cal-frame"
               scrolling="no"
             />
           </div>
