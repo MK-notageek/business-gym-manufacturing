@@ -225,7 +225,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           <div className="hero-trust-mobile">
             {[
               {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,text:'$150M+ Revenue'},
-              {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,text:'125 Five-Star Reviews'},
+              {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,text:'141 Five-Star Reviews'},
               {icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>,text:'NZ Only'},
             ].map((c,i)=>
               <div key={i} className="hero-chip"><span className="hero-chip-icon">{c.icon}</span>{c.text}</div>
@@ -248,7 +248,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
             )}
           </div>
           <div className="hero-reviews">
-            <div className="hero-reviews-num">125</div>
+            <div className="hero-reviews-num">141</div>
             <div className="hero-reviews-stars">★★★★★</div>
             <div className="hero-reviews-label">Google Reviews</div>
           </div>
@@ -303,7 +303,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <span className="rev-rating">5.0</span>
               <span style={{color:'#f59e0b',fontSize:20}}>★★★★★</span>
-              <span className="rev-count">(125)</span>
+              <span className="rev-count">(141)</span>
             </div>
           </div>
           <h2 className="P h2">What business owners say.</h2>
@@ -360,7 +360,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           {[
             {icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,text:'1000+ Kiwi Business Owners'},
             {icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,text:'$150M+ Revenue Generated'},
-            {icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,text:'125 Five-Star Reviews'},
+            {icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,text:'141 Five-Star Reviews'},
             {icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,text:'AME Global Lean'},
             {icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 6 2 12 2s5 2 7.5 2a2.5 2.5 0 010 5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0012 0V2Z"/></svg>,text:'NZ Best Workplace #1'},
           ].map((item,i)=><span key={i} className="mq-i" style={{color:'#4c1d95'}}>{item.icon}{item.text} <span style={{color:'#23affe',marginLeft:8}}>·</span></span>)}
@@ -368,7 +368,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       </div></div>
     </section>
 
-    {/* FORM — GHL Survey */}
+    {/* FORM: GHL Survey */}
     <section className="sec" id="form" style={{background:'var(--bg)'}} ref={s5.ref}>
       <div className="mx">
         <div className={`rv ${s5.v?'vi':''}`} style={{textAlign:'center',marginBottom:48}}>
@@ -390,7 +390,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
           <h2 className="P" style={{fontSize:'clamp(32px,5vw,64px)',fontWeight:700,marginBottom:16}}>Your factory is <em className="G">leaking money.</em></h2>
           <p style={{fontSize:18,color:'var(--dim)',marginBottom:32}}>Find out where. 30 seconds. Free.</p>
           <button className="btn btn-lg" onClick={go}>Get My Free Profit Roadmap →</button>
-          <p style={{marginTop:20,fontSize:12,color:'var(--mut)'}}>1000+ NZ business owners · 125 five-star reviews · AME Lean Recognition</p>
+          <p style={{marginTop:20,fontSize:12,color:'var(--mut)'}}>1000+ NZ business owners · 141 five-star reviews · AME Lean Recognition</p>
         </div>
       </div>
     </section>

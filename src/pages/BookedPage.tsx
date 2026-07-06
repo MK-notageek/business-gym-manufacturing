@@ -12,18 +12,21 @@ const VIDEOS = [
   { id: '_pJmMLgn9LE', who: 'Business Owner · UK', rs: 'Broke through a $20M ceiling' },
   { id: 'xvsNBrj9ivU', who: 'Andy · NZ', rs: 'Grew fast, cut ad spend to zero' },
   { id: 'mt0UTryP6lk', who: 'Nathan · AU', rs: 'Stopped leaving money on the table' },
-  { id: 'zwnLPmL2SDQ', who: 'Randolf · USA', rs: 'Tactics to grow & run his team' },
-  { id: 'jguYImcbWyM', who: 'Nur · NZ', rs: 'Saw the real cost of inaction' },
   { id: 'teJexLx8i8A', who: 'James · AU', rs: 'Serious about growth, and it works' },
   { id: '1go1aT89mLc', who: 'Business Owner · DE', rs: 'Lean transformed the floor' },
   { id: 'u2ZU8BPgGKQ', who: 'Matthew · UK', rs: 'The accountability to execute' },
   { id: '9nEAuLyWeJQ', who: 'Vern · UK', rs: 'From operator to owner' },
   { id: 'COGbYSoGss4', who: 'Sebastien · NZ', rs: 'A simple structure & more clarity' },
   { id: 'XL29a8JTKq8', who: 'Trent · USA', rs: 'Got his numbers & systems sorted' },
-  { id: '5nixseW-M1A', who: 'Shanon · NZ', rs: 'A ton of progress in months' },
+  { id: 'Q5qPUpESams', who: 'Business Owner', rs: 'Broke every sales record' },
+  { id: 'Y-WWSRAyAeo', who: 'Amos · USA', rs: 'From 80-hour weeks to home by 3pm' },
+  { id: 'WHmiy9B5nB0', who: 'Business Owner', rs: 'Grew cash flow 480% in 6 months' },
+  { id: 'wM7CsYvKyqM', who: 'Landie', rs: 'Record results in just 2 months' },
+  { id: 'G_U7acj7U3o', who: "Matthew · Allquip", rs: '2 a month to 50 units in 6 weeks' },
+  { id: 'evtQQodkANk', who: 'Abe · Edusafe', rs: 'Sustaining a lean culture' },
 ]
 
-// Bernard's pre-call VSL — self-hosted on the confirmation page's Vercel CDN
+// Bernard's pre-call VSL: self-hosted on the confirmation page's Vercel CDN
 // (one canonical copy shared by every funnel). Autoplay muted + tap for sound.
 const VSL_SRC = 'https://pba-confirmation-page.vercel.app/vsl.mp4'
 const VSL_POSTER = 'https://pba-confirmation-page.vercel.app/vsl-poster.jpg'
@@ -37,7 +40,7 @@ function VSLPlayer() {
   useEffect(() => {
     const v = ref.current
     if (!v) return
-    v.muted = true // set the muted PROPERTY before play() — JSX attr alone is unreliable in Chrome
+    v.muted = true // set the muted PROPERTY before play(); JSX attr alone is unreliable in Chrome
     v.play().catch(() => {})
   }, [])
   const unmute = () => {
@@ -112,7 +115,7 @@ function YT({ id, who, rs }: { id: string; who: string; rs: string }) {
           <iframe src={`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`} title={who} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen />
         ) : (
           <>
-            <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt={`${who} — ${rs}`} loading="lazy" />
+            <img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt={`${who}: ${rs}`} loading="lazy" />
             <div className="vp"><svg width="56" height="56" viewBox="0 0 60 60"><circle cx="30" cy="30" r="30" fill="url(#pg)" /><polygon points="24,18 24,42 44,30" fill="#fff" /><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#8b53ec" /><stop offset="100%" stopColor="#23affe" /></linearGradient></defs></svg></div>
           </>
         )}
