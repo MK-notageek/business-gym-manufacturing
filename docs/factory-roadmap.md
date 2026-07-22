@@ -30,6 +30,18 @@ business and routes the lead to a revenue-band roadmap.
 - The Organized code entry was only a symlink to the live repo. This project now
   carries the workspace code link instead.
 
+## 2026-07-22 post-submit audit
+
+- The confirmation page has no direct roadmap download button; it tells the lead
+  the roadmap is being delivered by email and immediately presents the booking calendar.
+- Manufacturing retains its separate `profit-roadmap-session` calendar. Live inspection
+  confirmed name, email, and phone prefill, and the page copy now matches its 45-minute duration.
+- Confirmed booking messages still fire the Schedule/tagging path and redirect to `/booked`.
+- The shared 1:51 pre-call VSL is now served locally as an optimized 9.7 MB MP4 with a local poster,
+  removing the slower cross-domain 24 MB video request used previously.
+- Production deployment `dpl_BpJBm9eMFsw5dLbCBYSFFh5wzvAo` was READY and verified through
+  `roadmap.premierbusinessacademy.co.nz`. No live contact or appointment was created in this audit.
+
 ## Open items
 
 - Decide whether Meta's generative text/persona variations and automatic voice
