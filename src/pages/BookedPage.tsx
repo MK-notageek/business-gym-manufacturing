@@ -244,7 +244,7 @@ body{background:var(--bg);color:#fff;font-family:'Inter',sans-serif;font-size:16
             <h3 className="G">Do this before our call</h3>
             <ul>
               <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg> Have your rough numbers handy: revenue, team size, biggest headache.</li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg> Block 30 quiet minutes somewhere you can talk freely.</li>
+              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg> Block 45 quiet minutes somewhere you can talk freely.</li>
               <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b53ec" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg> Watch the short video above so you show up ready.</li>
             </ul>
           </div>

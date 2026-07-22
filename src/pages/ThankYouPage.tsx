@@ -217,7 +217,7 @@ export default function ThankYouPage() {
           </p>
         )}
         <p className="P ty-cta-line">
-          <span className="G">Want us to help you fix it inside your factory?</span> Book a 30-minute call with one of our top <span className="G">PBA</span> advisors for completely free.
+          <span className="G">Want us to help you fix it inside your factory?</span> Book a 45-minute call with one of our top <span className="G">PBA</span> advisors for completely free.
         </p>
 
         <div className="cal-card">
