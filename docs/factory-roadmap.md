@@ -41,6 +41,9 @@ business and routes the lead to a revenue-band roadmap.
   removing the slower cross-domain 24 MB video request used previously.
 - Production deployment `dpl_BpJBm9eMFsw5dLbCBYSFFh5wzvAo` was READY and verified through
   `roadmap.premierbusinessacademy.co.nz`. No live contact or appointment was created in this audit.
+- Manufacturing now uses the same PBA favicon set as Trade Map (`favicon.png`,
+  `favicon.ico`, and `apple-touch-icon.png`) instead of Vite's placeholder icon.
+  Deployment `dpl_8M7PZJxfq2Qd7J22zTcfnhPcBSq2` was verified on the custom domain.
 
 ## Open items
 
