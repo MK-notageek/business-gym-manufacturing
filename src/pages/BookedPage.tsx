@@ -26,10 +26,10 @@ const VIDEOS = [
   { id: 'evtQQodkANk', who: 'Abe · Edusafe', rs: 'Sustaining a lean culture' },
 ]
 
-// Bernard's pre-call VSL: self-hosted on the confirmation page's Vercel CDN
-// (one canonical copy shared by every funnel). Autoplay muted + tap for sound.
-const VSL_SRC = 'https://pba-confirmation-page.vercel.app/vsl.mp4'
-const VSL_POSTER = 'https://pba-confirmation-page.vercel.app/vsl-poster.jpg'
+// Optimised local copies avoid a second-domain connection and cut the VSL from
+// 24 MB at 1080p to under 10 MB at 540p while preserving the full 1:51 video.
+const VSL_SRC = '/media/pre-call-vsl.mp4'
+const VSL_POSTER = '/media/pre-call-vsl-poster.jpg'
 
 function VSLPlayer() {
   const ref = useRef<HTMLVideoElement>(null)
