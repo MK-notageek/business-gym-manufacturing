@@ -53,3 +53,18 @@ business and routes the lead to a revenue-band roadmap.
 - Add URL parameters if campaign/ad/creative attribution outside Meta is wanted.
 - Resolve the separate 12-item unpublished draft batch before using a bulk
   publish action; several of those unrelated older ads currently show errors.
+
+## Platform-native static ads
+
+As of 2026-07-27, the project has eight 1080 × 1350 static creatives adapted
+from the platform-native formats in
+`brain/learned/platform-native-static-ad-formats.md`: fake tweet, camera-roll
+grid, fake apology, forwarded email, would-you-rather, PBA-owned news layout,
+pick-your-leak, and giant product.
+
+- Ad folders: `ads/factorymap-img01-*` through `ads/factorymap-img08-*`
+- Source and launch copy:
+  `code/business-gym-manufacturing/creative/platform-native-static-ads/`
+- Each ad folder contains the matching PNG, editable SVG and `origin.md`.
+- The fake tweet/email use Bernard/PBA-authored copy; the news layout is
+  labelled as PBA-owned editorial rather than implying third-party coverage.

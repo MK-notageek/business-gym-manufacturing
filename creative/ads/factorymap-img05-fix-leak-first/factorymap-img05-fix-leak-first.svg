@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b53ec"/>
+      <stop offset="100%" stop-color="#23affe"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity=".32"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".18"/>
+    </filter>
+
+  </defs>
+
+    <rect width="1080" height="1350" fill="#fff"/>
+    <text x="540" y="110" fill="#8b53ec" font-family="Arial" font-size="22" font-weight="700" text-anchor="middle" letter-spacing="3">NZ FACTORY OWNERS</text>
+    <text x="540" y="205" fill="#0a0a14" font-family="Arial Black" font-size="64" text-anchor="middle">WOULD YOU RATHER?</text>
+    <rect x="58" y="286" width="454" height="720" rx="30" fill="#f4f5f7" stroke="#e4e7ec" stroke-width="3"/>
+    <rect x="568" y="286" width="454" height="720" rx="30" fill="url(#brandGradient)"/>
+    <circle cx="285" cy="402" r="58" fill="#d0d5dd"/>
+    <text x="285" y="423" fill="#475467" font-family="Arial Black" font-size="56" text-anchor="middle">A</text>
+    <circle cx="795" cy="402" r="58" fill="rgba(255,255,255,.22)"/>
+    <text x="795" y="423" fill="#fff" font-family="Arial Black" font-size="56" text-anchor="middle">B</text>
+    <text x="285" y="550" fill="#0a0a14" font-family="Arial Black" font-size="47" font-weight="900" text-anchor="middle" letter-spacing="0"><tspan x="285" dy="0">ADD</tspan><tspan x="285" dy="49.35">ANOTHER</tspan><tspan x="285" dy="49.35">SHIFT</tspan></text>
+    <text x="285" y="760" fill="#475467" font-family="Arial" font-size="26" font-weight="400" text-anchor="middle" letter-spacing="0"><tspan x="285" dy="0">to a factory</tspan><tspan x="285" dy="33.800000000000004">that still leaks profit</tspan></text>
+    <text x="795" y="550" fill="#ffffff" font-family="Arial Black" font-size="47" font-weight="900" text-anchor="middle" letter-spacing="0"><tspan x="795" dy="0">FIX THE</tspan><tspan x="795" dy="49.35">#1 LEAK</tspan><tspan x="795" dy="49.35">FIRST</tspan></text>
+    <text x="795" y="760" fill="#eef2ff" font-family="Arial" font-size="26" font-weight="400" text-anchor="middle" letter-spacing="0"><tspan x="795" dy="0">then scale</tspan><tspan x="795" dy="33.800000000000004">what actually works</tspan></text>
+
+    <rect x="315" y="1090" width="450" height="68" rx="34" fill="url(#brandGradient)"/>
+    <text x="540" y="1134" fill="#fff" font-family="Arial" font-size="22" font-weight="700" text-anchor="middle">GET THE FREE ROADMAP</text>
+
+    <rect x="0" y="1250" width="1080" height="100" fill="#ffffff"/>
+    <circle cx="76" cy="1300" r="21" fill="url(#brandGradient)"/>
+    <text x="76" y="1308" fill="#fff" font-family="Arial Black" font-size="24" text-anchor="middle">P</text>
+    <text x="114" y="1294" fill="#0a0a14" font-family="Arial" font-size="18" font-weight="700">PREMIER BUSINESS ACADEMY</text>
+    <text x="114" y="1321" fill="#667085" font-family="Arial" font-size="16">Free Manufacturers Profit Roadmap</text>
+
+</svg>

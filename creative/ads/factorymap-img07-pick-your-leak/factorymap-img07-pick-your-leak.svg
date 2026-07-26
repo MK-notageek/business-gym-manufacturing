@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b53ec"/>
+      <stop offset="100%" stop-color="#23affe"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity=".32"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".18"/>
+    </filter>
+
+  </defs>
+
+    <rect width="1080" height="1350" fill="#f8fafc"/>
+    <text x="540" y="100" fill="#8b53ec" font-family="Arial" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="3">PICK ONE</text>
+    <text x="540" y="190" fill="#0a0a14" font-family="Arial Black" font-size="57" font-weight="900" text-anchor="middle" letter-spacing="0"><tspan x="540" dy="0">WHICH LEAK</tspan><tspan x="540" dy="57">LOOKS FAMILIAR?</tspan></text>
+    <text x="540" y="295" fill="#667085" font-family="Arial" font-size="24" text-anchor="middle">Your answer tells you where to start.</text>
+
+      <rect x="75" y="354" width="286" height="238" rx="24" fill="#fff" stroke="#e4e7ec" stroke-width="3" filter="url(#softShadow)"/>
+      <circle cx="127" cy="408" r="28" fill="#f2f4f7"/>
+      <text x="127" y="418" fill="#8b53ec" font-family="Arial Black" font-size="27" text-anchor="middle">R</text>
+      <text x="103" y="496" fill="#0a0a14" font-family="Arial" font-size="27" font-weight="700">Rework</text>
+      <text x="103" y="536" fill="#667085" font-family="Arial" font-size="18">Tap to choose</text>
+
+      <rect x="397" y="354" width="286" height="238" rx="24" fill="url(#brandGradient)" stroke="#8b53ec" stroke-width="3" filter="url(#softShadow)"/>
+      <circle cx="449" cy="408" r="28" fill="rgba(255,255,255,.22)"/>
+      <text x="449" y="418" fill="#fff" font-family="Arial Black" font-size="27" text-anchor="middle">OT</text>
+      <text x="425" y="496" fill="#fff" font-family="Arial" font-size="27" font-weight="700">Overtime</text>
+      <text x="425" y="536" fill="#eef2ff" font-family="Arial" font-size="18">Tap to choose</text>
+
+      <rect x="719" y="354" width="286" height="238" rx="24" fill="#fff" stroke="#e4e7ec" stroke-width="3" filter="url(#softShadow)"/>
+      <circle cx="771" cy="408" r="28" fill="#f2f4f7"/>
+      <text x="771" y="418" fill="#8b53ec" font-family="Arial Black" font-size="27" text-anchor="middle">W</text>
+      <text x="747" y="496" fill="#0a0a14" font-family="Arial" font-size="27" font-weight="700">Too much WIP</text>
+      <text x="747" y="536" fill="#667085" font-family="Arial" font-size="18">Tap to choose</text>
+
+      <rect x="75" y="630" width="286" height="238" rx="24" fill="#fff" stroke="#e4e7ec" stroke-width="3" filter="url(#softShadow)"/>
+      <circle cx="127" cy="684" r="28" fill="#f2f4f7"/>
+      <text x="127" y="694" fill="#8b53ec" font-family="Arial Black" font-size="27" text-anchor="middle">D</text>
+      <text x="103" y="772" fill="#0a0a14" font-family="Arial" font-size="27" font-weight="700">Discounting</text>
+      <text x="103" y="812" fill="#667085" font-family="Arial" font-size="18">Tap to choose</text>
+
+      <rect x="397" y="630" width="286" height="238" rx="24" fill="#fff" stroke="#e4e7ec" stroke-width="3" filter="url(#softShadow)"/>
+      <circle cx="449" cy="684" r="28" fill="#f2f4f7"/>
+      <text x="449" y="694" fill="#8b53ec" font-family="Arial Black" font-size="27" text-anchor="middle">F</text>
+      <text x="425" y="772" fill="#0a0a14" font-family="Arial" font-size="27" font-weight="700">Firefighting</text>
+      <text x="425" y="812" fill="#667085" font-family="Arial" font-size="18">Tap to choose</text>
+
+      <rect x="719" y="630" width="286" height="238" rx="24" fill="#fff" stroke="#e4e7ec" stroke-width="3" filter="url(#softShadow)"/>
+      <circle cx="771" cy="684" r="28" fill="#f2f4f7"/>
+      <text x="771" y="694" fill="#8b53ec" font-family="Arial Black" font-size="27" text-anchor="middle">O</text>
+      <text x="747" y="772" fill="#0a0a14" font-family="Arial" font-size="27" font-weight="700">Owner bottleneck</text>
+      <text x="747" y="812" fill="#667085" font-family="Arial" font-size="18">Tap to choose</text>
+
+    <rect x="286" y="1008" width="508" height="68" rx="34" fill="url(#brandGradient)"/>
+    <text x="540" y="1052" fill="#fff" font-family="Arial" font-size="22" font-weight="700" text-anchor="middle">FIND YOUR #1 LEAK →</text>
+
+    <rect x="0" y="1250" width="1080" height="100" fill="#ffffff"/>
+    <circle cx="76" cy="1300" r="21" fill="url(#brandGradient)"/>
+    <text x="76" y="1308" fill="#fff" font-family="Arial Black" font-size="24" text-anchor="middle">P</text>
+    <text x="114" y="1294" fill="#0a0a14" font-family="Arial" font-size="18" font-weight="700">PREMIER BUSINESS ACADEMY</text>
+    <text x="114" y="1321" fill="#667085" font-family="Arial" font-size="16">Free Manufacturers Profit Roadmap</text>
+
+</svg>

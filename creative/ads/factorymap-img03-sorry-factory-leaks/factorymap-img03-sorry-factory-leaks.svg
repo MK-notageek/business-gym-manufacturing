@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b53ec"/>
+      <stop offset="100%" stop-color="#23affe"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity=".32"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".18"/>
+    </filter>
+
+  </defs>
+
+    <rect width="1080" height="1350" fill="#f7f2e8"/>
+    <rect x="0" y="0" width="20" height="1250" fill="url(#brandGradient)"/>
+    <text x="78" y="120" fill="#8b53ec" font-family="Arial" font-size="21" font-weight="700" letter-spacing="3">A NOTE FROM PBA</text>
+    <text x="78" y="300" fill="#0a0a14" font-family="Arial Black" font-size="108" font-weight="900" text-anchor="start" letter-spacing="0"><tspan x="78" dy="0">WE’RE</tspan><tspan x="78" dy="97.2">SO SORRY.</tspan></text>
+    <line x1="78" y1="535" x2="430" y2="535" stroke="#23affe" stroke-width="14" stroke-linecap="round"/>
+    <text x="78" y="650" fill="#344054" font-family="Arial" font-size="34" font-weight="400" text-anchor="start" letter-spacing="0"><tspan x="78" dy="0">We turned the leaks keeping factory</tspan><tspan x="78" dy="45.900000000000006">owners trapped on the floor into a</tspan><tspan x="78" dy="45.900000000000006">free 30-second roadmap.</tspan></text>
+    <rect x="78" y="985" width="924" height="175" rx="24" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
+    <text x="120" y="1048" fill="#667085" font-family="Arial" font-size="20" font-weight="700" letter-spacing="2">OUR CONFESSION</text>
+    <text x="120" y="1102" fill="#0a0a14" font-family="Arial" font-size="28" font-weight="700" text-anchor="start" letter-spacing="0"><tspan x="120" dy="0">The one fix that recovers profit fastest</tspan><tspan x="120" dy="33.6">is inside. Life rewards action.</tspan></text>
+
+    <rect x="0" y="1250" width="1080" height="100" fill="#ffffff"/>
+    <circle cx="76" cy="1300" r="21" fill="url(#brandGradient)"/>
+    <text x="76" y="1308" fill="#fff" font-family="Arial Black" font-size="24" text-anchor="middle">P</text>
+    <text x="114" y="1294" fill="#0a0a14" font-family="Arial" font-size="18" font-weight="700">PREMIER BUSINESS ACADEMY</text>
+    <text x="114" y="1321" fill="#667085" font-family="Arial" font-size="16">Free Manufacturers Profit Roadmap</text>
+
+</svg>
