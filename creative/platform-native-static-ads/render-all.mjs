@@ -13,11 +13,12 @@ const tradeRepo = process.env.TRADE_ROADMAP_REPO
 
 const W = 1080
 const H = 1350
-const purple = '#8b53ec'
-const blue = '#23affe'
-const ink = '#0a0a14'
+const ink = '#0b0b0c'
 const white = '#ffffff'
-const muted = '#667085'
+const tweetBlack = '#000000'
+const tweetMuted = '#71767b'
+const apologyGreen = '#42bf77'
+const newsRed = '#e63227'
 
 function esc(value) {
   return String(value)
@@ -39,7 +40,7 @@ function dataUri(file) {
   return `data:${mimeFor(file)};base64,${fs.readFileSync(file).toString('base64')}`
 }
 
-function lines({
+function textLines({
   values,
   x,
   y,
@@ -47,12 +48,11 @@ function lines({
   lineHeight = 1.15,
   fill = ink,
   weight = 700,
-  family = 'Arial',
+  family = 'Arial, Helvetica, sans-serif',
   anchor = 'start',
   letterSpacing = 0,
-  italic = false,
 }) {
-  return `<text x="${x}" y="${y}" fill="${fill}" font-family="${family}" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" letter-spacing="${letterSpacing}"${italic ? ' font-style="italic"' : ''}>${
+  return `<text x="${x}" y="${y}" fill="${fill}" font-family="${family}" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" letter-spacing="${letterSpacing}">${
     values.map((value, index) => `<tspan x="${x}" dy="${index === 0 ? 0 : size * lineHeight}">${esc(value)}</tspan>`).join('')
   }</text>`
 }
@@ -65,15 +65,11 @@ function base(content, defs = '') {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
-    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${purple}"/>
-      <stop offset="100%" stop-color="${blue}"/>
-    </linearGradient>
-    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity=".32"/>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="13" stdDeviation="18" flood-color="#000000" flood-opacity=".28"/>
     </filter>
-    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".18"/>
+    <filter id="lightShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="9" flood-color="#000000" flood-opacity=".18"/>
     </filter>
     ${defs}
   </defs>
@@ -81,192 +77,205 @@ function base(content, defs = '') {
 </svg>`
 }
 
-function brandFooter(label, dark = false) {
-  const bg = dark ? 'rgba(10,10,20,.92)' : '#ffffff'
-  const fg = dark ? white : ink
-  return `
-    <rect x="0" y="1250" width="1080" height="100" fill="${bg}"/>
-    <circle cx="76" cy="1300" r="21" fill="url(#brandGradient)"/>
-    <text x="76" y="1308" fill="#fff" font-family="Arial Black" font-size="24" text-anchor="middle">P</text>
-    <text x="114" y="1294" fill="${fg}" font-family="Arial" font-size="18" font-weight="700">PREMIER BUSINESS ACADEMY</text>
-    <text x="114" y="1321" fill="${dark ? '#cbd5e1' : muted}" font-family="Arial" font-size="16">${esc(label)}</text>
-  `
-}
-
-function ctaPill(text, x, y, width) {
-  return `
-    <rect x="${x}" y="${y}" width="${width}" height="68" rx="34" fill="url(#brandGradient)"/>
-    <text x="${x + width / 2}" y="${y + 44}" fill="#fff" font-family="Arial" font-size="22" font-weight="700" text-anchor="middle">${esc(text)}</text>
-  `
-}
-
-function fakeTweet({ avatar, audience, post, payoff, footer }) {
+function fakeTweet({ background, avatar, post, note }) {
+  const backgroundUri = dataUri(background)
   const avatarUri = dataUri(avatar)
-  const defs = '<clipPath id="avatarClip"><circle cx="128" cy="177" r="54"/></clipPath>'
+  const defs = `
+    <clipPath id="tweetAvatar"><circle cx="112" cy="804" r="34"/></clipPath>
+    <linearGradient id="tweetShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity=".35"/>
+    </linearGradient>`
   return base(`
-    <rect width="${W}" height="${H}" fill="#f4f7fb"/>
-    <rect x="70" y="90" width="940" height="1090" rx="34" fill="#fff" filter="url(#softShadow)"/>
-    <circle cx="128" cy="177" r="58" fill="#e5e7eb"/>
-    ${image(avatarUri, 74, 123, 108, 108, 'clip-path="url(#avatarClip)"')}
-    <text x="212" y="163" fill="${ink}" font-family="Arial" font-size="29" font-weight="700">Bernard Powell</text>
-    <text x="212" y="200" fill="${muted}" font-family="Arial" font-size="22">@premierbusinessacademy · 2h</text>
-    <circle cx="927" cy="164" r="5" fill="${muted}"/><circle cx="947" cy="164" r="5" fill="${muted}"/><circle cx="967" cy="164" r="5" fill="${muted}"/>
-    <text x="112" y="294" fill="${purple}" font-family="Arial" font-size="24" font-weight="700">${esc(audience)}</text>
-    ${lines({ values: post, x: 112, y: 370, size: 47, lineHeight: 1.22, fill: ink, weight: 700 })}
-    <line x1="112" y1="865" x2="968" y2="865" stroke="#e5e7eb" stroke-width="2"/>
-    ${lines({ values: payoff, x: 112, y: 930, size: 27, lineHeight: 1.35, fill: '#344054', weight: 400 })}
-    <text x="112" y="1101" fill="${muted}" font-family="Arial" font-size="21">9:41 AM · Jul 27, 2026</text>
-    <text x="836" y="1101" fill="${muted}" font-family="Arial" font-size="27">♡   ↻   ⤴</text>
-    ${brandFooter(footer)}
+    ${image(backgroundUri, 0, 0, W, H)}
+    <rect width="${W}" height="${H}" fill="url(#tweetShade)"/>
+    <rect x="44" y="742" width="992" height="548" rx="8" fill="${tweetBlack}" filter="url(#shadow)"/>
+    <circle cx="112" cy="804" r="35" fill="#222"/>
+    ${image(avatarUri, 78, 770, 68, 68, 'clip-path="url(#tweetAvatar)"')}
+    <text x="166" y="797" fill="${white}" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">Bernard Powell</text>
+    <text x="166" y="832" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="22">@bernardpowell</text>
+    <text x="977" y="815" fill="#e7e9ea" font-family="Arial, Helvetica, sans-serif" font-size="32">•••</text>
+    ${textLines({ values: post, x: 80, y: 922, size: 39, lineHeight: 1.18, fill: white, weight: 400 })}
+    <text x="80" y="1167" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="21">${esc(note)}</text>
+    <line x1="80" y1="1202" x2="1000" y2="1202" stroke="#2f3336" stroke-width="2"/>
+    <text x="90" y="1254" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="29">○</text>
+    <text x="300" y="1254" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="29">↻</text>
+    <text x="520" y="1254" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="29">♡</text>
+    <text x="748" y="1254" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="29">▱</text>
+    <text x="960" y="1254" fill="${tweetMuted}" font-family="Arial, Helvetica, sans-serif" font-size="29">⌑</text>
   `, defs)
 }
 
-function gridDump({ generated, photos, headline, subhead, footer }) {
-  let backdrop = ''
-  if (generated) {
-    backdrop = image(dataUri(generated), 0, 0, W, 1250)
-  } else {
-    const uris = photos.map(dataUri)
-    backdrop = `
-      ${image(uris[0], 0, 0, 538, 620)}
-      ${image(uris[1], 542, 0, 538, 620)}
-      ${image(uris[2], 0, 624, 538, 626)}
-      ${image(uris[3], 542, 624, 538, 626)}
-    `
-  }
+function tradeGrid({ photos, headline, subhead }) {
+  const uris = photos.map(dataUri)
   return base(`
-    <rect width="${W}" height="${H}" fill="${ink}"/>
-    ${backdrop}
-    <rect x="86" y="500" width="908" height="250" rx="28" fill="rgba(255,255,255,.94)" filter="url(#softShadow)"/>
-    ${lines({ values: headline, x: 540, y: 580, size: 42, lineHeight: 1.13, fill: ink, weight: 800, anchor: 'middle' })}
-    <text x="540" y="708" fill="${purple}" font-family="Arial" font-size="24" font-weight="700" text-anchor="middle">${esc(subhead)}</text>
-    ${brandFooter(footer, true)}
+    <rect width="${W}" height="${H}" fill="#ddd"/>
+    ${image(uris[0], 0, 0, 356, H)}
+    ${image(uris[1], 362, 0, 356, H)}
+    ${image(uris[2], 724, 0, 356, H)}
+    <rect x="88" y="520" width="904" height="186" rx="12" fill="rgba(255,255,255,.96)" filter="url(#lightShadow)"/>
+    ${textLines({ values: headline, x: 540, y: 590, size: 47, lineHeight: 1.04, weight: 900, anchor: 'middle' })}
+    <rect x="212" y="744" width="656" height="70" rx="8" fill="rgba(255,255,255,.96)"/>
+    <text x="540" y="790" fill="${ink}" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">${esc(subhead)}</text>
   `)
 }
 
-function apology({ headline, body, offer, footer }) {
+function photoGrid({ photos, headline, subhead }) {
+  const uris = photos.map(dataUri)
   return base(`
-    <rect width="${W}" height="${H}" fill="#f7f2e8"/>
-    <rect x="0" y="0" width="20" height="1250" fill="url(#brandGradient)"/>
-    <text x="78" y="120" fill="${purple}" font-family="Arial" font-size="21" font-weight="700" letter-spacing="3">A NOTE FROM PBA</text>
-    ${lines({ values: headline, x: 78, y: 300, size: 108, lineHeight: .9, fill: ink, weight: 900, family: 'Arial Black' })}
-    <line x1="78" y1="535" x2="430" y2="535" stroke="${blue}" stroke-width="14" stroke-linecap="round"/>
-    ${lines({ values: body, x: 78, y: 650, size: 34, lineHeight: 1.35, fill: '#344054', weight: 400 })}
-    <rect x="78" y="985" width="924" height="175" rx="24" fill="#fff" stroke="#e5e7eb" stroke-width="2"/>
-    <text x="120" y="1048" fill="${muted}" font-family="Arial" font-size="20" font-weight="700" letter-spacing="2">OUR CONFESSION</text>
-    ${lines({ values: offer, x: 120, y: 1102, size: 28, lineHeight: 1.2, fill: ink, weight: 700 })}
-    ${brandFooter(footer)}
+    <rect width="${W}" height="${H}" fill="#ddd"/>
+    ${image(uris[0], 0, 0, 356, H)}
+    ${image(uris[1], 362, 0, 356, H)}
+    ${image(uris[2], 724, 0, 356, H)}
+    <rect x="88" y="520" width="904" height="186" rx="12" fill="rgba(255,255,255,.96)" filter="url(#lightShadow)"/>
+    ${textLines({ values: headline, x: 540, y: 590, size: 47, lineHeight: 1.04, weight: 900, anchor: 'middle' })}
+    <rect x="184" y="744" width="712" height="70" rx="8" fill="rgba(255,255,255,.96)"/>
+    <text x="540" y="790" fill="${ink}" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">${esc(subhead)}</text>
   `)
 }
 
-function forwardedEmail({ subject, body, cta, footer }) {
+function apology({ body, makeRight, cover }) {
+  const coverUri = dataUri(cover)
   return base(`
-    <rect width="${W}" height="${H}" fill="#f3f4f6"/>
-    <rect x="54" y="64" width="972" height="1116" rx="26" fill="#fff" filter="url(#softShadow)"/>
-    <rect x="54" y="64" width="972" height="92" rx="26" fill="#fbfbfc"/>
-    <circle cx="99" cy="110" r="10" fill="#ff5f57"/><circle cx="132" cy="110" r="10" fill="#ffbd2e"/><circle cx="165" cy="110" r="10" fill="#28c840"/>
-    <text x="540" y="119" fill="${muted}" font-family="Arial" font-size="19" text-anchor="middle">Inbox</text>
-    <text x="100" y="235" fill="${ink}" font-family="Arial" font-size="38" font-weight="700">${esc(subject)}</text>
-    <circle cx="135" cy="323" r="40" fill="url(#brandGradient)"/>
-    <text x="135" y="334" fill="#fff" font-family="Arial Black" font-size="30" text-anchor="middle">B</text>
-    <text x="198" y="312" fill="${ink}" font-family="Arial" font-size="24" font-weight="700">Bernard Powell — PBA</text>
-    <text x="198" y="347" fill="${muted}" font-family="Arial" font-size="19">to New Zealand business owners</text>
-    <text x="935" y="312" fill="${muted}" font-family="Arial" font-size="18" text-anchor="end">9:14 AM</text>
-    <line x1="100" y1="400" x2="980" y2="400" stroke="#e5e7eb" stroke-width="2"/>
-    ${lines({ values: body, x: 100, y: 480, size: 31, lineHeight: 1.42, fill: '#1f2937', weight: 400 })}
-    <text x="100" y="1025" fill="${ink}" font-family="Arial" font-size="27" font-weight="700">Bernard</text>
-    <text x="100" y="1062" fill="${muted}" font-family="Arial" font-size="20">Life rewards action.</text>
-    ${ctaPill(cta, 100, 1095, 430)}
-    ${brandFooter(footer)}
+    <rect width="${W}" height="${H}" fill="#f6f0e2"/>
+    ${textLines({
+      values: ['WE’RE SO', 'SORRY!'],
+      x: 56,
+      y: 222,
+      size: 118,
+      lineHeight: .82,
+      fill: apologyGreen,
+      weight: 900,
+      family: 'Arial Black, Arial, sans-serif',
+    })}
+    ${textLines({ values: body, x: 60, y: 470, size: 28, lineHeight: 1.22, fill: '#262626', weight: 400 })}
+    ${textLines({ values: makeRight, x: 60, y: 730, size: 30, lineHeight: 1.22, fill: '#262626', weight: 700 })}
+    <g transform="rotate(2 825 1040)" filter="url(#lightShadow)">
+      <rect x="650" y="802" width="350" height="495" rx="5" fill="#fff"/>
+      <image href="${coverUri}" x="650" y="802" width="350" height="495" preserveAspectRatio="xMidYMid meet"/>
+    </g>
   `)
 }
 
-function wouldYouRather({ kicker, leftTitle, leftSub, rightTitle, rightSub, cta, footer }) {
+function forwardedEmail({ subject, body }) {
   return base(`
-    <rect width="${W}" height="${H}" fill="#fff"/>
-    <text x="540" y="110" fill="${purple}" font-family="Arial" font-size="22" font-weight="700" text-anchor="middle" letter-spacing="3">${esc(kicker)}</text>
-    <text x="540" y="205" fill="${ink}" font-family="Arial Black" font-size="64" text-anchor="middle">WOULD YOU RATHER?</text>
-    <rect x="58" y="286" width="454" height="720" rx="30" fill="#f4f5f7" stroke="#e4e7ec" stroke-width="3"/>
-    <rect x="568" y="286" width="454" height="720" rx="30" fill="url(#brandGradient)"/>
-    <circle cx="285" cy="402" r="58" fill="#d0d5dd"/>
-    <text x="285" y="423" fill="#475467" font-family="Arial Black" font-size="56" text-anchor="middle">A</text>
-    <circle cx="795" cy="402" r="58" fill="rgba(255,255,255,.22)"/>
-    <text x="795" y="423" fill="#fff" font-family="Arial Black" font-size="56" text-anchor="middle">B</text>
-    ${lines({ values: leftTitle, x: 285, y: 550, size: 47, lineHeight: 1.05, fill: ink, weight: 900, family: 'Arial Black', anchor: 'middle' })}
-    ${lines({ values: leftSub, x: 285, y: 760, size: 26, lineHeight: 1.3, fill: '#475467', weight: 400, anchor: 'middle' })}
-    ${lines({ values: rightTitle, x: 795, y: 550, size: 47, lineHeight: 1.05, fill: white, weight: 900, family: 'Arial Black', anchor: 'middle' })}
-    ${lines({ values: rightSub, x: 795, y: 760, size: 26, lineHeight: 1.3, fill: '#eef2ff', weight: 400, anchor: 'middle' })}
-    ${ctaPill(cta, 315, 1090, 450)}
-    ${brandFooter(footer)}
+    <rect width="${W}" height="${H}" fill="#ffffff"/>
+    <rect x="0" y="0" width="1080" height="94" fill="#fafafa"/>
+    <text x="42" y="59" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="31">☰</text>
+    <text x="104" y="61" fill="#ea4335" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700">M</text>
+    <text x="142" y="61" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="28">Gmail</text>
+    <rect x="735" y="21" width="292" height="54" rx="27" fill="#edf3ff"/>
+    <text x="770" y="56" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="22">Search mail</text>
+    <text x="54" y="174" fill="#202124" font-family="Arial, Helvetica, sans-serif" font-size="47">${esc(subject)}</text>
+    <rect x="54" y="202" width="90" height="38" rx="7" fill="#e6e6e6"/>
+    <text x="99" y="228" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="20" text-anchor="middle">Inbox ×</text>
+    <circle cx="92" cy="316" r="42" fill="#3c4043"/>
+    <text x="92" y="328" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">B</text>
+    <text x="154" y="301" fill="#202124" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">Bernard Powell</text>
+    <text x="154" y="338" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="21">to me ▾</text>
+    <text x="1027" y="301" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="21" text-anchor="end">9:14 AM</text>
+    <text x="917" y="346" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="34">☆   ↩   ⋮</text>
+    ${textLines({ values: body, x: 62, y: 450, size: 36, lineHeight: 1.34, fill: '#202124', weight: 400 })}
+    <rect x="62" y="1135" width="142" height="64" rx="26" fill="#f1f3f4"/>
+    <text x="133" y="1177" fill="#3c4043" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">↩ Reply</text>
+    <rect x="224" y="1135" width="166" height="64" rx="26" fill="#f1f3f4"/>
+    <text x="307" y="1177" fill="#3c4043" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">↪ Forward</text>
   `)
 }
 
-function newsStunt({ photo, tag, headline, subhead, cta, footer, photoPosition = 'xMidYMid slice' }) {
+function wouldYouRather({ kicker, leftImage, rightImage, leftCopy, rightCopy }) {
+  const leftUri = dataUri(leftImage)
+  const rightUri = dataUri(rightImage)
+  const defs = `
+    <clipPath id="leftCircle"><circle cx="292" cy="432" r="125"/></clipPath>
+    <clipPath id="rightRound"><rect x="704" y="296" width="220" height="310" rx="10"/></clipPath>`
+  return base(`
+    <rect width="${W}" height="${H}" fill="#ffffff"/>
+    <text x="540" y="112" fill="${ink}" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" text-anchor="middle">${esc(kicker)}</text>
+    <text x="540" y="218" fill="${ink}" font-family="Arial Black, Arial, sans-serif" font-size="67" font-weight="900" text-anchor="middle">Would you rather?</text>
+    <line x1="540" y1="294" x2="540" y2="862" stroke="#d6d6d6" stroke-width="3"/>
+    ${image(leftUri, 167, 307, 250, 250, 'clip-path="url(#leftCircle)"')}
+    <rect x="704" y="296" width="220" height="310" rx="10" fill="#f3f3f3" filter="url(#lightShadow)"/>
+    <image href="${rightUri}" x="704" y="296" width="220" height="310" preserveAspectRatio="xMidYMid meet" clip-path="url(#rightRound)"/>
+    ${textLines({ values: leftCopy, x: 292, y: 676, size: 31, lineHeight: 1.08, fill: ink, weight: 700, anchor: 'middle' })}
+    ${textLines({ values: rightCopy, x: 814, y: 676, size: 31, lineHeight: 1.08, fill: ink, weight: 700, anchor: 'middle' })}
+    <circle cx="292" cy="914" r="46" fill="#e94b3c"/>
+    <text x="292" y="927" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="37" text-anchor="middle">A</text>
+    <circle cx="814" cy="914" r="46" fill="#e94b3c"/>
+    <text x="814" y="927" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="37" text-anchor="middle">B</text>
+    <path d="M0 1092 C356 1200 724 1214 1080 1014 L1080 1350 L0 1350 Z" fill="#e94b3c"/>
+  `, defs)
+}
+
+function newsStunt({ photo, category, headline, logo }) {
   const photoUri = dataUri(photo)
+  const logoUri = dataUri(logo)
   return base(`
-    <rect width="${W}" height="${H}" fill="${ink}"/>
-    <image href="${photoUri}" x="0" y="0" width="1080" height="820" preserveAspectRatio="${photoPosition}"/>
-    <rect x="0" y="0" width="1080" height="94" fill="rgba(10,10,20,.9)"/>
-    <text x="54" y="59" fill="#fff" font-family="Arial Black" font-size="31">PBA BUSINESS DESK</text>
-    <rect x="814" y="22" width="212" height="50" rx="8" fill="#ef4444"/>
-    <text x="920" y="56" fill="#fff" font-family="Arial Black" font-size="22" text-anchor="middle">${esc(tag)}</text>
-    <rect x="0" y="760" width="1080" height="490" fill="rgba(10,10,20,.96)"/>
-    <rect x="0" y="760" width="20" height="490" fill="url(#brandGradient)"/>
-    ${lines({ values: headline, x: 58, y: 845, size: 55, lineHeight: 1.03, fill: white, weight: 900, family: 'Arial Black' })}
-    ${lines({ values: subhead, x: 58, y: 1055, size: 25, lineHeight: 1.3, fill: '#d0d5dd', weight: 400 })}
-    <text x="58" y="1195" fill="${blue}" font-family="Arial" font-size="22" font-weight="700">${esc(cta)}</text>
-    ${brandFooter(footer, true)}
+    ${image(photoUri, 0, 0, W, H)}
+    <rect x="0" y="850" width="1080" height="500" fill="#ffffff"/>
+    <rect x="0" y="850" width="210" height="74" fill="${newsRed}"/>
+    <text x="105" y="900" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="29" font-weight="900" text-anchor="middle">${esc(category)}</text>
+    <rect x="210" y="850" width="870" height="74" fill="#0d1420"/>
+    <image href="${logoUri}" x="238" y="862" width="318" height="50" preserveAspectRatio="xMinYMid meet"/>
+    ${textLines({
+      values: headline,
+      x: 38,
+      y: 1006,
+      size: 59,
+      lineHeight: .98,
+      fill: ink,
+      weight: 900,
+      family: 'Arial Black, Arial, sans-serif',
+    })}
   `)
 }
 
-function pickCards({ title, subtitle, cards, cta, footer }) {
-  const cardWidth = 286
-  const cardHeight = 238
-  const startX = 75
-  const startY = 354
-  const gapX = 36
-  const gapY = 38
+function pickCard({ eyebrow, title, subtitle, cards, footer }) {
+  const cardW = 278
+  const cardH = 230
+  const startX = 82
+  const startY = 470
+  const gapX = 41
+  const gapY = 32
   const cardMarkup = cards.map((card, index) => {
     const col = index % 3
     const row = Math.floor(index / 3)
-    const x = startX + col * (cardWidth + gapX)
-    const y = startY + row * (cardHeight + gapY)
-    const selected = index === 1
+    const x = startX + col * (cardW + gapX)
+    const y = startY + row * (cardH + gapY)
+    const fill = (index + row) % 2 === 0 ? '#167148' : '#f0c43b'
+    const detail = fill === '#167148' ? '#f5d86f' : '#145f42'
     return `
-      <rect x="${x}" y="${y}" width="${cardWidth}" height="${cardHeight}" rx="24" fill="${selected ? 'url(#brandGradient)' : '#fff'}" stroke="${selected ? purple : '#e4e7ec'}" stroke-width="3" filter="url(#softShadow)"/>
-      <circle cx="${x + 52}" cy="${y + 54}" r="28" fill="${selected ? 'rgba(255,255,255,.22)' : '#f2f4f7'}"/>
-      <text x="${x + 52}" y="${y + 64}" fill="${selected ? '#fff' : purple}" font-family="Arial Black" font-size="27" text-anchor="middle">${esc(card.code)}</text>
-      <text x="${x + 28}" y="${y + 142}" fill="${selected ? '#fff' : ink}" font-family="Arial" font-size="27" font-weight="700">${esc(card.label)}</text>
-      <text x="${x + 28}" y="${y + 182}" fill="${selected ? '#eef2ff' : muted}" font-family="Arial" font-size="18">${esc(card.note || 'Tap to choose')}</text>
+      <rect x="${x}" y="${y}" width="${cardW}" height="${cardH}" rx="8" fill="${fill}" stroke="#fff7c4" stroke-width="5" filter="url(#lightShadow)"/>
+      <rect x="${x + 17}" y="${y + 17}" width="${cardW - 34}" height="${cardH - 34}" rx="6" fill="none" stroke="${detail}" stroke-width="3"/>
+      <circle cx="${x + cardW / 2}" cy="${y + 78}" r="43" fill="${detail}"/>
+      <text x="${x + cardW / 2}" y="${y + 92}" fill="${fill}" font-family="Arial Black, Arial, sans-serif" font-size="41" font-weight="900" text-anchor="middle">${esc(card.code)}</text>
+      <text x="${x + cardW / 2}" y="${y + 169}" fill="${detail}" font-family="Arial Black, Arial, sans-serif" font-size="23" font-weight="900" text-anchor="middle">${esc(card.label)}</text>
     `
   }).join('')
   return base(`
-    <rect width="${W}" height="${H}" fill="#f8fafc"/>
-    <text x="540" y="100" fill="${purple}" font-family="Arial" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="3">PICK ONE</text>
-    ${lines({ values: title, x: 540, y: 190, size: 57, lineHeight: 1, fill: ink, weight: 900, family: 'Arial Black', anchor: 'middle' })}
-    <text x="540" y="295" fill="${muted}" font-family="Arial" font-size="24" text-anchor="middle">${esc(subtitle)}</text>
+    <rect width="${W}" height="${H}" fill="#fff0ad"/>
+    <rect x="0" y="0" width="1080" height="96" fill="#176844"/>
+    <text x="540" y="64" fill="#fff0ad" font-family="Arial Black, Arial, sans-serif" font-size="32" font-weight="900" text-anchor="middle">${esc(eyebrow)}</text>
+    <text x="540" y="188" fill="#155f40" font-family="Arial Black, Arial, sans-serif" font-size="83" font-weight="900" text-anchor="middle">${esc(title)}</text>
+    <text x="540" y="244" fill="#155f40" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" text-anchor="middle">${esc(subtitle)}</text>
+    <polygon points="880,115 933,135 978,104 992,160 1047,174 1014,219 1035,271 979,272 947,319 912,274 856,278 875,225 840,182 895,164" fill="#f1c63a" stroke="#155f40" stroke-width="5"/>
+    <text x="944" y="194" fill="#155f40" font-family="Arial Black, Arial, sans-serif" font-size="26" font-weight="900" text-anchor="middle">FREE</text>
+    <text x="944" y="230" fill="#155f40" font-family="Arial Black, Arial, sans-serif" font-size="24" font-weight="900" text-anchor="middle">30 SEC</text>
+    <text x="540" y="402" fill="#155f40" font-family="Arial Black, Arial, sans-serif" font-size="32" font-weight="900" text-anchor="middle">(TAP A CARD)</text>
     ${cardMarkup}
-    ${ctaPill(cta, 286, 1008, 508)}
-    ${brandFooter(footer)}
+    <rect x="0" y="1238" width="1080" height="112" fill="#176844"/>
+    <text x="540" y="1308" fill="#fff0ad" font-family="Arial Black, Arial, sans-serif" font-size="29" font-weight="900" text-anchor="middle">${esc(footer)}</text>
   `)
 }
 
-function giantProduct({ background, cover, headline, subhead, footer }) {
-  const bg = dataUri(background)
-  const book = dataUri(cover)
+function giantProduct({ scene, cover, coverBox }) {
+  const sceneUri = dataUri(scene)
+  const coverUri = dataUri(cover)
   return base(`
-    <rect width="${W}" height="${H}" fill="${ink}"/>
-    ${image(bg, 0, 0, W, 1250)}
-    <rect x="0" y="0" width="1080" height="1250" fill="rgba(10,10,20,.14)"/>
-    <rect x="42" y="42" width="996" height="190" rx="26" fill="rgba(255,255,255,.94)" filter="url(#softShadow)"/>
-    ${lines({ values: headline, x: 540, y: 112, size: 43, lineHeight: 1.02, fill: ink, weight: 900, family: 'Arial Black', anchor: 'middle' })}
-    <g filter="url(#shadow)">
-      <rect x="245" y="280" width="590" height="820" rx="18" fill="#111827"/>
-      <image href="${book}" x="245" y="280" width="590" height="820" preserveAspectRatio="xMidYMid meet"/>
+    <image href="${sceneUri}" x="0" y="0" width="1080" height="1620" preserveAspectRatio="xMidYMin slice"/>
+    <g filter="url(#lightShadow)">
+      <image href="${coverUri}" x="${coverBox.x}" y="${coverBox.y}" width="${coverBox.width}" height="${coverBox.height}" preserveAspectRatio="xMidYMid meet"/>
     </g>
-    <rect x="184" y="1122" width="712" height="86" rx="43" fill="rgba(10,10,20,.9)"/>
-    <text x="540" y="1178" fill="#fff" font-family="Arial" font-size="26" font-weight="700" text-anchor="middle">${esc(subhead)}</text>
-    ${brandFooter(footer, true)}
   `)
 }
 
@@ -276,13 +285,24 @@ function renderAd(repo, name, svg) {
   const svgPath = path.join(folder, `${name}.svg`)
   const pngPath = path.join(folder, `${name}.png`)
   fs.writeFileSync(svgPath, svg.replace(/[ \t]+$/gm, '').replace(/\n{3,}/g, '\n\n'))
-  execFileSync('rsvg-convert', [
-    '-w', String(W),
-    '-h', String(H),
-    '-o', pngPath,
-    svgPath,
-  ], { stdio: 'inherit' })
+  execFileSync('rsvg-convert', ['-w', String(W), '-h', String(H), '-o', pngPath, svgPath])
   return pngPath
+}
+
+function makeContactSheet(images, output) {
+  execFileSync('magick', [
+    'montage',
+    '-font', '/System/Library/Fonts/Supplemental/Arial.ttf',
+    '-label', '',
+    ...images,
+    '-thumbnail', '540x675^',
+    '-gravity', 'center',
+    '-extent', '540x675',
+    '-tile', '4x2',
+    '-geometry', '+14+14',
+    '-background', '#0c1320',
+    output,
+  ])
 }
 
 const factoryImages = path.join(factoryRepo, 'public', 'images')
@@ -290,185 +310,178 @@ const tradeSource = path.join(tradeRepo, 'creative', 'platform-native-static-ads
 const factorySource = path.join(factoryRepo, 'creative', 'platform-native-static-ads', 'source')
 const bernard = path.join(factoryImages, '1750066266064.webp')
 const bernardWhiteboard = path.join(factoryImages, '1765583997480.webp')
+const warehouse = path.join(factoryImages, 'warehouse-visit.webp')
+const training = path.join(factoryImages, 'training-room.webp')
+const team = path.join(factoryImages, 'bernard with client team.webp')
+const blueTeam = path.join(factoryImages, 'blue-jackets-group.webp')
+const tradeCover = path.join(tradeSource, 'trade-roadmap-cover.png')
+const factoryCover = path.join(factorySource, 'manufacturer-roadmap-cover.png')
+const realPbaWordmark = path.join(workspace, 'external/bernard/live-projects/traffic/assets/preview/pba-logo-full-on-dark.jpg')
 
 const tradeAds = [
   ['trademap-img01-margin-proof', fakeTweet({
+    background: path.join(tradeSource, 'generated', 'trade-grid-panel-electrician.jpg'),
     avatar: bernard,
-    audience: 'NZ TRADE BUSINESS OWNERS',
     post: [
-      'You probably don’t need more leads.',
-      'You need to find the margin leaks',
-      'inside the jobs you’ve already won.',
+      'Most trade businesses don’t have a',
+      'lead problem. They have a “we won',
+      'the job — where did the margin go?”',
+      'problem.',
     ],
-    payoff: ['I mapped the 5 places to check.', 'Free. Takes 30 seconds.'],
-    footer: 'Free Trade Profit Roadmap',
+    note: 'The leak is usually hiding after the quote.',
   })],
-  ['trademap-img02-camera-roll', gridDump({
-    generated: path.join(tradeSource, 'generated', 'trade-grid-dump.png'),
-    headline: ['THE JOB WAS WON.', 'THE MARGIN STILL LEAKED.'],
-    subhead: '5 places to check →',
-    footer: 'Free Trade Profit Roadmap',
+  ['trademap-img02-camera-roll', tradeGrid({
+    photos: [
+      path.join(tradeSource, 'generated', 'trade-grid-panel-electrician.jpg'),
+      path.join(tradeSource, 'generated', 'trade-grid-panel-plumber.jpg'),
+      path.join(tradeSource, 'generated', 'trade-grid-panel-builder.jpg'),
+    ],
+    headline: ['JOBS WON.', 'MARGIN MISSING.'],
+    subhead: 'THE 5 LEAKS ARE USUALLY HIDING AFTER THE QUOTE.',
   })],
   ['trademap-img03-sorry-profit-leaks', apology({
-    headline: ['WE’RE', 'SO SORRY.'],
     body: [
-      'We made the five silent profit leaks',
-      'inside NZ trade businesses painfully',
-      'easy to find.',
+      'We got so busy mapping the five silent',
+      'profit leaks inside NZ trade businesses,',
+      'we forgot to make them difficult to find.',
     ],
-    offer: ['Then we put every check in one free', '30-second Profit Roadmap. Go get it.'],
-    footer: 'Free Trade Profit Roadmap',
+    makeRight: ['So here’s how we’re making it right:', 'your free 30-second', 'Trade Profit Roadmap.'],
+    cover: tradeCover,
   })],
   ['trademap-img04-forwarded-job-margin', forwardedEmail({
     subject: 'Fwd: the job you already won',
     body: [
       'Quick one —',
       '',
-      'If the jobs are already there, more leads',
-      'won’t fix a margin leak.',
+      'More leads won’t fix a leak that starts',
+      'after the quote.',
       '',
-      'The problem shows up after the quote.',
       'I mapped the 5 places to check.',
-      '',
       'Free. Takes 30 seconds.',
+      '',
+      'Bernard',
     ],
-    cta: 'GET THE TRADE MAP →',
-    footer: 'Free Trade Profit Roadmap',
   })],
   ['trademap-img05-fix-or-sell-more', wouldYouRather({
-    kicker: 'NZ TRADE BUSINESS OWNERS',
-    leftTitle: ['CHASE', 'MORE JOBS'],
-    leftSub: ['and keep losing', 'margin after the quote'],
-    rightTitle: ['FIND THE', '5 LEAKS'],
-    rightSub: ['inside jobs', 'you already won'],
-    cta: 'GET THE FREE TRADE MAP',
-    footer: 'Free Trade Profit Roadmap',
+    kicker: 'The Trade Map:',
+    leftImage: path.join(tradeSource, 'generated', 'trade-grid-dump.png'),
+    rightImage: tradeCover,
+    leftCopy: ['KEEP CHASING', 'MORE JOBS'],
+    rightCopy: ['FIND WHAT’S', 'EATING THE', 'MARGIN'],
   })],
   ['trademap-img06-margin-news', newsStunt({
     photo: bernardWhiteboard,
-    tag: 'MARGIN ALERT',
-    headline: ['TRADE BUSINESSES', 'ARE BUSY.', 'PROFITS STILL VANISH.'],
-    subhead: ['Bernard Powell breaks down the 5 silent', 'leaks hiding inside jobs already won.'],
-    cta: 'FREE ROADMAP • TAKES 30 SECONDS',
-    footer: 'PBA-owned editorial format — not third-party news',
-    photoPosition: 'xMidYMid slice',
+    category: 'MARGIN',
+    headline: ['WHY FULL JOB BOOKS', 'STILL DON’T MEAN', 'MORE PROFIT'],
+    logo: realPbaWordmark,
   })],
-  ['trademap-img07-pick-your-trade', pickCards({
-    title: ['WHICH CREW', 'ARE YOU RUNNING?'],
-    subtitle: 'Your Profit Roadmap changes by trade.',
+  ['trademap-img07-pick-your-trade', pickCard({
+    eyebrow: 'NZ TRADE OWNER? LET’S PLAY A GAME.',
+    title: 'PICK A CARD',
+    subtitle: 'Pick your trade. Get the map matched to your business.',
     cards: [
-      { code: 'E', label: 'Electrician' },
-      { code: 'P', label: 'Plumber' },
+      { code: 'E', label: 'ELECTRICAL' },
+      { code: 'P', label: 'PLUMBING' },
       { code: 'H', label: 'HVAC' },
-      { code: 'B', label: 'Builder' },
-      { code: 'R', label: 'Roofer' },
-      { code: 'L', label: 'Landscaping' },
+      { code: 'B', label: 'BUILDING' },
+      { code: 'R', label: 'ROOFING' },
+      { code: 'L', label: 'LANDSCAPE' },
     ],
-    cta: 'PICK YOUR TRADE →',
-    footer: 'Free Trade Profit Roadmap',
+    footer: 'FREE TRADE PROFIT ROADMAP • NO GUESSING',
   })],
   ['trademap-img08-giant-trade-map', giantProduct({
-    background: path.join(tradeSource, 'generated', 'trade-giant-product-background.png'),
-    cover: path.join(tradeSource, 'trade-roadmap-cover.png'),
-    headline: ['THE BIGGEST PROFIT LEAK', 'ON THIS SITE ISN’T IN THE TOOLS.'],
-    subhead: 'Find it in 30 seconds. Free.',
-    footer: 'Free Trade Profit Roadmap',
+    scene: path.join(tradeSource, 'generated', 'trade-giant-product-person.png'),
+    cover: tradeCover,
+    coverBox: { x: 303, y: 104, width: 586, height: 925 },
   })],
 ]
 
 const factoryAds = [
   ['factorymap-img01-revenue-profit-flat', fakeTweet({
+    background: warehouse,
     avatar: bernard,
-    audience: 'NZ FACTORY OWNERS',
     post: [
-      'If revenue is up but profit is flat,',
-      'the factory is leaking somewhere.',
-      'Fix the #1 leak before another shift.',
+      'Revenue up. Profit flat.',
+      '',
+      'That usually means the factory is',
+      'leaking somewhere the P&L can’t',
+      'show you at a glance.',
     ],
-    payoff: ['I mapped the checks and the one fix', 'that recovers profit fastest. Free.'],
-    footer: 'Free Manufacturers Profit Roadmap',
+    note: 'Find the first leak before you add another shift.',
   })],
-  ['factorymap-img02-factory-camera-roll', gridDump({
-    photos: [
-      path.join(factoryImages, '1750066266064.webp'),
-      path.join(factoryImages, 'warehouse-visit.webp'),
-      path.join(factoryImages, 'training-room.webp'),
-      path.join(factoryImages, 'blue-jackets-group.webp'),
-    ],
-    headline: ['BUILT IN A FACTORY.', 'NOT READ IN A BOOK.'],
-    subhead: 'The free roadmap for NZ manufacturers →',
-    footer: 'Free Manufacturers Profit Roadmap',
+  ['factorymap-img02-factory-camera-roll', photoGrid({
+    photos: [warehouse, training, blueTeam],
+    headline: ['BUSIER FACTORY.', 'SAME PROFIT.'],
+    subhead: 'FIND THE FIRST LEAK BEFORE YOU ADD ANOTHER SHIFT.',
   })],
   ['factorymap-img03-sorry-factory-leaks', apology({
-    headline: ['WE’RE', 'SO SORRY.'],
     body: [
-      'We turned the leaks keeping factory',
-      'owners trapped on the floor into a',
-      'free 30-second roadmap.',
+      'We got so busy turning the leaks that keep',
+      'factory owners trapped on the floor into',
+      'one clear roadmap, we forgot to charge for it.',
     ],
-    offer: ['The one fix that recovers profit fastest', 'is inside. Life rewards action.'],
-    footer: 'Free Manufacturers Profit Roadmap',
+    makeRight: ['So here’s how we’re making it right:', 'your free 30-second', 'Manufacturer’s Roadmap.'],
+    cover: factoryCover,
   })],
   ['factorymap-img04-forwarded-profit-flat', forwardedEmail({
     subject: 'Fwd: revenue up, profit flat',
     body: [
       'Quick one —',
       '',
-      'A busy factory can still be a leaking',
-      'factory.',
+      'A busy factory can still be a leaking factory.',
       '',
-      'Before you add another shift, find the',
-      '#1 leak and the fix that recovers profit',
-      'fastest.',
+      'Before you add another shift, find the first',
+      'leak and the fix that recovers profit fastest.',
       '',
       'I mapped the checks. Takes 30 seconds.',
+      '',
+      'Bernard',
     ],
-    cta: 'GET THE ROADMAP →',
-    footer: 'Free Manufacturers Profit Roadmap',
   })],
   ['factorymap-img05-fix-leak-first', wouldYouRather({
-    kicker: 'NZ FACTORY OWNERS',
-    leftTitle: ['ADD', 'ANOTHER', 'SHIFT'],
-    leftSub: ['to a factory', 'that still leaks profit'],
-    rightTitle: ['FIX THE', '#1 LEAK', 'FIRST'],
-    rightSub: ['then scale', 'what actually works'],
-    cta: 'GET THE FREE ROADMAP',
-    footer: 'Free Manufacturers Profit Roadmap',
+    kicker: 'The Manufacturer’s Roadmap:',
+    leftImage: warehouse,
+    rightImage: factoryCover,
+    leftCopy: ['ADD ANOTHER', 'SHIFT'],
+    rightCopy: ['FIX THE', '#1 LEAK', 'FIRST'],
   })],
   ['factorymap-img06-factory-prison-news', newsStunt({
-    photo: path.join(factoryImages, 'warehouse-visit.webp'),
-    tag: 'OWNER ALERT',
-    headline: ['FACTORIES BUSIER.', 'OWNERS STILL', 'TRAPPED ON THE FLOOR.'],
-    subhead: ['Find the leak before adding another shift.', 'One free roadmap. 30 seconds.'],
-    cta: 'BUILT BY BERNARD POWELL — A FACTORY OWNER',
-    footer: 'PBA-owned editorial format — not third-party news',
+    photo: warehouse,
+    category: 'FACTORY',
+    headline: ['WHY FACTORIES GET', 'BUSIER WHILE PROFIT', 'STAYS FLAT'],
+    logo: realPbaWordmark,
   })],
-  ['factorymap-img07-pick-your-leak', pickCards({
-    title: ['WHICH LEAK', 'LOOKS FAMILIAR?'],
-    subtitle: 'Your answer tells you where to start.',
+  ['factorymap-img07-pick-your-leak', pickCard({
+    eyebrow: 'FACTORY OWNER? LET’S PLAY A GAME.',
+    title: 'PICK A CARD',
+    subtitle: 'Which leak looks most familiar on your floor?',
     cards: [
-      { code: 'R', label: 'Rework' },
-      { code: 'OT', label: 'Overtime' },
-      { code: 'W', label: 'Too much WIP' },
-      { code: 'D', label: 'Discounting' },
-      { code: 'F', label: 'Firefighting' },
-      { code: 'O', label: 'Owner bottleneck' },
+      { code: 'R', label: 'REWORK' },
+      { code: 'OT', label: 'OVERTIME' },
+      { code: 'W', label: 'TOO MUCH WIP' },
+      { code: 'D', label: 'DISCOUNTING' },
+      { code: 'F', label: 'FIREFIGHTING' },
+      { code: 'O', label: 'OWNER HOURS' },
     ],
-    cta: 'FIND YOUR #1 LEAK →',
-    footer: 'Free Manufacturers Profit Roadmap',
+    footer: 'FREE MANUFACTURER’S ROADMAP • 30 SECONDS',
   })],
   ['factorymap-img08-giant-roadmap', giantProduct({
-    background: path.join(factorySource, 'generated', 'factory-giant-product-background.png'),
-    cover: path.join(factorySource, 'manufacturer-roadmap-cover.png'),
-    headline: ['YOUR FACTORY’S BIGGEST LEAK', 'IS PROBABLY INVISIBLE.'],
-    subhead: 'Make it obvious. Free 30-second Roadmap.',
-    footer: 'Free Manufacturers Profit Roadmap',
+    scene: path.join(factorySource, 'generated', 'factory-giant-product-person.png'),
+    cover: factoryCover,
+    coverBox: { x: 282, y: 74, width: 625, height: 934 },
   })],
 ]
 
-const outputs = [
-  ...tradeAds.map(([name, svg]) => renderAd(tradeRepo, name, svg)),
-  ...factoryAds.map(([name, svg]) => renderAd(factoryRepo, name, svg)),
-]
+const tradeRendered = tradeAds.map(([name, svg]) => renderAd(tradeRepo, name, svg))
+const factoryRendered = factoryAds.map(([name, svg]) => renderAd(factoryRepo, name, svg))
 
-console.log(outputs.join('\n'))
+makeContactSheet(
+  tradeRendered,
+  path.join(tradeRepo, 'creative', 'platform-native-static-ads', 'trademap-contact-sheet.png'),
+)
+makeContactSheet(
+  factoryRendered,
+  path.join(factoryRepo, 'creative', 'platform-native-static-ads', 'factorymap-contact-sheet.png'),
+)
+
+console.log(`Rendered ${tradeRendered.length + factoryRendered.length} platform-native ads.`)

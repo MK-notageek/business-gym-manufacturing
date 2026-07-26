@@ -24,6 +24,8 @@ CTA for all ads: Learn More
 ## Compliance and creative notes
 
 - The tweet and forwarded-email layouts contain Bernard/PBA-authored copy, not fabricated customer proof.
-- The news layout is explicitly labelled as PBA-owned editorial, not third-party news.
+- The news layout uses the approved full PBA wordmark and is clearly PBA-owned, not third-party news.
 - No invented testimonials, scarcity or third-party media proof were added.
 - The copy uses live-page language: revenue up/profit flat, factory-owner bottleneck, free roadmap and 30-second completion.
+- No repeated PBA footer, gradient or CTA pill is used. Each asset follows the reel reference’s own platform aesthetic.
+- Ads 1–5 and 7 carry no added PBA logo. Ad 6 uses the approved full wordmark; ad 8 shows the real Manufacturer’s Roadmap cover without adding a PBA mark.

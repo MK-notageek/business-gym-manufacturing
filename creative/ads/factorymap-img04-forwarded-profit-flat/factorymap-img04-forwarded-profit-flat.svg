@@ -1,42 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1350" viewBox="0 0 1080 1350">
   <defs>
-    <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8b53ec"/>
-      <stop offset="100%" stop-color="#23affe"/>
-    </linearGradient>
-    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity=".32"/>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="13" stdDeviation="18" flood-color="#000000" flood-opacity=".28"/>
     </filter>
-    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".18"/>
+    <filter id="lightShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="9" flood-color="#000000" flood-opacity=".18"/>
     </filter>
 
   </defs>
 
-    <rect width="1080" height="1350" fill="#f3f4f6"/>
-    <rect x="54" y="64" width="972" height="1116" rx="26" fill="#fff" filter="url(#softShadow)"/>
-    <rect x="54" y="64" width="972" height="92" rx="26" fill="#fbfbfc"/>
-    <circle cx="99" cy="110" r="10" fill="#ff5f57"/><circle cx="132" cy="110" r="10" fill="#ffbd2e"/><circle cx="165" cy="110" r="10" fill="#28c840"/>
-    <text x="540" y="119" fill="#667085" font-family="Arial" font-size="19" text-anchor="middle">Inbox</text>
-    <text x="100" y="235" fill="#0a0a14" font-family="Arial" font-size="38" font-weight="700">Fwd: revenue up, profit flat</text>
-    <circle cx="135" cy="323" r="40" fill="url(#brandGradient)"/>
-    <text x="135" y="334" fill="#fff" font-family="Arial Black" font-size="30" text-anchor="middle">B</text>
-    <text x="198" y="312" fill="#0a0a14" font-family="Arial" font-size="24" font-weight="700">Bernard Powell — PBA</text>
-    <text x="198" y="347" fill="#667085" font-family="Arial" font-size="19">to New Zealand business owners</text>
-    <text x="935" y="312" fill="#667085" font-family="Arial" font-size="18" text-anchor="end">9:14 AM</text>
-    <line x1="100" y1="400" x2="980" y2="400" stroke="#e5e7eb" stroke-width="2"/>
-    <text x="100" y="480" fill="#1f2937" font-family="Arial" font-size="31" font-weight="400" text-anchor="start" letter-spacing="0"><tspan x="100" dy="0">Quick one —</tspan><tspan x="100" dy="44.019999999999996"></tspan><tspan x="100" dy="44.019999999999996">A busy factory can still be a leaking</tspan><tspan x="100" dy="44.019999999999996">factory.</tspan><tspan x="100" dy="44.019999999999996"></tspan><tspan x="100" dy="44.019999999999996">Before you add another shift, find the</tspan><tspan x="100" dy="44.019999999999996">#1 leak and the fix that recovers profit</tspan><tspan x="100" dy="44.019999999999996">fastest.</tspan><tspan x="100" dy="44.019999999999996"></tspan><tspan x="100" dy="44.019999999999996">I mapped the checks. Takes 30 seconds.</tspan></text>
-    <text x="100" y="1025" fill="#0a0a14" font-family="Arial" font-size="27" font-weight="700">Bernard</text>
-    <text x="100" y="1062" fill="#667085" font-family="Arial" font-size="20">Life rewards action.</text>
-
-    <rect x="100" y="1095" width="430" height="68" rx="34" fill="url(#brandGradient)"/>
-    <text x="315" y="1139" fill="#fff" font-family="Arial" font-size="22" font-weight="700" text-anchor="middle">GET THE ROADMAP →</text>
-
-    <rect x="0" y="1250" width="1080" height="100" fill="#ffffff"/>
-    <circle cx="76" cy="1300" r="21" fill="url(#brandGradient)"/>
-    <text x="76" y="1308" fill="#fff" font-family="Arial Black" font-size="24" text-anchor="middle">P</text>
-    <text x="114" y="1294" fill="#0a0a14" font-family="Arial" font-size="18" font-weight="700">PREMIER BUSINESS ACADEMY</text>
-    <text x="114" y="1321" fill="#667085" font-family="Arial" font-size="16">Free Manufacturers Profit Roadmap</text>
+    <rect width="1080" height="1350" fill="#ffffff"/>
+    <rect x="0" y="0" width="1080" height="94" fill="#fafafa"/>
+    <text x="42" y="59" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="31">☰</text>
+    <text x="104" y="61" fill="#ea4335" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700">M</text>
+    <text x="142" y="61" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="28">Gmail</text>
+    <rect x="735" y="21" width="292" height="54" rx="27" fill="#edf3ff"/>
+    <text x="770" y="56" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="22">Search mail</text>
+    <text x="54" y="174" fill="#202124" font-family="Arial, Helvetica, sans-serif" font-size="47">Fwd: revenue up, profit flat</text>
+    <rect x="54" y="202" width="90" height="38" rx="7" fill="#e6e6e6"/>
+    <text x="99" y="228" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="20" text-anchor="middle">Inbox ×</text>
+    <circle cx="92" cy="316" r="42" fill="#3c4043"/>
+    <text x="92" y="328" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700" text-anchor="middle">B</text>
+    <text x="154" y="301" fill="#202124" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">Bernard Powell</text>
+    <text x="154" y="338" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="21">to me ▾</text>
+    <text x="1027" y="301" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="21" text-anchor="end">9:14 AM</text>
+    <text x="917" y="346" fill="#5f6368" font-family="Arial, Helvetica, sans-serif" font-size="34">☆   ↩   ⋮</text>
+    <text x="62" y="450" fill="#202124" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="400" text-anchor="start" letter-spacing="0"><tspan x="62" dy="0">Quick one —</tspan><tspan x="62" dy="48.24"></tspan><tspan x="62" dy="48.24">A busy factory can still be a leaking factory.</tspan><tspan x="62" dy="48.24"></tspan><tspan x="62" dy="48.24">Before you add another shift, find the first</tspan><tspan x="62" dy="48.24">leak and the fix that recovers profit fastest.</tspan><tspan x="62" dy="48.24"></tspan><tspan x="62" dy="48.24">I mapped the checks. Takes 30 seconds.</tspan><tspan x="62" dy="48.24"></tspan><tspan x="62" dy="48.24">Bernard</tspan></text>
+    <rect x="62" y="1135" width="142" height="64" rx="26" fill="#f1f3f4"/>
+    <text x="133" y="1177" fill="#3c4043" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">↩ Reply</text>
+    <rect x="224" y="1135" width="166" height="64" rx="26" fill="#f1f3f4"/>
+    <text x="307" y="1177" fill="#3c4043" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" text-anchor="middle">↪ Forward</text>
 
 </svg>

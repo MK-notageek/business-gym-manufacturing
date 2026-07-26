@@ -4,68 +4,72 @@ Mode: built-in image generation
 
 Generated on: 2026-07-27
 
-## Trade Map grid dump
+Only the photographic source scenes are generated. Platform UI, typography and
+offer copy are rendered deterministically so they remain exact.
+
+## Trade Map camera-roll source
 
 Use case: ads-marketing
 
-Asset type: 4:5 Meta/Instagram static ad background for a New Zealand trade-business Profit Roadmap
+Asset type: candid trade-work camera-roll source
 
-Primary request: create one authentic four-panel camera-roll grid made from four different candid smartphone photos: an electrician working in a switchboard, a plumber under a sink, a builder reviewing plans on an active residential site, and a roofer checking a roof edge. It must look like real owner-operator phone photos, not a commercial shoot.
+Primary request: create authentic smartphone photos of an electrician working in a
+switchboard, a plumber under a sink, a builder reviewing plans on an active
+residential site and a roofer checking a roof edge.
 
-Scene/backdrop: four edge-to-edge panels in a clean 2x2 grid with subtle uneven cropping.
-
-Style/medium: photorealistic natural smartphone photography, ordinary New Zealand job sites, slightly imperfect exposure and framing.
-
-Composition/framing: vertical 4:5 canvas; each panel readable; leave a modest calm area through the central band for a later text overlay.
-
-Lighting/mood: honest daylight, practical, work-in-progress, no cinematic polish.
-
-Color palette: natural workwear blues, timber, concrete, neutral daylight.
-
-Constraints: four distinct scenes; realistic tools and PPE; no text, logos, trademarks or watermarks; no staged handshake; no luxury stock-photo look.
-
-Avoid: duplicated workers, distorted hands, fake safety violations, polished agency campaign photography.
+Style: ordinary New Zealand job sites, imperfect exposure and framing, realistic
+tools and PPE, no commercial-shoot polish, text, logos or watermarks.
 
 Saved source:
 
 `external/bernard/live-projects/trades-roadmap/code/pba-profit-roadmap-gh/creative/platform-native-static-ads/source/generated/trade-grid-dump.png`
 
-## Trade Map giant-product background
+Three vertical camera-roll crops are saved alongside it as:
+
+- `trade-grid-panel-electrician.jpg`
+- `trade-grid-panel-plumber.jpg`
+- `trade-grid-panel-builder.jpg`
+
+## Trade Map giant-product scene
 
 Use case: ads-marketing
 
-Asset type: 4:5 Meta/Instagram static ad background for a giant-product creative.
+Asset type: 4:5 Instagram static ad background for a giant-product concept
 
-Primary request: create a candid vertical smartphone photo of an active New Zealand residential construction site with one unusually clear open area in the center foreground reserved for compositing an oversized physical book later.
+Primary request: create a photorealistic, slightly absurd but believable candid
+smartphone photo at a New Zealand residential construction site. A tradesperson in
+ordinary dark workwear stands behind an enormous upright rectangular book, hugging
+both sides; their legs and work boots remain visible underneath.
 
-Scene/backdrop: timber-framed house under construction, scaffolding and practical jobsite details in the background, open concrete or compacted-gravel foreground.
+Composition: frontal eye-level view, giant book centred and filling most of the
+frame, realistic scale and contact shadows. The front cover is flat, clean and dark
+navy so the exact Trade Profit Roadmap cover can be composited later.
 
-Style/medium: photorealistic natural smartphone photography, platform-native, slightly imperfect everyday framing.
-
-Composition/framing: vertical 4:5; clear central foreground; background activity around the edges; eye-level.
-
-Constraints: no book, product, text, logos, trademarks or watermark; leave enough clean central negative space for a giant product cutout.
+Avoid: words, logos, watermarks, polished campaign lighting, a floating product,
+extra limbs or a mockup aesthetic.
 
 Saved source:
 
-`external/bernard/live-projects/trades-roadmap/code/pba-profit-roadmap-gh/creative/platform-native-static-ads/source/generated/trade-giant-product-background.png`
+`external/bernard/live-projects/trades-roadmap/code/pba-profit-roadmap-gh/creative/platform-native-static-ads/source/generated/trade-giant-product-person.png`
 
-## Manufacturers Roadmap giant-product background
+## Manufacturer’s Roadmap giant-product scene
 
 Use case: ads-marketing
 
-Asset type: 4:5 Meta/Instagram static ad background for a giant-product creative.
+Asset type: 4:5 Instagram static ad background for a giant-product concept
 
-Primary request: create a candid vertical smartphone photo inside a working New Zealand light-manufacturing factory with one unusually clear open aisle in the center foreground reserved for compositing an oversized physical roadmap book later.
+Primary request: create a photorealistic, slightly absurd but believable candid
+smartphone photo inside a working New Zealand manufacturing factory. A factory
+owner stands behind an enormous upright roadmap booklet, hugging both sides; their
+trousered legs and safety boots remain visible underneath.
 
-Scene/backdrop: practical production floor with sheet-metal or general industrial machinery along both sides, real workshop texture, distant staff in hi-vis, clean usable central aisle.
+Composition: frontal eye-level view, giant book centred and filling most of the
+frame, realistic scale and contact shadows. The front cover is flat, clean and warm
+off-white so the exact Manufacturer’s Roadmap cover can be composited later.
 
-Style/medium: photorealistic natural smartphone photography, platform-native, slightly imperfect framing and exposure.
-
-Composition/framing: vertical 4:5; clear central foreground; machinery and work-in-progress around the edges; eye-level.
-
-Constraints: no book, product, text, logos, trademarks or watermark; safe, plausible workshop.
+Avoid: words, logos, watermarks, glossy studio light, unsafe machinery interaction,
+extra limbs or a mockup aesthetic.
 
 Saved source:
 
-`/Users/ayaanarifaziz/Projects/business-gym-manufacturing/creative/platform-native-static-ads/source/generated/factory-giant-product-background.png`
+`/Users/ayaanarifaziz/Projects/business-gym-manufacturing/creative/platform-native-static-ads/source/generated/factory-giant-product-person.png`
