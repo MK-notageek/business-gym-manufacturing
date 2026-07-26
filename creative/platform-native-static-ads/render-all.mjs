@@ -268,15 +268,22 @@ function pickCard({ eyebrow, title, subtitle, cards, footer }) {
   `)
 }
 
-function giantProduct({ scene, cover, coverBox }) {
+function giantProduct({ scene, cover, coverBox, coverPath, handPaths }) {
   const sceneUri = dataUri(scene)
   const coverUri = dataUri(cover)
+  const defs = `
+    <clipPath id="giantCoverFace">
+      <path d="${coverPath}"/>
+    </clipPath>
+    <clipPath id="giantHands">
+      ${handPaths.map((handPath) => `<path d="${handPath}"/>`).join('')}
+    </clipPath>`
   return base(`
-    <image href="${sceneUri}" x="0" y="0" width="1080" height="1620" preserveAspectRatio="xMidYMin slice"/>
-    <g filter="url(#lightShadow)">
-      <image href="${coverUri}" x="${coverBox.x}" y="${coverBox.y}" width="${coverBox.width}" height="${coverBox.height}" preserveAspectRatio="xMidYMid meet"/>
-    </g>
-  `)
+    <image href="${sceneUri}" x="0" y="0" width="1080" height="1350" preserveAspectRatio="xMidYMid slice"/>
+    <image href="${coverUri}" x="${coverBox.x}" y="${coverBox.y}" width="${coverBox.width}" height="${coverBox.height}" preserveAspectRatio="none" clip-path="url(#giantCoverFace)" opacity=".985"/>
+    <image href="${sceneUri}" x="0" y="0" width="1080" height="1350" preserveAspectRatio="xMidYMid slice" clip-path="url(#giantHands)"/>
+    <path d="${coverPath}" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2"/>
+  `, defs)
 }
 
 function renderAd(repo, name, svg) {
@@ -392,7 +399,12 @@ const tradeAds = [
   ['trademap-img08-giant-trade-map', giantProduct({
     scene: path.join(tradeSource, 'generated', 'trade-giant-product-person.png'),
     cover: tradeCover,
-    coverBox: { x: 303, y: 104, width: 586, height: 925 },
+    coverBox: { x: 300, y: 104, width: 525, height: 875 },
+    coverPath: 'M302 108 L824 108 L810 974 L302 974 Z',
+    handPaths: [
+      'M282 520 C294 514 311 520 317 528 C326 532 330 540 327 547 C333 554 330 562 325 566 C330 573 325 582 318 585 C315 593 304 596 296 591 C286 594 276 588 272 580 C263 574 260 562 263 552 C259 544 264 536 270 532 C271 526 276 522 282 520 Z',
+      'M810 529 C820 526 831 535 832 543 C838 549 838 558 833 563 C838 570 834 578 829 581 C830 590 822 596 814 595 C807 596 800 591 798 585 C790 584 785 578 786 571 C779 568 778 560 783 554 C783 546 790 541 797 540 C799 534 804 530 810 529 Z',
+    ],
   })],
 ]
 
@@ -468,7 +480,12 @@ const factoryAds = [
   ['factorymap-img08-giant-roadmap', giantProduct({
     scene: path.join(factorySource, 'generated', 'factory-giant-product-person.png'),
     cover: factoryCover,
-    coverBox: { x: 282, y: 74, width: 625, height: 934 },
+    coverBox: { x: 274, y: 80, width: 576, height: 865 },
+    coverPath: 'M276 82 L850 82 L840 944 L276 944 Z',
+    handPaths: [
+      'M252 501 C264 499 276 508 279 516 C286 522 288 531 285 538 C289 545 287 554 283 558 C286 566 282 576 277 580 C275 588 267 592 257 590 C248 591 241 583 239 575 C232 568 230 557 232 548 C228 539 231 529 234 522 C237 514 243 505 252 501 Z',
+      'M855 497 C867 498 874 510 870 520 C875 528 873 538 869 542 C873 551 868 560 862 565 C861 574 851 579 842 575 C832 574 825 568 823 560 C816 557 813 549 817 542 C813 535 817 527 823 523 C824 515 833 509 841 508 C844 502 849 498 855 497 Z',
+    ],
   })],
 ]
 
