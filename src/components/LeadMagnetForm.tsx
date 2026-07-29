@@ -64,7 +64,7 @@ const STAGES = [
 ] as const
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/profit-roadmap-session'
+const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/growth-assessment-session'
 
 function isValidNZPhone(raw: string): boolean {
   const cleaned = raw.trim().replace(/[\s().-]/g, '')

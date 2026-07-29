@@ -309,7 +309,7 @@ export default function ThankYouPage() {
             <iframe
               ref={iframeRef}
               src={calendarSrc}
-              id="profit-roadmap-session"
+              id="growth-assessment-session"
               title="Book your free Growth Assessment Session"
               className="cal-frame"
               scrolling="no"
