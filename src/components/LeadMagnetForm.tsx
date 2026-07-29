@@ -214,6 +214,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   async function pickOption(field: keyof Values, value: string) {
     const next = { ...valuesRef.current, [field]: value }
+    valuesRef.current = next
     setValues(next)
     setError('')
     triggerWarm()

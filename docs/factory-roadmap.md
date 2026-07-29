@@ -39,14 +39,13 @@ business and routes the lead to a revenue-band roadmap.
 - Changed the survey from two grouped screens to seven one-question screens:
   name, email, phone, revenue, staff, biggest constraint, and hours in the business.
 - Preserved the manufacturer API fields, partial-contact capture, Meta events,
-  qualification rule, and existing calendar.
+  qualification rule, and delivery workflow.
 - The confirmation now leads with email delivery, removes any download dead end,
   and offers a free 45-minute Growth Assessment Session with a top PBA advisor.
 - Manufacturer video testimonials and 141-review Google proof now sit beneath
   the calendar.
-- The existing `profit-roadmap-session` calendar remains temporarily. Replace it
-  when PBA provides the dedicated Growth Assessment calendar.
-- No deployment was made; Ayaan requested visual approval first.
+- The page uses the dedicated `growth-assessment-session` calendar.
+- The rebuilt funnel is live at `roadmap.premierbusinessacademy.co.nz`.
 
 ## 2026-07-29 roadmap rebuild
 
@@ -63,6 +62,21 @@ business and routes the lead to a revenue-band roadmap.
 - Deployed approved version `dpl_HWHL7uzY1TT69bTEWfk8QBqP3kSW`; all five live
   PDFs returned HTTP 200 and linked to the manufacturer `/thank-you` booking
   page.
+
+## 2026-07-30 form integrity
+
+- All seven survey answers are required in both the browser and API.
+- The API accepts only the exact options displayed for annual revenue, staff,
+  constraint, and hours.
+- The GHL annual-revenue field is `contact.annual_revenue`
+  (`TYG5Nl56EZ3XR5r9OGUN`); it accepts all five manufacturer bands, including
+  `<$1M`.
+- The `lead-magnet-survey-submitted` delivery tag is now added only after all
+  required contact fields have been stored successfully.
+- A rejected GHL field write returns an error and keeps the lead on the survey;
+  it can no longer redirect to `/thank-you` with a blank revenue field.
+
+See `reports/2026-07-30-required-fields-and-roadmap-routing.md`.
 
 ## 2026-07-22 post-submit audit
 
