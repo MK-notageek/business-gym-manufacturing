@@ -8,6 +8,10 @@
   stage guidance, 90-day plan, PBA proof, and owner results.
 - Updated the proof point from 125 to 141 reviews.
 - Renamed the free call CTA to `Growth Assessment`.
+- Changed the final CTA to `Book My Growth Assessment Session` and linked it
+  to the manufacturer booking page at
+  `https://roadmap.premierbusinessacademy.co.nz/thank-you`.
+- Removed the dated `book.premierbusinessacademy.co.nz` PDF link.
 - Kept the five existing public filenames so delivery URLs remain stable.
 - Kept the landing page free of a roadmap download button.
 

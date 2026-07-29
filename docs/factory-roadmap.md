@@ -54,6 +54,8 @@ business and routes the lead to a revenue-band roadmap.
   Roadmap's visual system while preserving the manufacturer-specific content.
 - Updated proof to 141 reviews and renamed the final free-call CTA to Growth
   Assessment.
+- The final PDF CTA now opens the manufacturer `/thank-you` booking page; the
+  dated `book.premierbusinessacademy.co.nz` link has been removed.
 - Kept the five public PDF filenames stable for email delivery.
 - Confirmed the published GoHighLevel workflow already branches across all five
   annual-revenue bands. Two email actions were saved with stable hosted paths;

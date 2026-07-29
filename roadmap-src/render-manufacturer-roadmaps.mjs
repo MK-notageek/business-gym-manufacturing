@@ -9,6 +9,7 @@ const generatedDir = join(root, 'roadmap-src', 'generated')
 const outputDir = join(root, 'public', 'roadmaps')
 const logoPath = join(root, 'public', 'images', 'pba-logo-full.webp')
 const logoData = `data:image/webp;base64,${readFileSync(logoPath).toString('base64')}`
+const bookingPageUrl = 'https://roadmap.premierbusinessacademy.co.nz/thank-you'
 
 const roadmaps = [
   {
@@ -110,7 +111,7 @@ function renderContentPage(blocks, pageNumber, totalPages, dense) {
       '"Bernard is the real deal business coach. Genuine, inspiring and full of energy and ideas. I am seeing a real upward trend in my sales results." — Tim Farland · NZ Business Owner',
       'YOUR NEXT STEP',
       'Stop guessing. Get a Growth Assessment Session. In 45 minutes, a top PBA advisor will help identify where your factory is, what is holding it back and the single most important thing to fix first.',
-      'Book Your Free Growth Assessment',
+      'Book My Growth Assessment Session',
       '500+ NZ manufacturers coached · 141 five-star reviews · Free, no obligation',
     ]
   }
@@ -119,12 +120,12 @@ function renderContentPage(blocks, pageNumber, totalPages, dense) {
     const className = blockClass(block, index)
     const updated = block
       .replace(/\b125\b/g, '141')
-      .replace(/Book Your Free Straight Talk Session/g, 'Book Your Free Growth Assessment')
+      .replace(/Book Your Free Straight Talk Session/g, 'Book My Growth Assessment Session')
       .replace(/Straight Talk Session/g, 'Growth Assessment Session')
     const formatted = escapeHtml(updated)
       .replace(/(^|\s)(\d+)\.\s/g, '$1<br><b>$2.</b> ')
       .replace(/\s+- Bernard Powell$/, '<br><span class="attribution">— Bernard Powell</span>')
-      .replace(/Book Your Free Growth Assessment/g, '<a class="inline-link" href="https://book.premierbusinessacademy.co.nz/">Book Your Free Growth Assessment →</a>')
+      .replace(/Book My Growth Assessment Session/g, `<a class="inline-link" href="${bookingPageUrl}">Book My Growth Assessment Session →</a>`)
     return `<div class="${className}">${formatted}</div>`
   }).join('')
 
