@@ -232,7 +232,7 @@ export default function ThankYouPage() {
            pane visible above the calendar grid. */
         .cal-frame{width:100%;border:0;display:block;background:#fff;min-height:380px;transition:height .25s ease}
         .ty-page{padding-top:clamp(20px,4vw,40px);padding-bottom:64px}
-        .ty-email{font-size:13px;margin-bottom:14px;font-weight:500;letter-spacing:.01em}
+        .ty-email{font-size:15px;margin-bottom:14px;font-weight:500;letter-spacing:.01em}
         .ty-cta-line{font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.3;letter-spacing:-.015em;color:#fff;max-width:680px;margin:0 auto}
         .ty-proof{margin-top:44px}
         .ty-proof-h{font-size:clamp(18px,2.4vw,24px);font-weight:700;line-height:1.3;letter-spacing:-.015em;max-width:600px;margin:0 auto 20px}
@@ -259,7 +259,7 @@ export default function ThankYouPage() {
         @media (min-width:900px){.ty-proof{width:min(1080px,calc(100vw - 48px));position:relative;left:50%;transform:translateX(-50%)}.vg{grid-template-columns:repeat(3,1fr)}.review-grid{grid-template-columns:repeat(3,1fr)}}
         @media (max-width:640px){
           .ty-page{padding-top:18px;padding-bottom:40px}
-          .ty-email{font-size:12px;margin-bottom:10px}
+          .ty-email{font-size:14px;margin-bottom:10px}
           .ty-cta-line{font-size:19px;line-height:1.3;padding:0 2px}
           .cal-card{margin-top:12px}
           .vg,.review-grid{grid-template-columns:1fr}
@@ -274,7 +274,7 @@ export default function ThankYouPage() {
           We’ve emailed your Profit Roadmap{email ? <> to <strong style={{color:'rgba(255,255,255,.85)'}}>{email}</strong></> : ''}. It should arrive within 60 seconds.
         </p>
         <p className="P ty-cta-line">
-          <span className="G">Book your free Growth Assessment Session.</span> In 45 minutes, one of our top <span className="G">PBA</span> advisors will identify the biggest constraint holding your factory back and the best next step.
+          <span className="G">Book your free 45 minute Growth Assessment Session</span> with one of our top <span className="G">PBA</span> advisors who will identify your biggest constraint holding your factory back and the best next step.
         </p>
 
         <div className="cal-card">
