@@ -48,6 +48,18 @@ business and routes the lead to a revenue-band roadmap.
   when PBA provides the dedicated Growth Assessment calendar.
 - No deployment was made; Ayaan requested visual approval first.
 
+## 2026-07-29 roadmap rebuild
+
+- Rebuilt all five 13-page manufacturer roadmaps using the Trade Map Profit
+  Roadmap's visual system while preserving the manufacturer-specific content.
+- Updated proof to 141 reviews and renamed the final free-call CTA to Growth
+  Assessment.
+- Kept the five public PDF filenames stable for email delivery.
+- Confirmed the published GoHighLevel workflow already branches across all five
+  annual-revenue bands. Its legacy media-file links will be replaced with the
+  stable hosted paths only after the rebuilt PDFs are approved for deployment.
+- No deployment was made.
+
 ## 2026-07-22 post-submit audit
 
 - The confirmation page has no direct roadmap download button; it tells the lead
