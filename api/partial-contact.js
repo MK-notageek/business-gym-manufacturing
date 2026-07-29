@@ -45,11 +45,11 @@ export default async function handler(req, res) {
   if (variantLabel) tags.push(`${variantLabel}-variant`)
 
   const customFields = []
-  if (annual_revenue)    customFields.push({ id: CF.annual_revenue,    value: annual_revenue })
-  if (number_of_staff)   customFields.push({ id: CF.number_of_staff,   value: number_of_staff })
-  if (biggest_challenge) customFields.push({ id: CF.biggest_challenge, value: biggest_challenge })
-  if (hours_on_floor)    customFields.push({ id: CF.hours_on_floor,    value: hours_on_floor })
-  if (variantLabel)      customFields.push({ id: CF.lp_variant,        value: variantLabel })
+  if (annual_revenue)    customFields.push({ id: CF.annual_revenue,    fieldValue: annual_revenue })
+  if (number_of_staff)   customFields.push({ id: CF.number_of_staff,   fieldValue: number_of_staff })
+  if (biggest_challenge) customFields.push({ id: CF.biggest_challenge, fieldValue: biggest_challenge })
+  if (hours_on_floor)    customFields.push({ id: CF.hours_on_floor,    fieldValue: hours_on_floor })
+  if (variantLabel)      customFields.push({ id: CF.lp_variant,        fieldValue: variantLabel })
 
   const body = {
     email: trimmedEmail,

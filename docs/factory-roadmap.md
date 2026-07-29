@@ -73,8 +73,9 @@ business and routes the lead to a revenue-band roadmap.
   `<$1M`.
 - The `lead-magnet-survey-submitted` delivery tag is now added only after all
   required contact fields have been stored successfully.
-- A rejected GHL field write returns an error and keeps the lead on the survey;
-  it can no longer redirect to `/thank-you` with a blank revenue field.
+- All custom fields use GHL's documented `fieldValue` request property. Revenue
+  is written and confirmed before the delivery tag is added, so the normal
+  experience remains select, continue, submit, email.
 
 See `reports/2026-07-30-required-fields-and-roadmap-routing.md`.
 

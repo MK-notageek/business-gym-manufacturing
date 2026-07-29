@@ -64,11 +64,11 @@ export default async function handler(req, res) {
   if (variantLabel) tags.push(`${variantLabel}-variant`)
 
   const customFields = []
-  if (annual_revenue)    customFields.push({ id: CF.annual_revenue,    value: annual_revenue })
-  if (number_of_staff)   customFields.push({ id: CF.number_of_staff,   value: number_of_staff })
-  if (biggest_challenge) customFields.push({ id: CF.biggest_challenge, value: biggest_challenge })
-  if (hours_on_floor)    customFields.push({ id: CF.hours_on_floor,    value: hours_on_floor })
-  if (variantLabel)      customFields.push({ id: CF.lp_variant,        value: variantLabel })
+  if (annual_revenue)    customFields.push({ id: CF.annual_revenue,    fieldValue: annual_revenue })
+  if (number_of_staff)   customFields.push({ id: CF.number_of_staff,   fieldValue: number_of_staff })
+  if (biggest_challenge) customFields.push({ id: CF.biggest_challenge, fieldValue: biggest_challenge })
+  if (hours_on_floor)    customFields.push({ id: CF.hours_on_floor,    fieldValue: hours_on_floor })
+  if (variantLabel)      customFields.push({ id: CF.lp_variant,        fieldValue: variantLabel })
 
   const headers = {
     'Content-Type': 'application/json',
@@ -85,6 +85,33 @@ export default async function handler(req, res) {
     const text = await r.text()
     console.log('[submit-form] lead-magnet-survey-submitted tag →', r.status)
     if (!r.ok) throw new Error(`GHL delivery tag failed (${r.status}): ${text.slice(0, 200)}`)
+  }
+
+  // GHL can return 200 while silently ignoring a malformed single-select write.
+  // Write revenue with the documented fieldValue shape, then confirm it before
+  // adding the workflow trigger tag.
+  async function ensureRevenueStored(cid) {
+    const r = await fetch(`https://services.leadconnectorhq.com/contacts/${cid}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ customFields: [{ id: CF.annual_revenue, fieldValue: annual_revenue }] }),
+    })
+    const text = await r.text()
+    if (!r.ok) throw new Error(`GHL revenue write failed (${r.status}): ${text.slice(0, 200)}`)
+    let data; try { data = JSON.parse(text) } catch { data = {} }
+    let fields = data?.contact?.customFields || []
+    let saved = fields.find(field => field.id === CF.annual_revenue)
+    if ((saved?.fieldValue ?? saved?.value) === annual_revenue) return
+
+    const check = await fetch(`https://services.leadconnectorhq.com/contacts/${cid}`, { headers })
+    const checkText = await check.text()
+    if (!check.ok) throw new Error(`GHL revenue verification failed (${check.status})`)
+    try { data = JSON.parse(checkText) } catch { data = {} }
+    fields = data?.contact?.customFields || []
+    saved = fields.find(field => field.id === CF.annual_revenue)
+    if ((saved?.fieldValue ?? saved?.value) !== annual_revenue) {
+      throw new Error('GHL revenue verification returned a different value')
+    }
   }
 
   let contactId = incomingContactId || null
@@ -150,6 +177,7 @@ export default async function handler(req, res) {
         testEventCode: meta_test_event_code || undefined,
       }).catch(() => {})
     }
+    await ensureRevenueStored(contactId)
     await commitDeliveryTag(contactId)
     return res.status(200).json({ ok: true, contactId })
   } catch (err) {

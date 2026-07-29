@@ -39,14 +39,14 @@ export default async function handler(req, res) {
   if (typeof phone === 'string' && phone.trim()) body.phone = phone.trim()
 
   const customFields = []
-  if (typeof annual_revenue === 'string'    && annual_revenue.trim())    customFields.push({ id: CF.annual_revenue,    value: annual_revenue.trim() })
-  if (typeof number_of_staff === 'string'   && number_of_staff.trim())   customFields.push({ id: CF.number_of_staff,   value: number_of_staff.trim() })
-  if (typeof biggest_challenge === 'string' && biggest_challenge.trim()) customFields.push({ id: CF.biggest_challenge, value: biggest_challenge.trim() })
-  if (typeof hours_on_floor === 'string'    && hours_on_floor.trim())    customFields.push({ id: CF.hours_on_floor,    value: hours_on_floor.trim() })
+  if (typeof annual_revenue === 'string'    && annual_revenue.trim())    customFields.push({ id: CF.annual_revenue,    fieldValue: annual_revenue.trim() })
+  if (typeof number_of_staff === 'string'   && number_of_staff.trim())   customFields.push({ id: CF.number_of_staff,   fieldValue: number_of_staff.trim() })
+  if (typeof biggest_challenge === 'string' && biggest_challenge.trim()) customFields.push({ id: CF.biggest_challenge, fieldValue: biggest_challenge.trim() })
+  if (typeof hours_on_floor === 'string'    && hours_on_floor.trim())    customFields.push({ id: CF.hours_on_floor,    fieldValue: hours_on_floor.trim() })
   if (typeof lp_variant === 'string' && lp_variant.trim()) {
     const VALID_VARIANTS = ['headline-30pct', 'headline-10hrs']
     if (VALID_VARIANTS.includes(lp_variant.trim())) {
-      customFields.push({ id: CF.lp_variant, value: lp_variant.trim() })
+      customFields.push({ id: CF.lp_variant, fieldValue: lp_variant.trim() })
     }
   }
   if (customFields.length) body.customFields = customFields
