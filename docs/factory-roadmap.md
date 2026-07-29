@@ -56,8 +56,9 @@ business and routes the lead to a revenue-band roadmap.
   Assessment.
 - Kept the five public PDF filenames stable for email delivery.
 - Confirmed the published GoHighLevel workflow already branches across all five
-  annual-revenue bands. Its legacy media-file links will be replaced with the
-  stable hosted paths only after the rebuilt PDFs are approved for deployment.
+  annual-revenue bands. Two email actions were saved with stable hosted paths;
+  the remaining actions need clean branch-by-branch verification because the
+  high-memory GoHighLevel editor began intermittently targeting the wrong node.
 - No deployment was made.
 
 ## 2026-07-22 post-submit audit

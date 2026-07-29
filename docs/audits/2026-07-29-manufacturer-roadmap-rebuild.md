@@ -49,11 +49,14 @@ Testimonials and Google review proof remain beneath the manufacturer calendar.
 - Published delivery workflow: `ROADMAP DOWNLOAD → BOOKING`
 - Trigger: tag `lead-magnet-survey-submitted`
 - The workflow already branches on the five `Annual revenue` values.
-- Existing delivery emails use GoHighLevel media-file URLs rather than the
-  stable website paths above.
-- Final branch-by-branch URL replacement is held until the rebuilt PDFs are
-  approved for deployment, so the published workflow cannot send an
-  unapproved or mismatched revenue-band file.
+- The workflow started with GoHighLevel media-file URLs rather than the stable
+  website paths above.
+- Two delivery email actions were saved with stable website PDF paths during
+  the audit. GoHighLevel's high-memory workflow editor then began
+  intermittently targeting the wrong action, so further live edits were
+  stopped.
+- The remaining actions and all five revenue-band mappings require a clean
+  branch-by-branch verification before the redesigned PDFs are deployed.
 
 ## Release status
 
