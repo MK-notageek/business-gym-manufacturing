@@ -53,15 +53,19 @@ Testimonials and Google review proof remain beneath the manufacturer calendar.
 - Published delivery workflow: `ROADMAP DOWNLOAD → BOOKING`
 - Trigger: tag `lead-magnet-survey-submitted`
 - The workflow already branches on the five `Annual revenue` values.
-- The workflow started with GoHighLevel media-file URLs rather than the stable
+- Replaced the five GoHighLevel media-file URLs with the matching stable
   website paths above.
-- Two delivery email actions were saved with stable website PDF paths during
-  the audit. GoHighLevel's high-memory workflow editor then began
-  intermittently targeting the wrong action, so further live edits were
-  stopped.
-- The remaining actions and all five revenue-band mappings require a clean
-  branch-by-branch verification before the redesigned PDFs are deployed.
+- Normalized the malformed `$1M–$2M` download-link text.
+- Saved the published workflow after confirming the five revenue-specific
+  action URLs.
+- No test contact, booking, email, Slack notification, or WhatsApp notification
+  was triggered.
 
 ## Release status
 
-Not deployed. Ayaan requested visual verification before any deployment.
+Deployed after Ayaan's visual approval.
+
+- Production deployment: `dpl_HWHL7uzY1TT69bTEWfk8QBqP3kSW`
+- Custom-domain verification: all five PDF URLs returned HTTP 200.
+- Every live PDF contained one `/thank-you` booking-page link and no
+  `book.premierbusinessacademy.co.nz` link.

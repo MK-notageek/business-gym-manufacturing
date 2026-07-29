@@ -58,10 +58,11 @@ business and routes the lead to a revenue-band roadmap.
   dated `book.premierbusinessacademy.co.nz` link has been removed.
 - Kept the five public PDF filenames stable for email delivery.
 - Confirmed the published GoHighLevel workflow already branches across all five
-  annual-revenue bands. Two email actions were saved with stable hosted paths;
-  the remaining actions need clean branch-by-branch verification because the
-  high-memory GoHighLevel editor began intermittently targeting the wrong node.
-- No deployment was made.
+  annual-revenue bands and replaced every delivery action with its matching
+  stable hosted PDF path.
+- Deployed approved version `dpl_HWHL7uzY1TT69bTEWfk8QBqP3kSW`; all five live
+  PDFs returned HTTP 200 and linked to the manufacturer `/thank-you` booking
+  page.
 
 ## 2026-07-22 post-submit audit
 
