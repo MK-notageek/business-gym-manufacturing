@@ -27,8 +27,26 @@ business and routes the lead to a revenue-band roadmap.
 - The old Organized folder contains four `stage-0` to `stage-3` PDFs. They do not
   match the five revenue-band PDFs currently shipped by the live repo, so they
   were left in the archive rather than copied into this project.
-- The Organized code entry was only a symlink to the live repo. This project now
-  carries the workspace code link instead.
+- The repo now lives as a real directory at
+  `code/business-gym-manufacturing`; the former `~/Projects` staging copy and
+  workspace symlink were replaced on 2026-07-29.
+
+## 2026-07-29 focused funnel
+
+- Replaced the long-form landing page with the Trade Map’s earlier hero-first
+  structure.
+- Added a manufacturer-specific interactive Profit Roadmap booklet.
+- Changed the survey from two grouped screens to seven one-question screens:
+  name, email, phone, revenue, staff, biggest constraint, and hours in the business.
+- Preserved the manufacturer API fields, partial-contact capture, Meta events,
+  qualification rule, and existing calendar.
+- The confirmation now leads with email delivery, removes any download dead end,
+  and offers a free 45-minute Growth Assessment Session with a top PBA advisor.
+- Manufacturer video testimonials and 141-review Google proof now sit beneath
+  the calendar.
+- The existing `profit-roadmap-session` calendar remains temporarily. Replace it
+  when PBA provides the dedicated Growth Assessment calendar.
+- No deployment was made; Ayaan requested visual approval first.
 
 ## 2026-07-22 post-submit audit
 

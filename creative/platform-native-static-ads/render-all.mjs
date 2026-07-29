@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process'
 const workspace = process.env.ADVLAUNCH_ASSISTANT_ROOT
   || '/Users/ayaanarifaziz/Desktop/AdvLaunch Assistant'
 const factoryRepo = process.env.FACTORY_ROADMAP_REPO
-  || '/Users/ayaanarifaziz/Projects/business-gym-manufacturing'
+  || '/Users/ayaanarifaziz/Desktop/AdvLaunch Assistant/external/bernard/live-projects/factory-roadmap/code/business-gym-manufacturing'
 const tradeRepo = process.env.TRADE_ROADMAP_REPO
   || path.join(workspace, 'external/bernard/live-projects/trades-roadmap/code/pba-profit-roadmap-gh')
 

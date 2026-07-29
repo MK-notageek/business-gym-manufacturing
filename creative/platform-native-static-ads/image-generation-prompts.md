@@ -72,4 +72,4 @@ extra limbs or a mockup aesthetic.
 
 Saved source:
 
-`/Users/ayaanarifaziz/Projects/business-gym-manufacturing/creative/platform-native-static-ads/source/generated/factory-giant-product-person.png`
+`/Users/ayaanarifaziz/Desktop/AdvLaunch Assistant/external/bernard/live-projects/factory-roadmap/code/business-gym-manufacturing/creative/platform-native-static-ads/source/generated/factory-giant-product-person.png`

@@ -1,37 +1,75 @@
-import { useState, useRef, FormEvent, FocusEvent, ChangeEvent } from 'react'
-
-// Shared form for both hero variants. Two-step progression matching the original
-// GHL survey: Step 1 captures name/email/phone and triggers the partial-contact
-// create on "Continue". Step 2 captures the qualifying dropdowns. Final Submit
-// replaces the tags so `partial` drops off and `lead-magnet-survey-submitted` lands.
+import { useEffect, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
 
 type Values = {
   full_name: string
   email: string
   phone: string
-  number_of_staff: string
   annual_revenue: string
+  number_of_staff: string
   biggest_challenge: string
   hours_on_floor: string
 }
 
+type Option = { value: string; label: string; hint?: string }
+
 const EMPTY: Values = {
-  full_name: '', email: '', phone: '',
-  number_of_staff: '', annual_revenue: '', biggest_challenge: '', hours_on_floor: '',
+  full_name: '',
+  email: '',
+  phone: '',
+  annual_revenue: '',
+  number_of_staff: '',
+  biggest_challenge: '',
+  hours_on_floor: '',
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+const REVENUE_OPTIONS: Option[] = [
+  { value: '<$1M', label: 'Under $1M', hint: 'Getting established' },
+  { value: '$1M–$2M', label: '$1M–$2M', hint: 'Growing' },
+  { value: '$2M–$5M', label: '$2M–$5M', hint: 'Scaling up' },
+  { value: '$5M–$10M', label: '$5M–$10M', hint: 'Established' },
+  { value: '$10M+', label: '$10M+', hint: 'Market leader' },
+]
 
-// NZ phone validation. type="tel" only changes the mobile keyboard, it does NOT
-// enforce a format, so junk ("asdf", "123") passes unless we check here. Accepts
-// +64 / 0064 / 64 / leading-0 forms with spaces, dashes, parens, dots; rejects
-// letters and too-short input. NZ national significant numbers run 8 (landline)
-// to 10 (mobile) digits once the country code / leading 0 is stripped.
+const STAFF_OPTIONS: Option[] = [
+  { value: '1-3', label: '1–3 staff' },
+  { value: '4-10', label: '4–10 staff' },
+  { value: '11-20', label: '11–20 staff' },
+  { value: '20+', label: '20+ staff' },
+]
+
+const CHALLENGE_OPTIONS: Option[] = [
+  { value: 'Margins shrinking', label: 'Margins are shrinking' },
+  { value: 'Stuck on the floor', label: 'I’m stuck on the floor' },
+  { value: 'Cash flow', label: 'Unpredictable cash flow' },
+  { value: 'Staff retention', label: 'Keeping good staff' },
+  { value: 'Growth', label: 'Growth has stalled' },
+]
+
+const HOURS_OPTIONS: Option[] = [
+  { value: '<20', label: 'Under 20 hours' },
+  { value: '20-30', label: '20–30 hours' },
+  { value: '30-40', label: '30–40 hours' },
+  { value: '40+', label: '40+ hours' },
+]
+
+const STAGES = [
+  { key: 'full_name', q: "First, what’s your name?", sub: 'So our PBA advisor knows who they’re helping.' },
+  { key: 'email', q: 'Where should we send your Roadmap?', sub: 'Your free copy will land here within 60 seconds.' },
+  { key: 'phone', q: 'What’s the best number for you?', sub: 'Only used if you ask us to follow up. No spam.' },
+  { key: 'annual_revenue', q: 'What does your factory turn over each year?', sub: 'This helps us assess the right growth constraints.' },
+  { key: 'number_of_staff', q: 'How many people are on your team?', sub: 'Include everyone working in the business.' },
+  { key: 'biggest_challenge', q: 'What is the biggest constraint right now?', sub: 'Pick the one costing you the most.' },
+  { key: 'hours_on_floor', q: 'How many hours a week are you working in the business?', sub: 'Your closest estimate is fine.' },
+] as const
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/profit-roadmap-session'
+
 function isValidNZPhone(raw: string): boolean {
   const cleaned = raw.trim().replace(/[\s().-]/g, '')
   if (!/^\+?\d{6,}$/.test(cleaned)) return false
   let national = cleaned.replace(/\D/g, '')
-  // Strip country code (0064 exit-code form first, then bare 64) or leading trunk 0.
   if (national.startsWith('0064')) national = national.slice(4)
   else if (national.startsWith('64')) national = national.slice(2)
   else if (national.startsWith('0')) national = national.slice(1)
@@ -39,12 +77,11 @@ function isValidNZPhone(raw: string): boolean {
 }
 
 function getCookie(name: string): string {
-  const m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'))
-  return m ? decodeURIComponent(m[1]) : ''
+  const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'))
+  return match ? decodeURIComponent(match[1]) : ''
 }
 
 function getMetaTest(): string {
-  if (typeof window === 'undefined') return ''
   return new URLSearchParams(window.location.search).get('meta_test') || ''
 }
 
@@ -52,356 +89,269 @@ function genEventId(): string {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-// Pre-warm the GHL calendar widget once the user starts engaging with the form,
-// so by the time they reach /thank-you the iframe's HTML/JS/CSS/fonts/slot API
-// responses are already in the browser HTTP cache. URL is intentionally params-
-// less, assets cache by path, so the real iframe (with first_name/email/etc.)
-// reuses every sub-resource even though its document URL differs.
-const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/profit-roadmap-session'
-
-// `variant` is the headline actually shown on the page (route-forced on /a,/b;
-// cookie-derived on /). Reporting it directly keeps the displayed headline and
-// the lp_variant field/tag in sync, reading the cookie here desynced them on /a,/b.
 export default function LeadMagnetForm({ variant }: { variant: string }) {
-  const [step, setStep] = useState<1 | 2>(1)
+  const [step, setStep] = useState(0)
   const [values, setValues] = useState<Values>(EMPTY)
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
-  const [errors, setErrors] = useState<Partial<Record<keyof Values, string>>>({})
+  const [error, setError] = useState('')
   const [warmCal, setWarmCal] = useState(false)
 
-  const valuesRef = useRef<Values>(values)
+  const valuesRef = useRef(values)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const contactIdRef = useRef<string | null>(null)
   const creatingPromiseRef = useRef<Promise<string | null> | null>(null)
   const lastSentRef = useRef<Record<string, string>>({})
-
   valuesRef.current = values
+
+  useEffect(() => {
+    if (step <= 2) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 60)
+  }, [step])
 
   function triggerWarm() {
     if (!warmCal) setWarmCal(true)
   }
 
-  function handleChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-    const name = e.target.name as keyof Values
-    const value = e.target.value
-    setValues(v => ({ ...v, [name]: value }))
-    if (errors[name]) setErrors(x => ({ ...x, [name]: undefined }))
+  function setField(field: keyof Values, value: string) {
+    setValues(current => ({ ...current, [field]: value }))
+    if (error) setError('')
     triggerWarm()
-    // A <select> commits the instant it's picked, the chosen option IS the answer,
-    // there's no mid-typing state to wait out. Persist on change (not just blur) so
-    // the last dropdown a user touches before abandoning is captured even if no blur
-    // ever fires (tab-close / focus never leaves the element). Text inputs stay on
-    // blur, we don't want to persist half-typed values.
-    if (e.target.tagName === 'SELECT') persistField(name, value)
   }
 
-  async function createPartialContact(buf: Values): Promise<string | null> {
+  async function createPartialContact(buffer: Values): Promise<string | null> {
     try {
-      const eid = genEventId()
-      const res = await fetch('/api/partial-contact', {
+      const eventId = genEventId()
+      const response = await fetch('/api/partial-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...buf,
+          ...buffer,
           lp_variant: variant,
-          meta_event_id: eid,
+          meta_event_id: eventId,
           meta_fbp: getCookie('_fbp'),
           meta_fbc: getCookie('_fbc'),
           meta_source_url: window.location.href,
           meta_test_event_code: getMetaTest(),
         }),
       })
-      const data = await res.json().catch(() => ({} as any))
-      if (res.ok && data.contactId) {
-        contactIdRef.current = data.contactId
-        for (const [k, v] of Object.entries(buf)) {
-          if (typeof v === 'string' && v.trim()) lastSentRef.current[k] = v
-        }
-        if (typeof window !== 'undefined' && (window as any).fbq) {
-          if (buf.email || buf.phone) {
-            (window as any).fbq('init', '1420845489575315', { ...(buf.email ? { em: buf.email } : {}), ...(buf.phone ? { ph: buf.phone } : {}) });
-          }
-          (window as any).fbq('track', 'InitiateCheckout', {}, { eventID: eid })
-        }
-        return data.contactId
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok || !data.contactId) return null
+
+      contactIdRef.current = data.contactId
+      Object.entries(buffer).forEach(([key, value]) => {
+        if (value.trim()) lastSentRef.current[key] = value
+      })
+      if (window.fbq) {
+        window.fbq('init', '1420845489575315', { em: buffer.email })
+        window.fbq('track', 'InitiateCheckout', {}, { eventID: eventId })
       }
-      console.warn('[partial] create missing contactId', res.status, data)
-      return null
-    } catch (err: any) {
-      console.warn('[partial] create threw', err?.message)
+      return data.contactId
+    } catch {
       return null
     }
   }
 
+  async function ensurePartial(buffer: Values) {
+    if (contactIdRef.current || creatingPromiseRef.current) {
+      if (creatingPromiseRef.current) await creatingPromiseRef.current
+      return
+    }
+    if (!buffer.full_name.trim() || !EMAIL_RE.test(buffer.email.trim())) return
+    creatingPromiseRef.current = createPartialContact(buffer)
+    await creatingPromiseRef.current
+    creatingPromiseRef.current = null
+  }
+
   async function updateField(field: keyof Values, value: string) {
-    if (!contactIdRef.current) return
+    if (creatingPromiseRef.current) await creatingPromiseRef.current
+    if (!contactIdRef.current || lastSentRef.current[field] === value) return
     try {
-      const res = await fetch('/api/update-contact', {
+      const response = await fetch('/api/update-contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contactId: contactIdRef.current, [field]: value, lp_variant: variant }),
       })
-      if (res.ok) lastSentRef.current[field] = value
-      else console.warn('[partial] update failed', res.status)
-    } catch (err: any) {
-      console.warn('[partial] update threw', err?.message)
+      if (response.ok) lastSentRef.current[field] = value
+    } catch {
+      // Partial-field persistence is best effort; final submit still carries everything.
     }
   }
 
-  // Single capture path for every field. Called on blur (all fields) and on change
-  // (selects only). Once a contact exists, PUTs the one field to the same contact;
-  // before that, bundles current values and creates the partial as soon as name +
-  // valid email are present. `lastSentRef` makes repeat calls (blur after change,
-  // or an unchanged value) no-ops, and lets a genuinely changed value re-send.
-  async function persistField(field: keyof Values, rawValue: string) {
-    const value = (rawValue || '').trim()
+  function validateText(): string {
+    if (step === 0 && !values.full_name.trim()) return 'Enter your name'
+    if (step === 1 && !EMAIL_RE.test(values.email.trim())) return 'Enter a valid email'
+    if (step === 2 && !isValidNZPhone(values.phone)) return 'Enter a valid NZ phone number'
+    return ''
+  }
 
-    if (!value) return
-    if (field === 'email' && !EMAIL_RE.test(value)) return
-    if (field === 'phone' && !isValidNZPhone(value)) return
-    if (lastSentRef.current[field] === value) return
-
-    if (contactIdRef.current) { await updateField(field, value); return }
-
-    if (creatingPromiseRef.current) {
-      const id = await creatingPromiseRef.current
-      if (id && lastSentRef.current[field] !== value) await updateField(field, value)
+  async function advanceText() {
+    const validationError = validateText()
+    if (validationError) {
+      setError(validationError)
       return
     }
 
-    const buf: Values = { ...valuesRef.current, [field]: value }
-    const emailValid = EMAIL_RE.test((buf.email || '').trim())
-    const nameValid = !!(buf.full_name || '').trim()
-    if (emailValid && nameValid) {
-      creatingPromiseRef.current = createPartialContact(buf)
-      await creatingPromiseRef.current
-      creatingPromiseRef.current = null
+    if (step === 1) await ensurePartial(valuesRef.current)
+    if (step === 2) await updateField('phone', values.phone.trim())
+    setStep(current => current + 1)
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      advanceText()
     }
   }
 
-  function handleBlur(e: FocusEvent<HTMLInputElement | HTMLSelectElement>) {
-    persistField(e.target.name as keyof Values, e.target.value)
+  async function handleBlur() {
+    if (step === 1) await ensurePartial(valuesRef.current)
+    if (step === 2 && isValidNZPhone(values.phone)) await updateField('phone', values.phone.trim())
   }
 
-  function validateStep1(): boolean {
-    const next: typeof errors = {}
-    if (!values.full_name.trim()) next.full_name = 'Required'
-    if (!values.email.trim()) next.email = 'Required'
-    else if (!EMAIL_RE.test(values.email.trim())) next.email = 'Enter a valid email'
-    if (!values.phone.trim()) next.phone = 'Required'
-    else if (!isValidNZPhone(values.phone)) next.phone = 'Enter a valid NZ phone number'
-    setErrors(next)
-    return Object.keys(next).length === 0
+  function back() {
+    setError('')
+    setStep(current => Math.max(0, current - 1))
   }
 
-  async function handleContinue() {
-    if (!validateStep1()) return
-    // Fire partial create if blur hasn't already, e.g. user tabbed fast.
-    if (!contactIdRef.current && !creatingPromiseRef.current) {
-      creatingPromiseRef.current = createPartialContact(valuesRef.current)
-      await creatingPromiseRef.current
-      creatingPromiseRef.current = null
-    }
-    setStep(2)
+  async function pickOption(field: keyof Values, value: string) {
+    const next = { ...valuesRef.current, [field]: value }
+    setValues(next)
+    setError('')
+    triggerWarm()
+    await updateField(field, value)
+
+    if (step === STAGES.length - 1) await submit(next)
+    else setTimeout(() => setStep(current => current + 1), 160)
   }
 
-  function validateStep2(): boolean {
-    const next: typeof errors = {}
-    if (!values.annual_revenue) next.annual_revenue = 'Required'
-    if (!values.number_of_staff) next.number_of_staff = 'Required'
-    if (!values.biggest_challenge) next.biggest_challenge = 'Required'
-    if (!values.hours_on_floor) next.hours_on_floor = 'Required'
-    setErrors(next)
-    return Object.keys(next).length === 0
-  }
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!validateStep2()) return
+  async function submit(finalValues: Values) {
+    if (status === 'loading') return
     setStatus('loading')
     try {
-      const eid = genEventId()
-      const res = await fetch('/api/submit-form', {
+      const eventId = genEventId()
+      const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...values,
+          ...finalValues,
           contactId: contactIdRef.current,
           lp_variant: variant,
-          meta_event_id: eid,
+          meta_event_id: eventId,
           meta_fbp: getCookie('_fbp'),
           meta_fbc: getCookie('_fbc'),
           meta_source_url: window.location.href,
           meta_test_event_code: getMetaTest(),
         }),
       })
-      if (!res.ok) throw new Error('failed')
-      if (typeof window !== 'undefined' && (window as any).fbq) {
-        if (values.email || values.phone) {
-          (window as any).fbq('init', '1420845489575315', { ...(values.email ? { em: values.email } : {}), ...(values.phone ? { ph: values.phone } : {}) });
-        }
-        (window as any).fbq('track', 'Lead', {}, { eventID: eid })
+      if (!response.ok) throw new Error('submit failed')
+
+      if (window.fbq) {
+        window.fbq('init', '1420845489575315', { em: finalValues.email, ph: finalValues.phone })
+        window.fbq('track', 'Lead', {}, { eventID: eventId })
       }
-      const rev = values.annual_revenue === '<$1M' ? 'low' : 'high'
-      const fullName = values.full_name.trim()
-      const qs = new URLSearchParams({ rev })
-      // GHL booking widget for this calendar uses a single "Full Name" field,
-      // it reads `full_name` from the URL, not first_name/last_name. Keep both
-      // aliases so we tolerate any GHL config drift.
-      if (fullName) {
-        qs.set('full_name', fullName)
-        qs.set('name', fullName)
-      }
-      const trimmedEmail = values.email.trim()
-      if (trimmedEmail) qs.set('email', trimmedEmail)
-      const trimmedPhone = values.phone.trim()
-      if (trimmedPhone) qs.set('phone', trimmedPhone)
-      if (contactIdRef.current) qs.set('cid', contactIdRef.current)
-      const mt = getMetaTest()
-      if (mt) qs.set('meta_test', mt)
-      window.location.href = `/thank-you?${qs.toString()}`
+
+      const query = new URLSearchParams({
+        rev: finalValues.annual_revenue === '<$1M' ? 'low' : 'high',
+        full_name: finalValues.full_name.trim(),
+        name: finalValues.full_name.trim(),
+        email: finalValues.email.trim(),
+        phone: finalValues.phone.trim(),
+      })
+      if (contactIdRef.current) query.set('cid', contactIdRef.current)
+      const metaTest = getMetaTest()
+      if (metaTest) query.set('meta_test', metaTest)
+      window.location.href = `/thank-you?${query.toString()}`
     } catch {
       setStatus('error')
     }
   }
 
+  const pct = ((step + 1) / STAGES.length) * 100
+  const stage = STAGES[step]
+  const options = step === 3
+    ? REVENUE_OPTIONS
+    : step === 4
+      ? STAFF_OPTIONS
+      : step === 5
+        ? CHALLENGE_OPTIONS
+        : HOURS_OPTIONS
+
   return (
-    <form className="lm-form" onSubmit={handleSubmit} onFocusCapture={triggerWarm} noValidate>
+    <div className="lm-form" onFocusCapture={triggerWarm}>
       <style>{`
-        .lm-form{max-width:520px;margin:0 auto;background:linear-gradient(180deg,rgba(22,20,42,.78),rgba(10,10,20,.85));border:1px solid rgba(139,83,236,.28);border-radius:24px;padding:clamp(28px,4vw,40px);position:relative;backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:0 24px 80px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.06) inset;display:flex;flex-direction:column;gap:20px}
-        .lm-form::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(139,83,236,.7),rgba(35,175,254,.7),transparent);border-radius:24px 24px 0 0}
-
-        .lm-steps{display:flex;gap:8px;margin-bottom:6px}
-        .lm-step{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
-        .lm-step.on{background:linear-gradient(90deg,#8b53ec,#23affe)}
-        .lm-step-label{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5)}
-        .lm-step-label b{color:#fff;background:linear-gradient(135deg,#8b53ec,#23affe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
-        .lm-field{display:flex;flex-direction:column;gap:6px;position:relative}
-        .lm-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;transition:color .2s ease}
-        .lm-field:focus-within .lm-label{color:rgba(255,255,255,.9)}
-        .lm-req{color:#ff7a8a;margin-left:2px}
-        .lm-input,.lm-select{width:100%;background:rgba(10,10,20,.55);border:1.5px solid rgba(139,83,236,.18);border-radius:12px;padding:14px 16px;font-size:15px;color:#fff;font-family:inherit;outline:none;transition:border-color .25s ease,background .25s ease,box-shadow .25s ease;appearance:none;-webkit-appearance:none;font-variant-numeric:tabular-nums}
+        .lm-form{max-width:520px;margin:0 auto;background:linear-gradient(180deg,rgba(22,20,42,.82),rgba(10,10,20,.9));border:1px solid rgba(139,83,236,.3);border-radius:24px;padding:clamp(26px,3.4vw,38px);position:relative;backdrop-filter:blur(24px) saturate(140%);box-shadow:0 24px 80px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.06) inset;overflow:hidden;text-align:left}
+        .lm-form::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(139,83,236,.7),rgba(35,175,254,.7),transparent)}
+        .lm-prog-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:14px}
+        .lm-prog-track{flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+        .lm-prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#8b53ec,#23affe);transition:width .45s cubic-bezier(.16,1,.3,1)}
+        .lm-prog-step{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);white-space:nowrap;font-variant-numeric:tabular-nums}
+        .lm-stage{animation:lmIn .42s cubic-bezier(.16,1,.3,1)}
+        .lm-q{font-family:'DM Sans',sans-serif;font-size:clamp(21px,2.4vw,26px);font-weight:700;line-height:1.2;letter-spacing:-.02em;color:#fff;margin-bottom:6px}
+        .lm-sub{font-size:13.5px;color:rgba(255,255,255,.55);margin-bottom:20px;line-height:1.5}
+        .lm-input{width:100%;background:rgba(10,10,20,.55);border:1.5px solid rgba(139,83,236,.22);border-radius:14px;padding:17px 18px;font-size:16px;color:#fff;font-family:inherit;outline:none;transition:border-color .25s,background .25s,box-shadow .25s}
         .lm-input::placeholder{color:rgba(255,255,255,.32)}
-        .lm-input:hover,.lm-select:hover{border-color:rgba(139,83,236,.4);background:rgba(10,10,20,.7)}
-        .lm-input:focus,.lm-select:focus{border-color:rgba(139,83,236,.75);background:rgba(10,10,20,.92);box-shadow:0 0 0 4px rgba(139,83,236,.16)}
-        .lm-select{cursor:pointer;padding-right:40px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='white' stroke-opacity='.65' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 16px center}
-        .lm-select option{background:#0a0a14;color:#fff}
-        .lm-select:invalid{color:rgba(255,255,255,.45)}
-        .lm-err-field{border-color:#ef4444 !important}
-        .lm-err-msg{font-size:12px;color:#fca5a5;margin-top:2px}
-
-        .lm-btn{background:linear-gradient(135deg,#8b53ec,#23affe);color:#fff;font-weight:700;font-size:15px;padding:16px 32px;border-radius:999px;border:none;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 20px rgba(139,83,236,.32);transition:transform .18s ease,box-shadow .18s ease,opacity .18s;margin-top:4px;letter-spacing:-.005em;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px}
-        .lm-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 36px rgba(139,83,236,.45)}
-        .lm-btn:active:not(:disabled){transform:translateY(0)}
-        .lm-btn:disabled{opacity:.6;cursor:not-allowed}
-        .lm-btn-back{background:transparent;border:1.5px solid rgba(255,255,255,.2);box-shadow:none;color:rgba(255,255,255,.8);font-weight:600;font-size:14px;padding:13px 24px}
-        .lm-btn-back:hover:not(:disabled){border-color:rgba(255,255,255,.4);transform:none;box-shadow:none}
-        .lm-btn-row{display:flex;gap:10px;align-items:center;margin-top:6px}
-        .lm-btn-row .lm-btn{flex:1;margin-top:0}
-
-        .lm-note{font-size:12px;color:rgba(255,255,255,.45);text-align:center;margin-top:-4px}
-        .lm-err{color:#fca5a5;font-size:13px;text-align:center}
+        .lm-input:hover{border-color:rgba(139,83,236,.42);background:rgba(10,10,20,.72)}
+        .lm-input:focus{border-color:rgba(139,83,236,.78);background:rgba(10,10,20,.92);box-shadow:0 0 0 4px rgba(139,83,236,.16)}
+        .lm-input.err{border-color:#ef4444}
+        .lm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .lm-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:rgba(10,10,20,.5);border:1.5px solid rgba(139,83,236,.2);border-radius:14px;padding:14px 15px;font-family:inherit;color:#fff;cursor:pointer;transition:transform .14s,border-color .2s,background .2s,box-shadow .2s;min-height:58px;justify-content:center}
+        .lm-opt:hover{border-color:rgba(139,83,236,.6);background:rgba(139,83,236,.1);transform:translateY(-2px)}
+        .lm-opt:focus-visible,.lm-btn:focus-visible,.lm-back:focus-visible{outline:3px solid rgba(35,175,254,.8);outline-offset:3px}
+        .lm-opt-v{font-size:15px;font-weight:700;letter-spacing:-.01em}
+        .lm-opt-h{font-size:11.5px;color:rgba(255,255,255,.5);font-weight:500}
+        .lm-row{display:flex;gap:10px;align-items:center;margin-top:20px}
+        .lm-btn{flex:1;background:linear-gradient(135deg,#8b53ec,#23affe);color:#fff;font-weight:700;font-size:15.5px;padding:16px 28px;border-radius:999px;border:none;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 20px rgba(139,83,236,.34);transition:transform .18s,box-shadow .18s;font-family:inherit;min-height:52px}
+        .lm-btn:hover{transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 36px rgba(139,83,236,.48)}
+        .lm-btn:active{transform:scale(.98)}
+        .lm-back{flex:0 0 auto;background:transparent;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.75);font-weight:600;font-size:14px;padding:14px 18px;border-radius:999px;cursor:pointer;font-family:inherit}
+        .lm-err{color:#fca5a5;font-size:13px;margin-top:12px;text-align:center}
+        .lm-note{font-size:12px;color:rgba(255,255,255,.45);text-align:center;margin-top:14px}
+        .lm-load{position:absolute;inset:0;background:rgba(10,10,20,.82);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:5;border-radius:24px}
+        .lm-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(139,83,236,.25);border-top-color:#23affe;animation:lmspin .7s linear infinite}
+        @keyframes lmspin{to{transform:rotate(360deg)}}
+        @keyframes lmIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+        @media(prefers-reduced-motion:reduce){.lm-stage{animation:none}.lm-prog-fill{transition:none}}
+        @media(max-width:420px){.lm-grid{grid-template-columns:1fr}}
       `}</style>
 
-      {step === 1 && (
-        <>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="full_name">Full name <span className="lm-req">*</span></label>
-            <input id="full_name" className={`lm-input ${errors.full_name?'lm-err-field':''}`}
-              type="text" name="full_name" placeholder="Jane Smith" autoComplete="name" required aria-required="true"
-              value={values.full_name} onChange={handleChange} onBlur={handleBlur}
-            />
-            {errors.full_name && <span className="lm-err-msg">{errors.full_name}</span>}
-          </div>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="email">Email <span className="lm-req">*</span></label>
-            <input id="email" className={`lm-input ${errors.email?'lm-err-field':''}`}
-              type="email" name="email" placeholder="jane@company.co.nz" autoComplete="email" required aria-required="true"
-              value={values.email} onChange={handleChange} onBlur={handleBlur}
-            />
-            {errors.email && <span className="lm-err-msg">{errors.email}</span>}
-          </div>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="phone">Phone / WhatsApp <span className="lm-req">*</span></label>
-            <input id="phone" className={`lm-input ${errors.phone?'lm-err-field':''}`}
-              type="tel" name="phone" placeholder="+64 21 000 0000" autoComplete="tel" required aria-required="true"
-              value={values.phone} onChange={handleChange} onBlur={handleBlur}
-            />
-            {errors.phone && <span className="lm-err-msg">{errors.phone}</span>}
-          </div>
-          <button type="button" className="lm-btn" onClick={handleContinue}>Continue →</button>
-          <p className="lm-note">30 seconds. Completely free.</p>
-        </>
-      )}
+      <div className="lm-prog-row">
+        <div className="lm-prog-track"><div className="lm-prog-fill" style={{ width: `${pct}%` }} /></div>
+        <div className="lm-prog-step">Step {step + 1} of {STAGES.length}</div>
+      </div>
 
-      {step === 2 && (
-        <>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="annual_revenue">Annual revenue <span className="lm-req">*</span></label>
-            <select id="annual_revenue" className={`lm-select ${errors.annual_revenue?'lm-err-field':''}`}
-              name="annual_revenue" value={values.annual_revenue} onChange={handleChange} onBlur={handleBlur} required aria-required="true">
-              <option value="" disabled>Select your range</option>
-              <option value="<$1M">&lt;$1M</option>
-              <option value="$1M–$2M">$1M–$2M</option>
-              <option value="$2M–$5M">$2M–$5M</option>
-              <option value="$5M–$10M">$5M–$10M</option>
-              <option value="$10M+">$10M+</option>
-            </select>
-            {errors.annual_revenue && <span className="lm-err-msg">{errors.annual_revenue}</span>}
-          </div>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="number_of_staff">Number of staff <span className="lm-req">*</span></label>
-            <select id="number_of_staff" className={`lm-select ${errors.number_of_staff?'lm-err-field':''}`}
-              name="number_of_staff" value={values.number_of_staff} onChange={handleChange} onBlur={handleBlur} required aria-required="true">
-              <option value="" disabled>Select staff count</option>
-              <option value="1-3">1-3</option>
-              <option value="4-10">4-10</option>
-              <option value="11-20">11-20</option>
-              <option value="20+">20+</option>
-            </select>
-            {errors.number_of_staff && <span className="lm-err-msg">{errors.number_of_staff}</span>}
-          </div>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="biggest_challenge">Biggest challenge <span className="lm-req">*</span></label>
-            <select id="biggest_challenge" className={`lm-select ${errors.biggest_challenge?'lm-err-field':''}`}
-              name="biggest_challenge" value={values.biggest_challenge} onChange={handleChange} onBlur={handleBlur} required aria-required="true">
-              <option value="" disabled>What hurts the most?</option>
-              <option value="Margins shrinking">Margins shrinking</option>
-              <option value="Stuck on the floor">Stuck on the floor</option>
-              <option value="Cash flow">Cash flow</option>
-              <option value="Staff retention">Staff retention</option>
-              <option value="Growth">Growth</option>
-            </select>
-            {errors.biggest_challenge && <span className="lm-err-msg">{errors.biggest_challenge}</span>}
-          </div>
-          <div className="lm-field">
-            <label className="lm-label" htmlFor="hours_on_floor">Hours at work <span className="lm-req">*</span></label>
-            <select id="hours_on_floor" className={`lm-select ${errors.hours_on_floor?'lm-err-field':''}`}
-              name="hours_on_floor" value={values.hours_on_floor} onChange={handleChange} onBlur={handleBlur} required aria-required="true">
-              <option value="" disabled>Hours per week</option>
-              <option value="Under 20">Under 20</option>
-              <option value="20-40">20-40</option>
-              <option value="40-60">40-60</option>
-              <option value="60+">60+</option>
-            </select>
-            {errors.hours_on_floor && <span className="lm-err-msg">{errors.hours_on_floor}</span>}
-          </div>
-          <button type="submit" className="lm-btn" style={{alignSelf:'center',minWidth:260}} disabled={status==='loading'}>
-            {status === 'loading' ? 'Sending…' : 'Get My Free Profit Roadmap →'}
-          </button>
-          {status === 'error' && <p className="lm-err">Something went wrong. Please try again.</p>}
-        </>
-      )}
+      <div className="lm-stage" key={step}>
+        <div className="lm-q">{stage.q}</div>
+        <div className="lm-sub">{stage.sub}</div>
 
-      {warmCal && (
-        <iframe
-          src={WARM_CAL_URL}
-          title=""
-          aria-hidden="true"
-          tabIndex={-1}
-          style={{position:'absolute',width:1,height:1,opacity:0,pointerEvents:'none',left:-9999,top:-9999,border:0}}
-        />
-      )}
-    </form>
+        {step === 0 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="text" placeholder="Jane Smith" autoComplete="name" value={values.full_name} onChange={event => setField('full_name', event.target.value)} onKeyDown={onKeyDown} />}
+        {step === 1 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="email" placeholder="jane@company.co.nz" autoComplete="email" inputMode="email" value={values.email} onChange={event => setField('email', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
+        {step === 2 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="tel" placeholder="+64 21 000 0000" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
+
+        {step >= 3 && (
+          <div className="lm-grid">
+            {options.map(option => (
+              <button key={option.value} type="button" className="lm-opt" onClick={() => pickOption(stage.key, option.value)}>
+                <span className="lm-opt-v">{option.label}</span>
+                {option.hint && <span className="lm-opt-h">{option.hint}</span>}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {error && <div className="lm-err">{error}</div>}
+
+        {step <= 2 && (
+          <div className="lm-row">
+            {step > 0 && <button type="button" className="lm-back" onClick={back}>← Back</button>}
+            <button type="button" className="lm-btn" onClick={advanceText}>Continue →</button>
+          </div>
+        )}
+        {step >= 3 && <div className="lm-row"><button type="button" className="lm-back" onClick={back}>← Back</button></div>}
+        {step <= 1 && <div className="lm-note">Your details stay private. Unsubscribe anytime.</div>}
+      </div>
+
+      {status === 'error' && <div className="lm-err">Something went wrong. Please try again.</div>}
+      {status === 'loading' && <div className="lm-load"><div className="lm-spin" /><div>Building your Profit Roadmap…</div></div>}
+      {warmCal && <iframe src={WARM_CAL_URL} title="" aria-hidden="true" tabIndex={-1} style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none', left: -9999, top: -9999, border: 0 }} />}
+    </div>
   )
 }

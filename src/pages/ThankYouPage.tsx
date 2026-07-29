@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // GHL passes rev=high or rev=low
 
@@ -9,6 +9,43 @@ declare global {
     clarity?: (...args: unknown[]) => void
     __pbaScheduleFired?: boolean
   }
+}
+
+const VIDEOS = [
+  { id: 'hqCtdyMNOgY', name: 'Chris', stat: 'Systems Replaced Chaos' },
+  { id: 'mHGpgEVoUFY', name: 'Josh', stat: '+36 to 40% Revenue · Weekends Back' },
+  { id: 'gAfNzSxSWP4', name: 'Tim', stat: '3 Months Done in 3 Weeks' },
+  { id: 'BbcoNuMfjmw', name: 'Mitchell', stat: '9 to 11 Hours Saved Every Week' },
+  { id: 'VfQdGgEyjdQ', name: 'Abe', stat: '100+ Improvements Without Him' },
+  { id: 'rrMx4Z-ekG0', name: 'Trent', stat: '+50 to 55% Revenue · 22 to 25 Hours Back' },
+]
+
+const REVIEWS = [
+  { name: 'Adrian Day', initials: 'AD', color: '#4285F4', text: "Bernard is all go. Full of insights and immediate action. We've been blown away by just how quickly PBA implements and starts bringing positive change." },
+  { name: 'Your Local Tyre Centre', initials: 'YL', color: '#EA4335', text: "I've been working with Bernard over the past few months. No fluff, no BS, just the things we need to hear. He has given us multiple strategies." },
+  { name: 'Tim Farland', initials: 'TF', color: '#34A853', text: "Bernard is the real deal business coach. Genuine, inspiring and full of energy and ideas. I'm seeing a real upward trend in my sales results." },
+  { name: 'Joshua Prestidge', initials: 'JP', color: '#FBBC05', text: "Joining Premier Business Academy was one of the best things we have done in years. We joined PBA as we wanted to improve the life our business gives us." },
+  { name: 'Trent Koehn', initials: 'TK', color: '#4285F4', text: "Bernard and his team are the best. In just a few minutes I received the answers I had been searching for for months." },
+  { name: "Matt O'Connor", initials: 'MO', color: '#EA4335', text: "High energy, motivational and best of all clear action that we can take to create more sales and get out of our comfort zone." },
+]
+
+function TestimonialVideo({ id, name, stat }: { id: string; name: string; stat: string }) {
+  const [playing, setPlaying] = useState(false)
+  return (
+    <div className="vc">
+      <button className="vw" type="button" onClick={() => setPlaying(true)} aria-label={`Play ${name} testimonial`}>
+        {playing
+          ? <iframe src={`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`} title={`${name} testimonial`} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen />
+          : <>
+              <img src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} alt={`${name} testimonial`} loading="lazy" />
+              <span className="vp" aria-hidden="true">
+                <svg width="56" height="56" viewBox="0 0 60 60"><circle cx="30" cy="30" r="30" fill="url(#testimonial-play)" /><polygon points="24,18 24,42 44,30" fill="#fff" /><defs><linearGradient id="testimonial-play" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#8b53ec" /><stop offset="100%" stopColor="#23affe" /></linearGradient></defs></svg>
+              </span>
+            </>}
+      </button>
+      <div className="vi"><b>{name}</b><span className="vs">{stat}</span></div>
+    </div>
+  )
 }
 
 export default function ThankYouPage() {
@@ -197,13 +234,35 @@ export default function ThankYouPage() {
         .ty-page{padding-top:clamp(20px,4vw,40px);padding-bottom:64px}
         .ty-email{font-size:13px;margin-bottom:14px;font-weight:500;letter-spacing:.01em}
         .ty-cta-line{font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.3;letter-spacing:-.015em;color:#fff;max-width:680px;margin:0 auto}
+        .ty-proof{margin-top:44px}
+        .ty-proof-h{font-size:clamp(18px,2.4vw,24px);font-weight:700;line-height:1.3;letter-spacing:-.015em;max-width:600px;margin:0 auto 20px}
+        .vg{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+        .vc{border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--bdr);transition:transform .25s var(--e)}
+        .vc:hover{transform:translateY(-3px)}
+        .vw{position:relative;width:100%;padding:0 0 56.25%;cursor:pointer;overflow:hidden;border:0;background:#111;display:block}
+        .vw img,.vw iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0}
+        .vp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)}
+        .vi{padding:13px 15px;text-align:left}
+        .vi b{display:block;font-size:13.5px}
+        .vs{display:block;font-size:14.5px;font-weight:700;margin-top:2px;background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .review-head{display:flex;align-items:center;justify-content:center;gap:9px;margin:40px 0 18px;flex-wrap:wrap}
+        .review-stars{color:#f59e0b;font-size:15px;letter-spacing:2px}
+        .review-meta{font-size:13px;color:var(--mut);font-weight:500}
+        .review-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+        .review-card{background:#fff;border-radius:14px;padding:18px;text-align:left;box-shadow:0 8px 28px rgba(0,0,0,.22)}
+        .review-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+        .review-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex:none}
+        .review-name{font-weight:700;font-size:13.5px;color:#111}
+        .review-card p{font-size:13px;line-height:1.55;color:#374151}
         .ty-footer{margin-top:18px;font-size:12px;color:var(--mut)}
         .ty-footer a{color:var(--mut);text-decoration:underline}
+        @media (min-width:900px){.ty-proof{width:min(1080px,calc(100vw - 48px));position:relative;left:50%;transform:translateX(-50%)}.vg{grid-template-columns:repeat(3,1fr)}.review-grid{grid-template-columns:repeat(3,1fr)}}
         @media (max-width:640px){
           .ty-page{padding-top:18px;padding-bottom:40px}
           .ty-email{font-size:12px;margin-bottom:10px}
           .ty-cta-line{font-size:19px;line-height:1.3;padding:0 2px}
           .cal-card{margin-top:12px}
+          .vg,.review-grid{grid-template-columns:1fr}
         }
       `}</style>
 
@@ -211,13 +270,11 @@ export default function ThankYouPage() {
       <div className="orb" style={{width:400,height:400,background:'radial-gradient(circle,rgba(35,175,254,.14),transparent 70%)',bottom:-100,left:-100}} />
 
       <div className="mx ty-page" style={{position:'relative',zIndex:1,textAlign:'center'}}>
-        {email && (
-          <p className="ty-email" style={{color:'var(--mut)'}}>
-            Your roadmap is on its way to <strong style={{color:'rgba(255,255,255,.85)'}}>{email}</strong>.
-          </p>
-        )}
+        <p className="ty-email">
+          We’ve emailed your Profit Roadmap{email ? <> to <strong style={{color:'rgba(255,255,255,.85)'}}>{email}</strong></> : ''}. It should arrive within 60 seconds.
+        </p>
         <p className="P ty-cta-line">
-          <span className="G">Want us to help you fix it inside your factory?</span> Book a 45-minute call with one of our top <span className="G">PBA</span> advisors for completely free.
+          <span className="G">Book your free Growth Assessment Session.</span> In 45 minutes, one of our top <span className="G">PBA</span> advisors will identify the biggest constraint holding your factory back and the best next step.
         </p>
 
         <div className="cal-card">
@@ -226,12 +283,35 @@ export default function ThankYouPage() {
               ref={iframeRef}
               src={calendarSrc}
               id="profit-roadmap-session"
-              title="Book your call"
+              title="Book your free Growth Assessment Session"
               className="cal-frame"
               scrolling="no"
             />
           </div>
         </div>
+
+        <section className="ty-proof" aria-labelledby="manufacturer-results">
+          <h2 className="P ty-proof-h" id="manufacturer-results">See what business owners say about working with PBA.</h2>
+          <div className="vg">
+            {VIDEOS.map(video => <TestimonialVideo key={video.id} {...video} />)}
+          </div>
+
+          <div className="review-head">
+            <span className="review-stars">★★★★★</span>
+            <span className="review-meta"><strong style={{ color: '#fff' }}>5.0</strong> · 141+ Google reviews</span>
+          </div>
+          <div className="review-grid">
+            {REVIEWS.map(review => (
+              <article className="review-card" key={review.name}>
+                <div className="review-top">
+                  <div className="review-avatar" style={{ background: review.color }}>{review.initials}</div>
+                  <div><div className="review-name">{review.name}</div><div className="review-stars" style={{ fontSize: 10 }}>★★★★★</div></div>
+                </div>
+                <p>{review.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <div className="ty-footer">
           <Link to="/">← Back to home</Link>
