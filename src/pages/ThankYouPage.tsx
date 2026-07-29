@@ -11,13 +11,23 @@ declare global {
   }
 }
 
+// Same testimonial set as the Trade Map thank-you page.
 const VIDEOS = [
-  { id: 'hqCtdyMNOgY', name: 'Chris', stat: 'Systems Replaced Chaos' },
-  { id: 'mHGpgEVoUFY', name: 'Josh', stat: '+36 to 40% Revenue · Weekends Back' },
-  { id: 'gAfNzSxSWP4', name: 'Tim', stat: '3 Months Done in 3 Weeks' },
-  { id: 'BbcoNuMfjmw', name: 'Mitchell', stat: '9 to 11 Hours Saved Every Week' },
-  { id: 'VfQdGgEyjdQ', name: 'Abe', stat: '100+ Improvements Without Him' },
-  { id: 'rrMx4Z-ekG0', name: 'Trent', stat: '+50 to 55% Revenue · 22 to 25 Hours Back' },
+  { id: '_pJmMLgn9LE', name: 'Business Owner · UK', stat: 'Broke Through a $20M Ceiling' },
+  { id: 'xvsNBrj9ivU', name: 'Andy · NZ', stat: 'Grew Fast, Cut Ad Spend to Zero' },
+  { id: 'mt0UTryP6lk', name: 'Nathan · AU', stat: 'Stopped Leaving Money on the Table' },
+  { id: 'teJexLx8i8A', name: 'James · AU', stat: 'Serious About Growth, And It Works' },
+  { id: '1go1aT89mLc', name: 'Business Owner · DE', stat: 'Lean Transformed the Floor' },
+  { id: 'u2ZU8BPgGKQ', name: 'Matthew · UK', stat: 'The Accountability to Execute' },
+  { id: '9nEAuLyWeJQ', name: 'Vern · UK', stat: 'From Operator to Owner' },
+  { id: 'COGbYSoGss4', name: 'Sebastien · NZ', stat: 'A Simple Structure & More Clarity' },
+  { id: 'XL29a8JTKq8', name: 'Trent · USA', stat: 'Got His Numbers & Systems Sorted' },
+  { id: 'Q5qPUpESams', name: 'Business Owner', stat: 'Broke Every Sales Record' },
+  { id: 'Y-WWSRAyAeo', name: 'Amos · USA', stat: 'From 80-Hour Weeks to Home by 3pm' },
+  { id: 'WHmiy9B5nB0', name: 'Business Owner', stat: 'Grew Cash Flow 480% in 6 Months' },
+  { id: 'wM7CsYvKyqM', name: 'Landie', stat: 'Record Results in Just 2 Months' },
+  { id: 'G_U7acj7U3o', name: 'Matthew · Allquip', stat: '2 a Month to 50 Units in 6 Weeks' },
+  { id: 'evtQQodkANk', name: 'Abe · Edusafe', stat: 'Sustaining a Lean Culture' },
 ]
 
 const REVIEWS = [
