@@ -274,7 +274,7 @@ export default function ThankYouPage() {
           We’ve emailed your Profit Roadmap{email ? <> to <strong style={{color:'rgba(255,255,255,.85)'}}>{email}</strong></> : ''}. It should arrive within 60 seconds.
         </p>
         <p className="P ty-cta-line">
-          <span className="G">Book your free 45 minute Growth Assessment Session</span> with one of our top <span className="G">PBA</span> advisors who will identify your biggest constraint holding your factory back and the best next step.
+          Book your free 45 minute <span className="G">Growth Assessment Session</span> with one of our top <span className="G">PBA</span> advisors who will identify your biggest constraint holding your factory back and the best next step.
         </p>
 
         <div className="cal-card">
