@@ -96,7 +96,10 @@ export default function ThankYouPage() {
     let cancelled = false
     const onResized = (info?: { height?: number }) => {
       if (cancelled) return
-      if (info?.height && iframe) iframe.style.height = `${info.height}px`
+      // iframe-resizer intermittently reports 0 before the widget paints. Applying
+      // that collapses the iframe and leaves the white `.cal-card` min-height box
+      // with no calendar in it, so ignore anything below a sane widget height.
+      if (info?.height && info.height >= 200 && iframe) iframe.style.height = `${info.height}px`
     }
     const tryInit = (attempt = 0) => {
       if (cancelled) return
@@ -138,9 +141,17 @@ export default function ThankYouPage() {
       // calendar / time-slot steps). This is the reliable cross-device source
       // of truth, replacing the old fixed-height pixel crop that only matched
       // one browser's rendered heights.
-      if (/set[-_ ]?iframe[-_ ]?height|iframe[-_ ]?(loaded|ready)/i.test(raw)) {
-        const m = raw.match(/"height"\s*:\s*(\d+)/i)
-        const h = m ? parseInt(m[1], 10) : 0
+      //
+      // GHL emits two different shapes and we must accept both:
+      //   ["highlevel.setHeight",{"height":560,"id":"msgsndr-calendar"}]
+      //   [iFrameSizer]<slug>:<height>:<width>:<trigger>
+      // The old matcher only looked for `set-iframe-height`, which this widget
+      // never sends, so the iframe stayed collapsed and the calendar rendered as
+      // an empty white box.
+      if (/set[-_ ]?iframe[-_ ]?height|set[-_ ]?height|iframe[-_ ]?(loaded|ready)|iFrameSizer/i.test(raw)) {
+        const json = raw.match(/"height"\s*:\s*(\d+)/i)
+        const sizer = raw.match(/\[iFrameSizer\][^:]*:(\d+):/i)
+        const h = parseInt((json?.[1] ?? sizer?.[1]) || '0', 10)
         if (h >= 200 && iframeRef.current) iframeRef.current.style.height = `${h}px`
       }
 
@@ -150,7 +161,7 @@ export default function ThankYouPage() {
       // shapes when an appointment is created, different account configs / widget
       // versions emit different keys, so we match any of the common signatures
       // *except* clearly non-booking lifecycle events like load / init / sticky-fill.
-      const isInitNoise = /set-sticky-contacts|fetch-(query-params|sticky-contacts)|iframeLoaded|iframe-ready|set-iframe-height|scrollTo|inPageLink/i.test(raw)
+      const isInitNoise = /set-sticky-contacts|fetch-(query-params|sticky-contacts)|iframeLoaded|iframe-ready|set-iframe-height|set[-_ ]?height|iFrameSizer|scrollTo|inPageLink/i.test(raw)
       if (isInitNoise) return
 
       const isBookingEvent =
@@ -210,7 +221,7 @@ export default function ThankYouPage() {
   if (email) calendarParams.set('email', email)
   if (phone) calendarParams.set('phone', phone)
   const qs = calendarParams.toString()
-  const calendarSrc = `https://link.premierbusinessacademy.co.nz/widget/bookings/profit-roadmap-session${qs ? `?${qs}` : ''}`
+  const calendarSrc = `https://link.premierbusinessacademy.co.nz/widget/bookings/growth-assessment-session${qs ? `?${qs}` : ''}`
 
   return (
     <>
