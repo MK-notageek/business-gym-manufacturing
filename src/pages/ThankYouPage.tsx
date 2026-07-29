@@ -11,8 +11,14 @@ declare global {
   }
 }
 
-// Same testimonial set as the Trade Map thank-you page.
+// Manufacturing-specific testimonials lead, then the wider Trade Map set.
 const VIDEOS = [
+  { id: 'hqCtdyMNOgY', name: 'Chris', stat: 'Systems Replaced Chaos' },
+  { id: 'mHGpgEVoUFY', name: 'Josh', stat: '+36 to 40% Revenue · Weekends Back' },
+  { id: 'gAfNzSxSWP4', name: 'Tim', stat: '3 Months Done in 3 Weeks' },
+  { id: 'BbcoNuMfjmw', name: 'Mitchell', stat: '9 to 11 Hours Saved Every Week' },
+  { id: 'VfQdGgEyjdQ', name: 'Abe', stat: '100+ Improvements Without Him' },
+  { id: 'rrMx4Z-ekG0', name: 'Trent', stat: '+50 to 55% Revenue · 22 to 25 Hours Back' },
   { id: '_pJmMLgn9LE', name: 'Business Owner · UK', stat: 'Broke Through a $20M Ceiling' },
   { id: 'xvsNBrj9ivU', name: 'Andy · NZ', stat: 'Grew Fast, Cut Ad Spend to Zero' },
   { id: 'mt0UTryP6lk', name: 'Nathan · AU', stat: 'Stopped Leaving Money on the Table' },
