@@ -1,5 +1,30 @@
 import LeadMagnetForm from '../components/LeadMagnetForm'
 
+function GuideMockup({ className = '' }: { className?: string }) {
+  return (
+    <div className={`guide-wrap ${className}`} role="img" aria-label="The Manufacturer’s Profit Roadmap free guide">
+      <div className="guide">
+        <div className="book">
+          <div className="book-face">
+            <div className="book-top"><span className="book-eyebrow">Free Guide</span><img className="book-logo-img" src="/images/pba-logo-full.webp" alt="Premier Business Academy" /></div>
+            <div className="book-mid">
+              <div className="book-kicker">The Manufacturer’s</div>
+              <div className="book-title">PROFIT<br />ROADMAP</div>
+              <div className="book-rule" />
+              <div className="book-sub">Find the profit leaks inside your factory and the first one to fix.</div>
+            </div>
+            <div className="book-foot"><span>Premier Business Academy</span><span className="book-foot-b">Bernard Powell</span></div>
+            <div className="book-badge"><b>7</b><small>STEPS</small></div>
+          </div>
+        </div>
+        <div className="guide-glow" />
+      </div>
+      <div className="book-pill book-pill-tr"><span className="bp-stars">★★★★★</span><span className="bp-text">141 reviews</span></div>
+      <div className="book-pill book-pill-bl"><span className="bp-num">300+</span><span className="bp-text">factory owners</span></div>
+    </div>
+  )
+}
+
 export default function LeadMagnetPage({ headlineVariant = 'headline-30pct' }: { headlineVariant?: 'headline-30pct' | 'headline-10hrs' }) {
   const headline = headlineVariant === 'headline-10hrs'
     ? <>Add <em className="G">$50K+ more profit</em> while working 10 fewer hours every week.</>
@@ -32,6 +57,7 @@ export default function LeadMagnetPage({ headlineVariant = 'headline-30pct' }: {
         .hero-side{display:flex;flex-direction:column;align-items:stretch;gap:34px;min-width:0}
         .hero-form-wrap{min-width:0}
         .guide-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:fit-content;margin:0 auto}
+        .guide-wrap-mobile{display:none}
         .guide{position:relative;perspective:1700px;display:flex;align-items:center;justify-content:center}
         .guide-glow{position:absolute;width:72%;height:72%;border-radius:50%;background:radial-gradient(circle,rgba(139,83,236,.4),transparent 70%);filter:blur(64px)}
         .book{position:relative;z-index:1;width:300px;height:402px;transform:rotateY(-24deg) rotateX(6deg);transform-style:preserve-3d;transition:transform .7s var(--e);filter:drop-shadow(0 40px 60px rgba(0,0,0,.6))}
@@ -60,7 +86,7 @@ export default function LeadMagnetPage({ headlineVariant = 'headline-30pct' }: {
         .bp-stars{color:#f59e0b;font-size:15px;letter-spacing:1.5px}
         .bp-num{font-size:19px;font-weight:800;background:var(--g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .bp-text{font-size:14px;font-weight:600}
-        @media(max-width:900px){.hero{min-height:auto;padding:44px 0 32px;align-items:flex-start}.hero-g{grid-template-columns:1fr;text-align:center}.hero h1{font-size:clamp(32px,8.4vw,46px)}.guide-wrap{display:none}.hero-side{gap:0;margin-top:8px}.hero-desc{font-size:16px;margin:0 auto}.proof{justify-content:center}}
+        @media(max-width:900px){.hero{min-height:auto;padding:44px 0 32px;align-items:flex-start}.hero-g{grid-template-columns:1fr;text-align:center}.hero h1{font-size:clamp(32px,8.4vw,46px);margin-bottom:0}.guide-wrap-desktop{display:none}.guide-wrap-mobile{display:flex;width:100%;height:330px;margin:12px auto 20px}.guide-wrap-mobile .guide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.76)}.guide-wrap-mobile .book-pill{display:none}.hero-side{gap:0;margin-top:8px}.hero-desc{font-size:16px;margin:0 auto}.proof{justify-content:center}}
         @media(max-width:480px){.hero{padding:36px 0 28px}}
       `}</style>
 
@@ -71,33 +97,15 @@ export default function LeadMagnetPage({ headlineVariant = 'headline-30pct' }: {
           <div className="hero-copy">
             <div className="eyebrow"><span className="eyebrow-dot" />Free Guide · For NZ Manufacturers</div>
             <h1 className="P">{headline}</h1>
-            <p className="hero-desc">Get <strong>The Manufacturer’s Profit Roadmap</strong> free—see where your factory is leaking money and the first fix that will recover it fastest.</p>
+            <GuideMockup className="guide-wrap-mobile" />
+            <p className="hero-desc">Get <strong>The Manufacturer’s Profit Roadmap</strong> free. See where your factory is leaking money and the first fix that will recover it fastest.</p>
             <div className="proof">
               {['300+ factory owners', '141 ★ five-star reviews', 'NZ’s #1 Best Workplace'].map(item => <span key={item}>{item}</span>)}
             </div>
           </div>
 
           <div className="hero-side">
-            <div className="guide-wrap" role="img" aria-label="The Manufacturer’s Profit Roadmap free guide">
-              <div className="guide">
-                <div className="book">
-                  <div className="book-face">
-                    <div className="book-top"><span className="book-eyebrow">Free Guide</span><img className="book-logo-img" src="/images/pba-logo-full.webp" alt="Premier Business Academy" /></div>
-                    <div className="book-mid">
-                      <div className="book-kicker">The Manufacturer’s</div>
-                      <div className="book-title">PROFIT<br />ROADMAP</div>
-                      <div className="book-rule" />
-                      <div className="book-sub">Find the profit leaks inside your factory—and the first one to fix.</div>
-                    </div>
-                    <div className="book-foot"><span>Premier Business Academy</span><span className="book-foot-b">Bernard Powell</span></div>
-                    <div className="book-badge"><b>7</b><small>STEPS</small></div>
-                  </div>
-                </div>
-                <div className="guide-glow" />
-              </div>
-              <div className="book-pill book-pill-tr"><span className="bp-stars">★★★★★</span><span className="bp-text">141 reviews</span></div>
-              <div className="book-pill book-pill-bl"><span className="bp-num">300+</span><span className="bp-text">factory owners</span></div>
-            </div>
+            <GuideMockup className="guide-wrap-desktop" />
             <div className="hero-form-wrap"><LeadMagnetForm variant={headlineVariant} /></div>
           </div>
         </div>
