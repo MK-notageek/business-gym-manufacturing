@@ -322,7 +322,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
         {step === 0 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="text" placeholder="Jane Smith" autoComplete="name" value={values.full_name} onChange={event => setField('full_name', event.target.value)} onKeyDown={onKeyDown} />}
         {step === 1 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="email" placeholder="jane@company.co.nz" autoComplete="email" inputMode="email" value={values.email} onChange={event => setField('email', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
-        {step === 2 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="tel" placeholder="+1 415 555 0123" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
+        {step === 2 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="tel" placeholder="+64 21 000 0000" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
 
         {step >= 3 && (
           <div className="lm-grid">
