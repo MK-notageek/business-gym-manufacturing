@@ -66,14 +66,11 @@ const STAGES = [
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/growth-assessment-session'
 
-function isValidNZPhone(raw: string): boolean {
-  const cleaned = raw.trim().replace(/[\s().-]/g, '')
-  if (!/^\+?\d{6,}$/.test(cleaned)) return false
-  let national = cleaned.replace(/\D/g, '')
-  if (national.startsWith('0064')) national = national.slice(4)
-  else if (national.startsWith('64')) national = national.slice(2)
-  else if (national.startsWith('0')) national = national.slice(1)
-  return national.length >= 8 && national.length <= 10
+function isValidPhone(raw: string): boolean {
+  const value = raw.trim()
+  if (!/^[+\d][\d\s().-]*$/.test(value)) return false
+  const digits = value.replace(/\D/g, '')
+  return digits.length >= 6 && digits.length <= 15
 }
 
 function getCookie(name: string): string {
@@ -179,7 +176,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
   function validateText(): string {
     if (step === 0 && !values.full_name.trim()) return 'Enter your name'
     if (step === 1 && !EMAIL_RE.test(values.email.trim())) return 'Enter a valid email'
-    if (step === 2 && !isValidNZPhone(values.phone)) return 'Enter a valid NZ phone number'
+    if (step === 2 && !isValidPhone(values.phone)) return 'Enter a valid phone number'
     return ''
   }
 
@@ -204,7 +201,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   async function handleBlur() {
     if (step === 1) await ensurePartial(valuesRef.current)
-    if (step === 2 && isValidNZPhone(values.phone)) await updateField('phone', values.phone.trim())
+    if (step === 2 && isValidPhone(values.phone)) await updateField('phone', values.phone.trim())
   }
 
   function back() {
@@ -325,7 +322,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
         {step === 0 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="text" placeholder="Jane Smith" autoComplete="name" value={values.full_name} onChange={event => setField('full_name', event.target.value)} onKeyDown={onKeyDown} />}
         {step === 1 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="email" placeholder="jane@company.co.nz" autoComplete="email" inputMode="email" value={values.email} onChange={event => setField('email', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
-        {step === 2 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="tel" placeholder="+64 21 000 0000" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
+        {step === 2 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="tel" placeholder="+1 415 555 0123" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
 
         {step >= 3 && (
           <div className="lm-grid">

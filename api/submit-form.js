@@ -1,5 +1,6 @@
 import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 import { mirrorToTeamCrm } from './_lib/team-crm.js'
+import { createContactWithPhoneFallback, updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -8,6 +9,13 @@ const STAFF_OPTIONS = new Set(['1-3', '4-10', '11-20', '20+'])
 const CHALLENGE_OPTIONS = new Set(['Margins shrinking', 'Stuck on the floor', 'Cash flow', 'Staff retention', 'Growth'])
 const HOURS_OPTIONS = new Set(['<20', '20-30', '30-40', '40+'])
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+function isValidPhone(raw) {
+  const value = String(raw || '').trim()
+  if (!/^[+\d][\d\s().-]*$/.test(value)) return false
+  const digits = value.replace(/\D/g, '')
+  return digits.length >= 6 && digits.length <= 15
+}
 
 const CF = {
   annual_revenue:    'TYG5Nl56EZ3XR5r9OGUN',
@@ -50,6 +58,7 @@ export default async function handler(req, res) {
   }).filter(([, value]) => !value).map(([field]) => field)
   if (missing.length) return res.status(400).json({ error: 'Required fields missing', fields: missing })
   if (!EMAIL_RE.test(trimmedEmail)) return res.status(400).json({ error: 'Valid email required', fields: ['email'] })
+  if (!isValidPhone(trimmedPhone)) return res.status(400).json({ error: 'Valid phone required', fields: ['phone'] })
   if (!REVENUE_OPTIONS.has(annual_revenue)) return res.status(400).json({ error: 'Invalid annual revenue', fields: ['annual_revenue'] })
   if (!STAFF_OPTIONS.has(number_of_staff)) return res.status(400).json({ error: 'Invalid staff count', fields: ['number_of_staff'] })
   if (!CHALLENGE_OPTIONS.has(biggest_challenge)) return res.status(400).json({ error: 'Invalid challenge', fields: ['biggest_challenge'] })
@@ -115,6 +124,7 @@ export default async function handler(req, res) {
   }
 
   let contactId = incomingContactId || null
+  let phoneStored = true
   try {
     const contactBody = {
       firstName, lastName,
@@ -125,35 +135,42 @@ export default async function handler(req, res) {
     if (customFields.length) contactBody.customFields = customFields
 
     if (incomingContactId) {
-      const r = await fetch(`https://services.leadconnectorhq.com/contacts/${incomingContactId}`, {
-        method: 'PUT', headers, body: JSON.stringify(contactBody),
+      const updated = await updateContactWithPhoneFallback({
+        contactId: incomingContactId,
+        body: contactBody,
+        headers,
+        logPrefix: 'submit-form UPDATE',
       })
-      const text = await r.text()
-      console.log('[submit-form UPDATE]', incomingContactId, '→', r.status, text.slice(0, 300))
-      if (!r.ok) throw new Error(`GHL contact update failed (${r.status}): ${text.slice(0, 200)}`)
+      phoneStored = updated.phoneStored
     } else {
       const createBody = { ...contactBody, locationId: LOCATION_ID, source: SOURCE }
-      const r = await fetch('https://services.leadconnectorhq.com/contacts/', {
-        method: 'POST', headers, body: JSON.stringify(createBody),
+      const created = await createContactWithPhoneFallback({
+        body: createBody,
+        headers,
+        logPrefix: 'submit-form CREATE',
       })
-      const text = await r.text()
-      let data; try { data = JSON.parse(text) } catch { data = { raw: text } }
-      console.log('[submit-form CREATE] →', r.status, JSON.stringify(data).slice(0, 400))
-      if (r.ok && data?.contact?.id) {
-        contactId = data.contact.id
-      } else {
-        contactId = data?.meta?.contactId || data?.contact?.id || null
-        if (!contactId) throw new Error(`GHL contact create failed (${r.status}): ${text.slice(0, 200)}`)
-        const update = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
-          method: 'PUT', headers, body: JSON.stringify(contactBody),
+      contactId = created.contactId
+      phoneStored = created.phoneStored
+      if (created.existing) {
+        const existingBody = phoneStored ? contactBody : { ...contactBody }
+        if (!phoneStored) delete existingBody.phone
+        const updated = await updateContactWithPhoneFallback({
+          contactId,
+          body: existingBody,
+          headers,
+          logPrefix: 'submit-form UPDATE existing',
         })
-        const updateText = await update.text()
-        if (!update.ok) throw new Error(`GHL existing-contact update failed (${update.status}): ${updateText.slice(0, 200)}`)
+        phoneStored = updated.phoneStored
       }
     }
 
     if (!isTest) {
-      mirrorToTeamCrm({ firstName, lastName, email: trimmedEmail, phone: trimmedPhone }).catch(() => {})
+      mirrorToTeamCrm({
+        firstName,
+        lastName,
+        email: trimmedEmail,
+        phone: phoneStored ? trimmedPhone : undefined,
+      }).catch(() => {})
     }
     await sendCapiEvent({
       eventName: 'Lead',
@@ -179,7 +196,7 @@ export default async function handler(req, res) {
     }
     await ensureRevenueStored(contactId)
     await commitDeliveryTag(contactId)
-    return res.status(200).json({ ok: true, contactId })
+    return res.status(200).json({ ok: true, contactId, phoneStored })
   } catch (err) {
     console.error('[submit-form] failed:', err.message)
     return res.status(502).json({ error: 'CRM submission failed' })

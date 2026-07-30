@@ -1,5 +1,6 @@
 // PUT a single field (or any subset) to an existing GHL contact.
 // Called on blur after a partial contact has been created.
+import { updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
 
 const CF = {
   annual_revenue:    'TYG5Nl56EZ3XR5r9OGUN',
@@ -56,19 +57,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const r = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
-      method: 'PUT',
+    const result = await updateContactWithPhoneFallback({
+      contactId,
+      body,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${GHL_API_KEY}`,
         'Version': '2021-07-28',
       },
-      body: JSON.stringify(body),
+      logPrefix: 'update-contact',
     })
-    const text = await r.text()
-    console.log('[update-contact]', contactId, '→', r.status, text.slice(0, 300))
-    if (!r.ok) return res.status(502).json({ error: 'GHL update failed', status: r.status })
-    return res.status(200).json({ ok: true })
+    return res.status(200).json({ ok: true, phoneStored: result.phoneStored })
   } catch (err) {
     console.error('[update-contact] threw:', err.message)
     return res.status(500).json({ error: err.message })

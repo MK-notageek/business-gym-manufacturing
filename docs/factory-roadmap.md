@@ -79,6 +79,16 @@ business and routes the lead to a revenue-band roadmap.
 
 See `reports/2026-07-30-required-fields-and-roadmap-routing.md`.
 
+## 2026-07-31 international phone and duplicate-contact repair
+
+- Phone validation now accepts international and local numbers from any country
+  when they contain 6–15 digits and normal phone punctuation.
+- A phone already present on another GHL contact no longer traps the visitor on
+  the final survey step. The new lead remains keyed to their submitted email;
+  GHL is retried without the conflicting phone so the existing phone owner is
+  not overwritten.
+- Revenue confirmation and the delivery-trigger ordering remain unchanged.
+
 ## 2026-07-22 post-submit audit
 
 - The confirmation page has no direct roadmap download button; it tells the lead
