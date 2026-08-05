@@ -127,3 +127,23 @@ pick-your-leak, and giant product.
 - Each ad folder contains the matching PNG, editable SVG and `origin.md`.
 - The fake tweet/email use Bernard/PBA-authored copy; the news layout is
   labelled as PBA-owned editorial rather than implying third-party coverage.
+
+## 2026-08-05 phone validation tightened
+
+The any-country phone change had left validation at "6 to 15 digits", so
+`2222222` and `1234567890` passed. Validation now runs the number against the
+real numbering plan of its country (`libphonenumber-js`) plus a junk guard for
+fewer than three distinct digits and straight digit runs.
+
+- Shared logic in `src/lib/phone.ts` and `api/_lib/phone.js`, identical on both
+  sides so the browser and the API accept the same set.
+- No leading `+` is read as New Zealand; overseas leads type `+` and their
+  country code, and the field copy says so.
+- Stored values are E.164 now, so GHL, Slack and the WhatsApp bridge get a
+  dialable number. `partial-contact` drops an unparseable number instead of
+  failing the capture.
+- `npm test` covers 10 real formats and 18 junk ones; also verified in-browser.
+- Commit `d13adb2`, pushed. **Not yet deployed** — production still runs the
+  loose check until a manual Vercel deploy.
+
+The trades funnel got the identical fix; see `trades-roadmap.md`.
