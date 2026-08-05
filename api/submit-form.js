@@ -1,6 +1,7 @@
 import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
 import { mirrorToTeamCrm } from './_lib/team-crm.js'
 import { createContactWithPhoneFallback, updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
+import { normalizePhone } from './_lib/phone.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -9,13 +10,6 @@ const STAFF_OPTIONS = new Set(['1-3', '4-10', '11-20', '20+'])
 const CHALLENGE_OPTIONS = new Set(['Margins shrinking', 'Stuck on the floor', 'Cash flow', 'Staff retention', 'Growth'])
 const HOURS_OPTIONS = new Set(['<20', '20-30', '30-40', '40+'])
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-
-function isValidPhone(raw) {
-  const value = String(raw || '').trim()
-  if (!/^[+\d][\d\s().-]*$/.test(value)) return false
-  const digits = value.replace(/\D/g, '')
-  return digits.length >= 6 && digits.length <= 15
-}
 
 const CF = {
   annual_revenue:    'TYG5Nl56EZ3XR5r9OGUN',
@@ -45,12 +39,15 @@ export default async function handler(req, res) {
   const [firstName, ...rest] = (full_name || '').trim().split(' ')
   const lastName = rest.join(' ') || ''
   const trimmedEmail = (email || '').trim()
-  const trimmedPhone = (phone || '').trim()
+  const rawPhone = (phone || '').trim()
+  // Everything downstream (GHL, Slack, WhatsApp, Meta CAPI) gets E.164, and a
+  // number that can't be normalized is not a real number — see _lib/phone.js.
+  const trimmedPhone = normalizePhone(rawPhone)
 
   const missing = Object.entries({
     full_name: (full_name || '').trim(),
     email: trimmedEmail,
-    phone: trimmedPhone,
+    phone: rawPhone,
     annual_revenue,
     number_of_staff,
     biggest_challenge,
@@ -58,7 +55,7 @@ export default async function handler(req, res) {
   }).filter(([, value]) => !value).map(([field]) => field)
   if (missing.length) return res.status(400).json({ error: 'Required fields missing', fields: missing })
   if (!EMAIL_RE.test(trimmedEmail)) return res.status(400).json({ error: 'Valid email required', fields: ['email'] })
-  if (!isValidPhone(trimmedPhone)) return res.status(400).json({ error: 'Valid phone required', fields: ['phone'] })
+  if (!trimmedPhone) return res.status(400).json({ error: 'Valid phone required', fields: ['phone'] })
   if (!REVENUE_OPTIONS.has(annual_revenue)) return res.status(400).json({ error: 'Invalid annual revenue', fields: ['annual_revenue'] })
   if (!STAFF_OPTIONS.has(number_of_staff)) return res.status(400).json({ error: 'Invalid staff count', fields: ['number_of_staff'] })
   if (!CHALLENGE_OPTIONS.has(biggest_challenge)) return res.status(400).json({ error: 'Invalid challenge', fields: ['biggest_challenge'] })

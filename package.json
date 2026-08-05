@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@vercel/edge": "^1.2.2",
+    "libphonenumber-js": "^1.11.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.0.0"

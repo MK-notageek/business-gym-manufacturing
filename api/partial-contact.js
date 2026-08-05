@@ -1,4 +1,5 @@
 import { sendCapiEvent, clientIpFromReq, userAgentFromReq } from './_lib/meta-capi.js'
+import { normalizePhone } from './_lib/phone.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -59,7 +60,10 @@ export default async function handler(req, res) {
   }
   if (firstName) body.firstName = firstName
   if (lastName)  body.lastName  = lastName
-  if (phone)     body.phone     = phone
+  // Partial capture must never fail on a half-typed number — drop it instead, the
+  // final submit carries a validated one.
+  const e164Phone = normalizePhone(phone)
+  if (e164Phone) body.phone     = e164Phone
   if (customFields.length) body.customFields = customFields
 
   try {
@@ -82,7 +86,7 @@ export default async function handler(req, res) {
         eventId: meta_event_id,
         eventSourceUrl: meta_source_url,
         email: trimmedEmail,
-        phone,
+        phone: e164Phone,
         fullName: full_name,
         fbp: meta_fbp,
         fbc: meta_fbc,
@@ -99,7 +103,7 @@ export default async function handler(req, res) {
         eventId: meta_event_id,
         eventSourceUrl: meta_source_url,
         email: trimmedEmail,
-        phone,
+        phone: e164Phone,
         fullName: full_name,
         fbp: meta_fbp,
         fbc: meta_fbc,

@@ -1,6 +1,7 @@
 // PUT a single field (or any subset) to an existing GHL contact.
 // Called on blur after a partial contact has been created.
 import { updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
+import { normalizePhone } from './_lib/phone.js'
 
 const CF = {
   annual_revenue:    'TYG5Nl56EZ3XR5r9OGUN',
@@ -37,7 +38,8 @@ export default async function handler(req, res) {
     body.lastName  = rest.join(' ') || ''
   }
   if (typeof email === 'string' && email.trim()) body.email = email.trim()
-  if (typeof phone === 'string' && phone.trim()) body.phone = phone.trim()
+  // Only ever write a real, dialable number. Junk is dropped, not stored.
+  if (typeof phone === 'string' && normalizePhone(phone)) body.phone = normalizePhone(phone)
 
   const customFields = []
   if (typeof annual_revenue === 'string'    && annual_revenue.trim())    customFields.push({ id: CF.annual_revenue,    fieldValue: annual_revenue.trim() })

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
+import { isValidPhone, normalizePhone } from '../lib/phone'
 
 type Values = {
   full_name: string
@@ -56,7 +57,7 @@ const HOURS_OPTIONS: Option[] = [
 const STAGES = [
   { key: 'full_name', q: "First, what’s your name?", sub: 'So our PBA advisor knows who they’re helping.' },
   { key: 'email', q: 'Where should we send your Roadmap?', sub: 'Your free copy will land here within 60 seconds.' },
-  { key: 'phone', q: 'What’s the best number for you?', sub: 'Only used if you ask us to follow up. No spam.' },
+  { key: 'phone', q: 'What’s the best number for you?', sub: 'Outside New Zealand? Start with + and your country code. No spam.' },
   { key: 'annual_revenue', q: 'What does your factory turn over each year?', sub: 'This helps us assess the right growth constraints.' },
   { key: 'number_of_staff', q: 'How many people are on your team?', sub: 'Include everyone working in the business.' },
   { key: 'biggest_challenge', q: 'What is the biggest constraint right now?', sub: 'Pick the one costing you the most.' },
@@ -65,13 +66,6 @@ const STAGES = [
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/growth-assessment-session'
-
-function isValidPhone(raw: string): boolean {
-  const value = raw.trim()
-  if (!/^[+\d][\d\s().-]*$/.test(value)) return false
-  const digits = value.replace(/\D/g, '')
-  return digits.length >= 6 && digits.length <= 15
-}
 
 function getCookie(name: string): string {
   const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'))
@@ -176,7 +170,11 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
   function validateText(): string {
     if (step === 0 && !values.full_name.trim()) return 'Enter your name'
     if (step === 1 && !EMAIL_RE.test(values.email.trim())) return 'Enter a valid email'
-    if (step === 2 && !isValidPhone(values.phone)) return 'Enter a valid phone number'
+    if (step === 2 && !isValidPhone(values.phone)) {
+      return values.phone.trim().startsWith('+')
+        ? 'That number isn’t valid for that country code'
+        : 'Enter a real phone number — outside NZ, start with + and your country code'
+    }
     return ''
   }
 
@@ -188,7 +186,13 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     }
 
     if (step === 1) await ensurePartial(valuesRef.current)
-    if (step === 2) await updateField('phone', values.phone.trim())
+    // Store E.164 so GHL, Slack and the WhatsApp bridge all get a dialable number.
+    if (step === 2) {
+      const e164 = normalizePhone(values.phone)
+      valuesRef.current = { ...valuesRef.current, phone: e164 }
+      setField('phone', e164)
+      await updateField('phone', e164)
+    }
     setStep(current => current + 1)
   }
 
@@ -201,7 +205,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   async function handleBlur() {
     if (step === 1) await ensurePartial(valuesRef.current)
-    if (step === 2 && isValidPhone(values.phone)) await updateField('phone', values.phone.trim())
+    if (step === 2 && isValidPhone(values.phone)) await updateField('phone', normalizePhone(values.phone))
   }
 
   function back() {
