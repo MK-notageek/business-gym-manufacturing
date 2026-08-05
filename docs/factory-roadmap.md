@@ -147,3 +147,9 @@ fewer than three distinct digits and straight digit runs.
   loose check until a manual Vercel deploy.
 
 The trades funnel got the identical fix; see `trades-roadmap.md`.
+- Deployed 2026-08-05: `dpl_4aMyTvarGdGneg29PKAP4sGBgAtM`, READY. Verified on
+  `roadmap.premierbusinessacademy.co.nz` the same way as the trades funnel, with
+  no GHL contact created.
+- The first attempt at this deploy was `dpl_CRb1YzbkwJxtNrGbWNAcWBbhnVb9`, BLOCKED:
+  the staging archive sat inside the workspace repo and inherited its git author.
+  See `brain/how-to/known-failures.md` entry 13.
