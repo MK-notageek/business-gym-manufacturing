@@ -164,8 +164,12 @@ Any-country was too loose in practice, so both funnels are NZ-only again. After
   `Valid New Zealand phone required`.
 - `npm test` green (10 valid NZ formats, 24 rejected). Browser-verified on both
   funnels at step 3.
-- Commit `dbdec2e`, pushed. **Not yet deployed** — production still runs the
-  any-country check until a manual Vercel deploy.
+- Commit `dbdec2e`, pushed.
+- Deployed the same day: `dpl_4XD4umBBzm7UnKkHBfeBA4o2AuKz`, READY. Verified on
+  `roadmap.premierbusinessacademy.co.nz`: `+61 412 345 678`, `+1 415 555 2671`,
+  `2222222222`, `1234567890` and `0412345678` all return `Valid New Zealand
+  phone required` from the live API; `021 123 4567` clears the phone gate. The
+  live bundle carries the new copy. No GHL contact was created during the check.
 
 The trades funnel got the identical fix; see `trades-roadmap.md`.
 - Deployed 2026-08-05: `dpl_4aMyTvarGdGneg29PKAP4sGBgAtM`, READY. Verified on
