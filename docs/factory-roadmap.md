@@ -82,7 +82,8 @@ See `reports/2026-07-30-required-fields-and-roadmap-routing.md`.
 ## 2026-07-31 international phone and duplicate-contact repair
 
 - Phone validation now accepts international and local numbers from any country
-  when they contain 6–15 digits and normal phone punctuation.
+  when they contain 6–15 digits and normal phone punctuation. *(Superseded: see
+  2026-08-05 and 2026-08-06 below — validation is NZ-only again.)*
 - A phone already present on another GHL contact no longer traps the visitor on
   the final survey step. The new lead remains keyed to their submitted email;
   GHL is retried without the conflicting phone so the existing phone owner is
@@ -145,6 +146,26 @@ fewer than three distinct digits and straight digit runs.
 - `npm test` covers 10 real formats and 18 junk ones; also verified in-browser.
 - Commit `d13adb2`, pushed. **Not yet deployed** — production still runs the
   loose check until a manual Vercel deploy.
+
+## 2026-08-06 back to New Zealand numbers only
+
+Any-country was too loose in practice, so both funnels are NZ-only again. After
+`libphonenumber-js` confirms the number is valid, it must also carry calling code
+`64` and country `NZ` — so `+61 412 345 678`, `+1 415 555 2671` and
+`+44 7911 123456` are rejected despite being real numbers. Pitcairn, which shares
+`+64`, is excluded too.
+
+- The plan check, the junk guard (`2222222`, `1234567890`) and E.164 storage are
+  all unchanged; this adds one country gate on top.
+- New `isOverseasPhone` helper in both twins, so a foreign country code gets
+  "New Zealand numbers only — enter a NZ mobile or landline" rather than the
+  generic invalid-number message.
+- Field sub-copy is "New Zealand numbers only. No spam."; the server returns
+  `Valid New Zealand phone required`.
+- `npm test` green (10 valid NZ formats, 24 rejected). Browser-verified on both
+  funnels at step 3.
+- Commit `dbdec2e`, pushed. **Not yet deployed** — production still runs the
+  any-country check until a manual Vercel deploy.
 
 The trades funnel got the identical fix; see `trades-roadmap.md`.
 - Deployed 2026-08-05: `dpl_4aMyTvarGdGneg29PKAP4sGBgAtM`, READY. Verified on
