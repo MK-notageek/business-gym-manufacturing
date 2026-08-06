@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import { isValidPhone, normalizePhone } from '../lib/phone'
+import { isValidPhone, normalizePhone, isOverseasPhone } from '../lib/phone'
 
 type Values = {
   full_name: string
@@ -57,7 +57,7 @@ const HOURS_OPTIONS: Option[] = [
 const STAGES = [
   { key: 'full_name', q: "First, what’s your name?", sub: 'So our PBA advisor knows who they’re helping.' },
   { key: 'email', q: 'Where should we send your Roadmap?', sub: 'Your free copy will land here within 60 seconds.' },
-  { key: 'phone', q: 'What’s the best number for you?', sub: 'Outside New Zealand? Start with + and your country code. No spam.' },
+  { key: 'phone', q: 'What’s the best number for you?', sub: 'New Zealand numbers only. No spam.' },
   { key: 'annual_revenue', q: 'What does your factory turn over each year?', sub: 'This helps us assess the right growth constraints.' },
   { key: 'number_of_staff', q: 'How many people are on your team?', sub: 'Include everyone working in the business.' },
   { key: 'biggest_challenge', q: 'What is the biggest constraint right now?', sub: 'Pick the one costing you the most.' },
@@ -171,9 +171,9 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     if (step === 0 && !values.full_name.trim()) return 'Enter your name'
     if (step === 1 && !EMAIL_RE.test(values.email.trim())) return 'Enter a valid email'
     if (step === 2 && !isValidPhone(values.phone)) {
-      return values.phone.trim().startsWith('+')
-        ? 'That number isn’t valid for that country code'
-        : 'Enter a real phone number — outside NZ, start with + and your country code'
+      return isOverseasPhone(values.phone)
+        ? 'New Zealand numbers only — enter a NZ mobile or landline'
+        : 'Enter a real NZ phone number, e.g. 021 123 4567'
     }
     return ''
   }

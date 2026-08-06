@@ -1,9 +1,13 @@
 // Client-side twin of api/_lib/phone.js — keep both in sync. If the browser is
 // laxer than the server the lead only finds out at the final submit, so the two
 // must accept exactly the same set of numbers.
+//
+// New Zealand numbers only: valid against the real NZ numbering plan, and not junk
+// like 2222222. See api/_lib/phone.js for the full reasoning.
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 
-const DEFAULT_COUNTRY = 'NZ'
+const COUNTRY = 'NZ'
+const CALLING_CODE = '64'
 
 function isJunkDigits(digits: string): boolean {
   if (new Set(digits).size < 3) return true
@@ -17,7 +21,16 @@ function isJunkDigits(digits: string): boolean {
   return ascending || descending
 }
 
-// Returns the number in E.164 ('+64211234567'), or '' if it is not a real number.
+// True when the lead has clearly typed a foreign country code, so the form can say
+// "NZ only" instead of the generic "that isn't a real number".
+export function isOverseasPhone(raw: string): boolean {
+  const value = String(raw || '').replace(/[\s().\-–—]/g, '')
+  if (value.startsWith('+')) return !value.startsWith('+' + CALLING_CODE)
+  if (value.startsWith('00')) return !value.startsWith('00' + CALLING_CODE)
+  return false
+}
+
+// Returns the number in E.164 ('+64211234567'), or '' if it is not a real NZ number.
 export function normalizePhone(raw: string): string {
   const value = String(raw || '').trim()
   if (!value) return ''
@@ -25,11 +38,13 @@ export function normalizePhone(raw: string): string {
 
   let parsed
   try {
-    parsed = parsePhoneNumberFromString(value, DEFAULT_COUNTRY)
+    parsed = parsePhoneNumberFromString(value, COUNTRY)
   } catch {
     return ''
   }
   if (!parsed || !parsed.isValid()) return ''
+  if (parsed.countryCallingCode !== CALLING_CODE) return ''
+  if (parsed.country && parsed.country !== COUNTRY) return ''
   if (isJunkDigits(String(parsed.nationalNumber))) return ''
   return parsed.number
 }

@@ -55,7 +55,7 @@ export default async function handler(req, res) {
   }).filter(([, value]) => !value).map(([field]) => field)
   if (missing.length) return res.status(400).json({ error: 'Required fields missing', fields: missing })
   if (!EMAIL_RE.test(trimmedEmail)) return res.status(400).json({ error: 'Valid email required', fields: ['email'] })
-  if (!trimmedPhone) return res.status(400).json({ error: 'Valid phone required', fields: ['phone'] })
+  if (!trimmedPhone) return res.status(400).json({ error: 'Valid New Zealand phone required', fields: ['phone'] })
   if (!REVENUE_OPTIONS.has(annual_revenue)) return res.status(400).json({ error: 'Invalid annual revenue', fields: ['annual_revenue'] })
   if (!STAFF_OPTIONS.has(number_of_staff)) return res.status(400).json({ error: 'Invalid staff count', fields: ['number_of_staff'] })
   if (!CHALLENGE_OPTIONS.has(biggest_challenge)) return res.status(400).json({ error: 'Invalid challenge', fields: ['biggest_challenge'] })
