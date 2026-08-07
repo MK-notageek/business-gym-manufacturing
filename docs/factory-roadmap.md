@@ -105,6 +105,21 @@ See `reports/2026-07-30-required-fields-and-roadmap-routing.md`.
   `favicon.ico`, and `apple-touch-icon.png`) instead of Vite's placeholder icon.
   Deployment `dpl_8M7PZJxfq2Qd7J22zTcfnhPcBSq2` was verified on the custom domain.
 
+## 2026-08-07 funnel integrity audit
+
+Two partial leads in a row prompted a full check of the live page, the tracking
+and the field writes. Nothing is broken — 70% completion since the 2026-07-29
+rebuild (26 complete, 11 partial), and the two leads dropped at the staff and
+phone steps with everything before that stored correctly. Live bundle is current,
+all five PDFs return 200, Lead EMQ is 9.3/10 with 100% email and phone coverage.
+The NZ-only phone gate is not implicated; phone-step exits predate it.
+
+Two gaps stand: no ad-level attribution reaches GHL, and partials fire three
+Slack alerts but have no recovery sequence despite 19 of the last 28 leaving a
+valid phone.
+
+See `reports/2026-08-07-funnel-integrity-audit.md` in the project folder.
+
 ## Open items
 
 - Decide whether Meta's generative text/persona variations and automatic voice
