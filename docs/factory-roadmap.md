@@ -199,8 +199,10 @@ The trades funnel got the identical fix; see `trades-roadmap.md`.
 This supersedes the older GHL workflow-trigger and calendar notes above for new
 manufacturer roadmap submissions.
 
-- GHL remains the email sender and contact store, but new submissions no longer
-  receive the `lead-magnet-survey-submitted` workflow trigger.
+- GHL remains the email sender and contact store. New submissions again receive
+  the established `lead-magnet-survey-submitted` trigger tag after the immediate
+  email attempt, preserving CRM stage visibility and the separate published
+  Slack/WhatsApp notification workflow without restoring GHL email delivery.
 - The legacy `ROADMAP DOWNLOAD → BOOKING` workflow
   (`1d2b4507-cc88-42c1-8126-9b4d08a6b95b`) was changed from Published to Draft
   on 10 August, so its 37 enrolled contacts cannot produce duplicate nurture.
@@ -235,7 +237,9 @@ manufacturer roadmap submissions.
 - Branding/footer correction commit `1897f5e` is deployed as
   `dpl_JACNXWQjfVUot1CnLWNuhvi7gsFu` (`READY`). The custom domain serves the
   official logo; both deleted incorrect-logo URLs return 404.
-- Twelve tests and the production build pass. Live thank-you, thumbnail, pixel,
+- Trigger-restoration commit `a4c5a0f` is deployed as
+  `dpl_A2d2QjzRt3yfiC1KRQ3Fhq1iLMZJ` (`READY`).
+- Thirteen tests and the production build pass. Live thank-you, thumbnail, pixel,
   protected click, stats, and cron routes were verified.
 - A controlled copy was accepted by GHL and sent to Ayaan's existing contact at
   `Ayaan@Advlaunch.com`; no contact was created and no signup alert was triggered.
