@@ -201,11 +201,17 @@ manufacturer roadmap submissions.
 
 - GHL remains the email sender and contact store, but new submissions no longer
   receive the `lead-magnet-survey-submitted` workflow trigger.
+- The legacy `ROADMAP DOWNLOAD → BOOKING` workflow
+  (`1d2b4507-cc88-42c1-8126-9b4d08a6b95b`) was changed from Published to Draft
+  on 10 August, so its 37 enrolled contacts cannot produce duplicate nurture.
+- GHL's native appointment confirmation remains active. It follows a booking,
+  not a roadmap request, and Vercel does not replace appointment confirmations.
 - Email 1 sends immediately from `api/submit-form.js`; Vercel cron runs every
   ten minutes to retry failures and send days 1, 3, 5, and 7.
-- Email 1 includes the clickable Bernard video preview. Video and booking clicks
-  return to the live thank-you page, which autoplays the video muted and uses the
-  current 45-minute `growth-assessment-session` calendar.
+- Email 1 now uses the PBA logo, a branded email-safe layout, the clickable
+  Bernard video preview, and distinct roadmap and booking calls to action.
+- Video and booking clicks return to the live thank-you page, which autoplays
+  muted and uses the current 45-minute `growth-assessment-session` calendar.
 - All five revenue answers still route to their matching current PDF.
 - Sent, open, video, roadmap, testimonial, and booking-click states are recorded
   as GHL tags. The existing `call-booked` tag stops later nurture.
@@ -216,10 +222,10 @@ manufacturer roadmap submissions.
   (`wTlDJoA2INPoSelc2JrR`).
 - Production has encrypted `CRON_SECRET` and
   `ROADMAP_EMAIL_TRACKING_SECRET` variables; values are not stored here.
-- Commit `b6f0990` is pushed. Deployment
-  `dpl_5VmsAh6V38DULakaq7dVGpM4dJhg` is `READY`, with the
+- Email delivery code began at `b6f0990`; the polished email is `dd879c2`.
+  Production deployment `dpl_5N66vdHG2gTwR3n8SWwbJXE4edat` is `READY`, with the
   `*/10 * * * *` cron registered.
 - Eleven tests and the production build pass. Live thank-you, thumbnail, pixel,
   protected click, stats, and cron routes were verified.
-- No live test contact was created because that can trigger Bernard's live
-  Slack and WhatsApp workflows. A controlled approved inbox test remains.
+- A controlled copy was accepted by GHL and sent to Ayaan's existing contact at
+  `Ayaan@Advlaunch.com`; no contact was created and no signup alert was triggered.
