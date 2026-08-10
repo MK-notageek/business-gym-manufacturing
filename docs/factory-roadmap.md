@@ -208,8 +208,15 @@ manufacturer roadmap submissions.
   not a roadmap request, and Vercel does not replace appointment confirmations.
 - Email 1 sends immediately from `api/submit-form.js`; Vercel cron runs every
   ten minutes to retry failures and send days 1, 3, 5, and 7.
-- Email 1 now uses the PBA logo, a branded email-safe layout, the clickable
-  Bernard video preview, and distinct roadmap and booking calls to action.
+- Email 1 uses PBA's official full logo, a branded email-safe layout, the
+  clickable Bernard video preview, and distinct roadmap and booking calls to
+  action. The incorrect generated `PB` badge and its source were deleted.
+- The visible explanation about why the email was received and LC Email's
+  automatic unsubscribe handling was removed; LC Email still adds its native
+  unsubscribe link.
+- Days 1, 3, 5, and 7 retain the retired GHL workflow's original subjects and
+  narrative proof points: pricing leakage, Trent, insolvencies, and Bernard's
+  manufacturing background. Regression tests lock those elements in place.
 - Video and booking clicks return to the live thank-you page, which autoplays
   muted and uses the current 45-minute `growth-assessment-session` calendar.
 - All five revenue answers still route to their matching current PDF.
@@ -225,7 +232,7 @@ manufacturer roadmap submissions.
 - Email delivery code began at `b6f0990`; the polished email is `dd879c2`.
   Production deployment `dpl_5N66vdHG2gTwR3n8SWwbJXE4edat` is `READY`, with the
   `*/10 * * * *` cron registered.
-- Eleven tests and the production build pass. Live thank-you, thumbnail, pixel,
+- Twelve tests and the production build pass. Live thank-you, thumbnail, pixel,
   protected click, stats, and cron routes were verified.
 - A controlled copy was accepted by GHL and sent to Ayaan's existing contact at
   `Ayaan@Advlaunch.com`; no contact was created and no signup alert was triggered.

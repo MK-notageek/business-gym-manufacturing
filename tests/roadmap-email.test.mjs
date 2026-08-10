@@ -52,12 +52,36 @@ test('first email includes the requested video preview and tracked links', () =>
     secret,
   })
   assert.equal(email.subject, 'Your Profit Roadmap is here')
-  assert.match(email.html, /pba-email-logo\.png/)
+  assert.match(email.html, /pba-logo-full\.webp/)
+  assert.doesNotMatch(email.html, /pba-email-logo|You received this because|LC Email settings/)
   assert.match(email.html, /Your Profit Roadmap is ready\./)
   assert.match(email.html, /email-vsl-thumb\.jpg/)
   assert.match(email.html, /\/api\/email-click\?token=/)
   assert.match(email.html, /\/api\/email-open\?token=/)
   assert.match(email.html, /Growth Assessment Session/)
+})
+
+test('reminders preserve the retired HighLevel sequence subjects and proof points', () => {
+  assert.deepEqual(EMAIL_STEPS.map(step => step.subject), [
+    'Your Profit Roadmap is here',
+    'The #1 profit leak in NZ factories',
+    "Trent's revenue went up 55%",
+    '37% more went bust last year',
+    "I built a factory. Here's what I learnt.",
+  ])
+  const htmlFor = key => buildRoadmapEmail({
+    contactId: 'contact_123', firstName: 'Alex', revenue: '$2M–$5M',
+    step: EMAIL_STEPS.find(step => step.key === key), secret,
+  }).html
+  assert.match(htmlFor('d1'), /pricing by gut instead of by data/)
+  assert.match(htmlFor('d1'), /28% to 41%/)
+  assert.match(htmlFor('d3'), /Trent/)
+  assert.match(htmlFor('d3'), /50–55%/)
+  assert.match(htmlFor('d3'), /22–25 hours/)
+  assert.match(htmlFor('d5'), /up 37%/)
+  assert.match(htmlFor('d5'), /2,800 companies closed/)
+  assert.match(htmlFor('d7'), /shop floor at 5am/)
+  assert.match(htmlFor('d7'), /Best Workplace in NZ/)
 })
 
 test('scheduler selects one due unsent step and stops after booking', () => {
