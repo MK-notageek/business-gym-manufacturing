@@ -63,11 +63,15 @@ function escapeHtml(value) {
 }
 
 function paragraph(content, style = '') {
-  return `<p style="margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.62;color:#20212b;${style}">${content}</p>`
+  return `<p style="margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.65;color:#252738;${style}">${content}</p>`
 }
 
 function button(label, url) {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 24px"><tr><td style="border-radius:999px;background:#7047eb"><a href="${url}" style="display:inline-block;padding:14px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1;font-weight:700;color:#fff;text-decoration:none">${label}</a></td></tr></table>`
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 26px"><tr><td style="border-radius:8px;background:#7148e8;box-shadow:0 7px 18px rgba(113,72,232,.22)"><a href="${url}" style="display:inline-block;padding:15px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.1;font-weight:700;color:#ffffff;text-decoration:none">${label}</a></td></tr></table>`
+}
+
+function insight(content) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 24px"><tr><td style="border-left:4px solid #23affe;background:#f4f8ff;border-radius:0 10px 10px 0;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#303348">${content}</td></tr></table>`
 }
 
 function tracked(token, action) {
@@ -79,18 +83,18 @@ function contentFor(stepKey, firstName, token) {
   const booking = tracked(token, 'booking')
   if (stepKey === 'd0') return [
     paragraph(`G’day ${greeting},`),
-    paragraph(`Your NZ Manufacturer’s Profit Roadmap is ready. Here it is:`),
-    button('Download Your Roadmap →', tracked(token, 'download')),
-    paragraph('Before you read it — a quick word from Bernard.', 'font-weight:700;margin-bottom:12px;'),
-    `<a href="${tracked(token, 'video')}" style="display:block;text-decoration:none;margin:0 0 12px"><img src="${BASE_URL}/media/email-vsl-thumb.jpg" width="600" height="338" alt="Play Bernard’s message (2 min 55)" style="display:block;width:100%;max-width:600px;height:auto;border:0;border-radius:14px"></a>`,
-    paragraph('2 min 55 · what to do with the roadmap, and how to book your free Growth Assessment Session', 'font-size:13px;color:#6b7280;'),
+    paragraph(`We’ve matched you with the Profit Roadmap for your current revenue stage. It shows the seven leaks that most often keep good NZ manufacturers busy without making them more profitable.`),
+    button('Download Your Profit Roadmap →', tracked(token, 'download')),
+    insight('<strong>Start here:</strong> mark every leak that feels familiar. If three or more apply, your roadmap has already found the first conversation worth having.'),
+    paragraph('Before you read it, Bernard recorded this short message for you.', 'font-weight:700;margin-bottom:12px;'),
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 10px"><tr><td><a href="${tracked(token, 'video')}" style="display:block;text-decoration:none"><img src="${BASE_URL}/media/email-vsl-thumb.jpg" width="580" height="327" alt="Play Bernard’s 2 minute 55 second message" style="display:block;width:100%;max-width:580px;height:auto;border:0;border-radius:12px"></a></td></tr></table>`,
+    paragraph('<strong style="color:#7148e8">▶ Watch Bernard’s 2:55 message</strong><br>How to use the roadmap—and when a second set of eyes will help.', 'font-size:13px;line-height:1.55;color:#72768a;'),
     paragraph(`I’m Bernard Powell. I founded Premier Group NZ — a manufacturing business producing 200 tonnes of product a day with 75 staff. I didn’t come from consulting. I came from the shop floor.`),
-    paragraph(`I’ve since worked with 1000+ Kiwi business owners. The pattern I keep seeing is the same: owners working 60-hour weeks, margins getting squeezed, and no clear picture of where the money is going.`),
-    paragraph(`The roadmap covers the 7 biggest profit leaks I see in NZ factories. Most owners are losing money in at least 3 of them. Some in all 7.`),
-    paragraph(`Have a read and see how many apply to your business. If more than 3 hit home, it’s worth having a conversation.`),
-    paragraph('Talk soon,<br><strong>Bernard</strong>'),
-    paragraph(`P.S. If you want a PBA advisor to go through your numbers and find your #1 profit priority, book your free 45-minute Growth Assessment Session here.`),
-    button('Book Your Growth Assessment →', booking),
+    paragraph(`I’ve since worked with 1,000+ Kiwi business owners. The pattern is usually the same: long weeks, squeezed margins, and no clear picture of where profit is leaking.`),
+    paragraph(`Read the roadmap, circle what hits home, and keep it beside you. If three or more leaks apply, we’ll help you identify the one that matters first.`),
+    paragraph('Talk soon,<br><strong>Bernard Powell</strong><br><span style="color:#737789">Founder, Premier Business Academy</span>'),
+    insight('<strong>Want help finding your #1 profit priority?</strong><br>A PBA advisor will review your numbers with you in a free 45-minute Growth Assessment Session.'),
+    button('Book My Free Growth Assessment →', booking),
   ].join('')
 
   if (stepKey === 'd1') return [
@@ -141,7 +145,18 @@ export function buildRoadmapEmail({ contactId, firstName, revenue, step, secret 
   roadmapUrl(revenue)
   const token = createTrackingToken({ contactId, revenue, step: step.key, issuedAt: Date.now() }, secret)
   const pixel = `${BASE_URL}/api/email-open?token=${encodeURIComponent(token)}`
-  const html = `<!doctype html><html><body style="margin:0;background:#f3f4f8"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;background:#fff;border-radius:18px"><tr><td style="padding:34px 30px 28px"><div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:800;letter-spacing:.08em;color:#7047eb;margin-bottom:22px">PREMIER BUSINESS ACADEMY</div>${contentFor(step.key, firstName, token)}<p style="margin:28px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#8a8f9c">You received this because you requested the Manufacturer’s Profit Roadmap. An unsubscribe link is added by PBA’s LC Email settings.</p><img src="${pixel}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0"></td></tr></table></td></tr></table></body></html>`
+  const headings = {
+    d0: ['YOUR FREE MANUFACTURER ROADMAP', 'Your Profit Roadmap is ready.'],
+    d1: ['PROFIT LEAK #1', 'The pricing gap hiding in plain sight.'],
+    d3: ['MANUFACTURER STORY', 'How Trent got 22–25 hours back.'],
+    d5: ['A HARD TRUTH', 'Busy factories still run out of cash.'],
+    d7: ['A NOTE FROM BERNARD', 'I’ve stood where you’re standing.'],
+  }
+  const [eyebrow, heading] = headings[step.key] || ['', step.subject]
+  const preheader = step.key === 'd0'
+    ? 'Your revenue-matched roadmap and a 2:55 message from Bernard.'
+    : step.subject
+  const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head><body style="margin:0;padding:0;background:#eef1f7"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${preheader}&#847;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;&#65279;</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#eef1f7"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background:#ffffff;border:1px solid #e2e5ee;border-radius:16px;overflow:hidden;box-shadow:0 12px 34px rgba(25,28,47,.08)"><tr><td style="padding:24px 30px 20px;border-bottom:1px solid #eceef4"><img src="${BASE_URL}/images/pba-email-logo.png" width="240" height="52" alt="Premier Business Academy" style="display:block;width:240px;max-width:70%;height:auto;border:0"></td></tr><tr><td style="padding:30px 30px 4px"><div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.4;font-weight:800;letter-spacing:.12em;color:#7148e8;margin-bottom:9px">${eyebrow}</div><h1 style="margin:0 0 24px;font-family:Arial,Helvetica,sans-serif;font-size:30px;line-height:1.18;letter-spacing:-.025em;color:#17192a">${heading}</h1>${contentFor(step.key, firstName, token)}</td></tr><tr><td style="padding:22px 30px 26px;background:#17192a"><p style="margin:0 0 7px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#ffffff;font-weight:700">Premier Business Academy · Auckland, New Zealand</p><p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#aeb3c4">You received this because you requested the Manufacturer’s Profit Roadmap. PBA’s LC Email settings add the unsubscribe link automatically.</p></td></tr></table><p style="margin:14px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#9a9eaa">© Premier Business Academy</p><img src="${pixel}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0"></td></tr></table></body></html>`
   return { subject: step.subject, html, token }
 }
 

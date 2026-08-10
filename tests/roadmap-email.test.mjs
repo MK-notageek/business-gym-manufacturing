@@ -52,6 +52,8 @@ test('first email includes the requested video preview and tracked links', () =>
     secret,
   })
   assert.equal(email.subject, 'Your Profit Roadmap is here')
+  assert.match(email.html, /pba-email-logo\.png/)
+  assert.match(email.html, /Your Profit Roadmap is ready\./)
   assert.match(email.html, /email-vsl-thumb\.jpg/)
   assert.match(email.html, /\/api\/email-click\?token=/)
   assert.match(email.html, /\/api\/email-open\?token=/)
