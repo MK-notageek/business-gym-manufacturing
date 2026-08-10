@@ -232,6 +232,9 @@ manufacturer roadmap submissions.
 - Email delivery code began at `b6f0990`; the polished email is `dd879c2`.
   Production deployment `dpl_5N66vdHG2gTwR3n8SWwbJXE4edat` is `READY`, with the
   `*/10 * * * *` cron registered.
+- Branding/footer correction commit `1897f5e` is deployed as
+  `dpl_JACNXWQjfVUot1CnLWNuhvi7gsFu` (`READY`). The custom domain serves the
+  official logo; both deleted incorrect-logo URLs return 404.
 - Twelve tests and the production build pass. Live thank-you, thumbnail, pixel,
   protected click, stats, and cron routes were verified.
 - A controlled copy was accepted by GHL and sent to Ayaan's existing contact at
