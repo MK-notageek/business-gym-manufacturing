@@ -1,4 +1,5 @@
 import { useLocation, Link } from 'react-router-dom'
+import VSLPlayer from '../components/VSLPlayer'
 import { useEffect, useRef, useState } from 'react'
 
 // GHL passes rev=high or rev=low
@@ -10,6 +11,11 @@ declare global {
     __pbaScheduleFired?: boolean
   }
 }
+
+// Bernard's roadmap VSL: what they watch before picking a slot. Same 540p web cut
+// and the same player treatment as the post-booking page.
+const VSL_SRC = '/media/roadmap-vsl.mp4'
+const VSL_POSTER = '/media/roadmap-vsl-poster.jpg'
 
 // Manufacturing-specific testimonials lead, then the wider Trade Map set.
 const VIDEOS = [
@@ -260,7 +266,25 @@ export default function ThankYouPage() {
         .cal-frame{width:100%;border:0;display:block;background:#fff;min-height:380px;transition:height .25s ease}
         .ty-page{padding-top:clamp(20px,4vw,40px);padding-bottom:64px}
         .ty-email{font-size:15px;margin-bottom:14px;font-weight:500;letter-spacing:.01em}
-        .ty-cta-line{font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.3;letter-spacing:-.015em;color:#fff;max-width:680px;margin:0 auto}
+        .ty-cta-line{font-size:clamp(16px,1.9vw,19px);font-weight:700;line-height:1.35;letter-spacing:-.01em;color:#fff;max-width:560px;margin:0 auto}
+        /* VSL above the calendar — identical treatment to the post-booking page */
+        .vsl{max-width:720px;margin:0 auto 18px}
+        .vsl-frame{position:relative;padding-bottom:56.25%;border-radius:18px;overflow:hidden;border:1px solid var(--bdr);background:var(--card)}
+        .vsl-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;display:block;cursor:pointer}
+        .vsl-cue{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;cursor:pointer;z-index:2;background:radial-gradient(circle at 50% 42%,rgba(0,0,0,.14),rgba(0,0,0,.42))}
+        .vsl-ring{width:72px;height:72px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px -8px rgba(35,175,254,.6);animation:vslpulse 2.2s ease-in-out infinite}
+        @keyframes vslpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+        .vsl-cue-lbl{font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.55)}
+        .vsl-cue-sub{font-size:11px;color:rgba(255,255,255,.72);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-top:-4px}
+        .vsl-track{position:absolute;left:0;right:0;bottom:0;height:16px;display:flex;align-items:flex-end;cursor:pointer;z-index:4}
+        .vsl-track::before{content:'';position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.2)}
+        .vsl-bar{position:relative;height:4px;background:var(--g);transition:height .12s ease;pointer-events:none}
+        .vsl-track:hover .vsl-bar{height:6px}
+        .vsl-knob{position:absolute;right:-6px;bottom:-4px;width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.5);opacity:0;transition:opacity .15s ease}
+        .vsl-track:hover .vsl-knob{opacity:1}
+        .vsl-spinner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:3}
+        .vsl-spinner span{width:54px;height:54px;border-radius:50%;border:4px solid rgba(255,255,255,.22);border-top-color:#fff;animation:vslspin .8s linear infinite}
+        @keyframes vslspin{to{transform:rotate(360deg)}}
         .ty-proof{margin-top:44px}
         .ty-proof-h{font-size:clamp(18px,2.4vw,24px);font-weight:700;line-height:1.3;letter-spacing:-.015em;max-width:600px;margin:0 auto 20px}
         .vg{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
@@ -287,7 +311,8 @@ export default function ThankYouPage() {
         @media (max-width:640px){
           .ty-page{padding-top:18px;padding-bottom:40px}
           .ty-email{font-size:14px;margin-bottom:10px}
-          .ty-cta-line{font-size:19px;line-height:1.3;padding:0 2px}
+          .ty-cta-line{font-size:16px;line-height:1.35;padding:0 2px}
+          .vsl{margin-bottom:14px}
           .cal-card{margin-top:12px}
           .vg,.review-grid{grid-template-columns:1fr}
         }
@@ -297,11 +322,17 @@ export default function ThankYouPage() {
       <div className="orb" style={{width:400,height:400,background:'radial-gradient(circle,rgba(35,175,254,.14),transparent 70%)',bottom:-100,left:-100}} />
 
       <div className="mx ty-page" style={{position:'relative',zIndex:1,textAlign:'center'}}>
+        <div className="vsl">
+          <div className="vsl-frame">
+            <VSLPlayer src={VSL_SRC} poster={VSL_POSTER} />
+          </div>
+        </div>
+
         <p className="ty-email">
           We’ve emailed your Profit Roadmap{email ? <> to <strong style={{color:'rgba(255,255,255,.85)'}}>{email}</strong></> : ''}. It should arrive within 60 seconds.
         </p>
         <p className="P ty-cta-line">
-          Book your free 45 minute <span className="G">Growth Assessment Session</span> with one of our top <span className="G">PBA</span> advisors who will identify your biggest constraint holding your factory back and the best next step.
+          Book your free <span className="G">Growth Assessment Session</span> below.
         </p>
 
         <div className="cal-card">
