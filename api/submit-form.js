@@ -2,6 +2,8 @@ import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from '
 import { mirrorToTeamCrm } from './_lib/team-crm.js'
 import { createContactWithPhoneFallback, updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
 import { normalizePhone } from './_lib/phone.js'
+import { ENROLLED_TAG } from './_lib/roadmap-email.js'
+import { addContactTags, enrollRoadmapContact, firstEmailStep, getContact, sendRoadmapStep } from './_lib/roadmap-email-runner.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 const SOURCE = 'PBA Lead Magnet'
@@ -82,20 +84,9 @@ export default async function handler(req, res) {
     'Version': '2021-07-28',
   }
 
-  // Commit the workflow trigger only after all required answers are safely stored.
-  async function commitDeliveryTag(cid) {
-    if (!cid) throw new Error('Cannot commit delivery tag without a contact')
-    const r = await fetch(`https://services.leadconnectorhq.com/contacts/${cid}/tags`, {
-      method: 'POST', headers, body: JSON.stringify({ tags: ['lead-magnet-survey-submitted'] }),
-    })
-    const text = await r.text()
-    console.log('[submit-form] lead-magnet-survey-submitted tag →', r.status)
-    if (!r.ok) throw new Error(`GHL delivery tag failed (${r.status}): ${text.slice(0, 200)}`)
-  }
-
   // GHL can return 200 while silently ignoring a malformed single-select write.
   // Write revenue with the documented fieldValue shape, then confirm it before
-  // adding the workflow trigger tag.
+  // enrolling the contact in code-managed delivery.
   async function ensureRevenueStored(cid) {
     const r = await fetch(`https://services.leadconnectorhq.com/contacts/${cid}`, {
       method: 'PUT',
@@ -192,8 +183,26 @@ export default async function handler(req, res) {
       }).catch(() => {})
     }
     await ensureRevenueStored(contactId)
-    await commitDeliveryTag(contactId)
-    return res.status(200).json({ ok: true, contactId, phoneStored })
+    const startedAt = new Date()
+    // Save the schedule first, but expose it to the cron only after this immediate
+    // send attempt. That removes the only window where both paths could send d0.
+    await enrollRoadmapContact(contactId, startedAt, GHL_API_KEY, { activate: false })
+    let emailQueued = false
+    try {
+      const contact = await getContact(contactId, GHL_API_KEY)
+      await sendRoadmapStep({
+        contact,
+        step: firstEmailStep(),
+        ghlToken: GHL_API_KEY,
+        trackingSecret: process.env.ROADMAP_EMAIL_TRACKING_SECRET?.trim(),
+      })
+      emailQueued = true
+    } catch (emailError) {
+      // The cron retries any step without its sent tag. The lead submission remains successful.
+      console.error('[submit-form] immediate roadmap email queued for retry:', emailError.message)
+    }
+    await addContactTags(contactId, [ENROLLED_TAG], GHL_API_KEY)
+    return res.status(200).json({ ok: true, contactId, phoneStored, emailQueued })
   } catch (err) {
     console.error('[submit-form] failed:', err.message)
     return res.status(502).json({ error: 'CRM submission failed' })

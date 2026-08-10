@@ -1,1 +1,12 @@
-{"rewrites":[{"source":"/((?!api/|@|src/|node_modules/|assets/|images/|.+\\..+).*)", "destination":"/index.html"}]}
+{
+  "functions": {
+    "api/roadmap-email-cron.js": { "maxDuration": 60 },
+    "api/email-stats.js": { "maxDuration": 60 }
+  },
+  "crons": [
+    { "path": "/api/roadmap-email-cron", "schedule": "*/10 * * * *" }
+  ],
+  "rewrites": [
+    { "source": "/((?!api/|@|src/|node_modules/|assets/|images/|.+\\..+).*)", "destination": "/index.html" }
+  ]
+}
