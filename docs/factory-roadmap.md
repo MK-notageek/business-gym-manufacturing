@@ -243,3 +243,8 @@ manufacturer roadmap submissions.
   protected click, stats, and cron routes were verified.
 - A controlled copy was accepted by GHL and sent to Ayaan's existing contact at
   `Ayaan@Advlaunch.com`; no contact was created and no signup alert was triggered.
+- Gmail exposed that the prior WebP's alpha channel rendered only its gradient
+  rectangle. Commit `663f831` replaces it with PBA's official transparent PNG;
+  deployment `dpl_EsHjKk4QgwfSpqSG8uiuK4LYoNuL` is `READY`, the PNG returns 200,
+  and the removed WebP returns 404. A separately titled Manufacturer confirmation
+  was accepted by GHL for Ayaan without adding submission or enrollment tags.
