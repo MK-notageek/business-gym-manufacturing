@@ -2,7 +2,7 @@ import { sendCapiEvent, sendCrmEvent, clientIpFromReq, userAgentFromReq } from '
 import { mirrorToTeamCrm } from './_lib/team-crm.js'
 import { createContactWithPhoneFallback, updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
 import { normalizePhone } from './_lib/phone.js'
-import { ENROLLED_TAG } from './_lib/roadmap-email.js'
+import { ENROLLED_TAG, SUBMITTED_TAG } from './_lib/roadmap-email.js'
 import { addContactTags, enrollRoadmapContact, firstEmailStep, getContact, sendRoadmapStep } from './_lib/roadmap-email-runner.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
@@ -201,7 +201,10 @@ export default async function handler(req, res) {
       // The cron retries any step without its sent tag. The lead submission remains successful.
       console.error('[submit-form] immediate roadmap email queued for retry:', emailError.message)
     }
-    await addContactTags(contactId, [ENROLLED_TAG], GHL_API_KEY)
+    // Restore the established CRM lifecycle trigger after the data and email
+    // state are complete. Its email workflow is Draft; the separate published
+    // Slack/WhatsApp workflow still uses this exact tag.
+    await addContactTags(contactId, [ENROLLED_TAG, SUBMITTED_TAG], GHL_API_KEY)
     return res.status(200).json({ ok: true, contactId, phoneStored, emailQueued })
   } catch (err) {
     console.error('[submit-form] failed:', err.message)

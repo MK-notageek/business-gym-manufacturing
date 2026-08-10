@@ -4,6 +4,7 @@ export const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
 export const BASE_URL = 'https://roadmap.premierbusinessacademy.co.nz'
 export const CAMPAIGN = 'manufacturer-roadmap-email-v1'
 export const ENROLLED_TAG = `${CAMPAIGN}-enrolled`
+export const SUBMITTED_TAG = 'lead-magnet-survey-submitted'
 export const STARTED_AT_FIELD_ID = 'wTlDJoA2INPoSelc2JrR'
 export const BOOKED_TAG = 'call-booked'
 

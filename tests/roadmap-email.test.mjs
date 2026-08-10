@@ -6,6 +6,7 @@ import {
   EMAIL_STEPS,
   ENROLLED_TAG,
   STARTED_AT_FIELD_ID,
+  SUBMITTED_TAG,
   buildRoadmapEmail,
   createTrackingToken,
   nextDueStep,
@@ -16,6 +17,10 @@ import {
 import { enrollRoadmapContact, sendRoadmapStep } from '../api/_lib/roadmap-email-runner.js'
 
 const secret = 'local-test-secret'
+
+test('keeps the established manufacturer CRM submission trigger tag', () => {
+  assert.equal(SUBMITTED_TAG, 'lead-magnet-survey-submitted')
+})
 
 function contactAt(startedAt, tags = []) {
   return {
