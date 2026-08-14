@@ -54,15 +54,17 @@ const HOURS_OPTIONS: Option[] = [
   { value: '40+', label: '40+ hours' },
 ]
 
+// Contact details sit together on one screen so the browser can autofill name, email and
+// phone in a single gesture. Split across three screens the combined autofill never fires.
 const STAGES = [
-  { key: 'full_name', q: "First, what’s your name?", sub: 'So our PBA advisor knows who they’re helping.' },
-  { key: 'email', q: 'Where should we send your Roadmap?', sub: 'Your free copy will land here within 60 seconds.' },
-  { key: 'phone', q: 'What’s the best number for you?', sub: 'New Zealand numbers only. No spam.' },
+  { key: 'contact', q: 'Where should we send your Roadmap?', sub: 'Three details and it is on its way. No spam, unsubscribe anytime.' },
   { key: 'annual_revenue', q: 'What does your factory turn over each year?', sub: 'This helps us assess the right growth constraints.' },
   { key: 'number_of_staff', q: 'How many people are on your team?', sub: 'Include everyone working in the business.' },
   { key: 'biggest_challenge', q: 'What is the biggest constraint right now?', sub: 'Pick the one costing you the most.' },
   { key: 'hours_on_floor', q: 'How many hours a week are you working in the business?', sub: 'Your closest estimate is fine.' },
 ] as const
+
+const OPTIONS_BY_STEP: Option[][] = [REVENUE_OPTIONS, STAFF_OPTIONS, CHALLENGE_OPTIONS, HOURS_OPTIONS]
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const WARM_CAL_URL = 'https://link.premierbusinessacademy.co.nz/widget/bookings/growth-assessment-session'
@@ -85,6 +87,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
   const [values, setValues] = useState<Values>(EMPTY)
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [error, setError] = useState('')
+  const [errField, setErrField] = useState<keyof Values | ''>('')
   const [warmCal, setWarmCal] = useState(false)
 
   const valuesRef = useRef(values)
@@ -95,7 +98,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
   valuesRef.current = values
 
   useEffect(() => {
-    if (step <= 2) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 60)
+    if (step === 0) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 60)
   }, [step])
 
   function triggerWarm() {
@@ -104,7 +107,10 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   function setField(field: keyof Values, value: string) {
     setValues(current => ({ ...current, [field]: value }))
-    if (error) setError('')
+    if (error) {
+      setError('')
+      setErrField('')
+    }
     triggerWarm()
   }
 
@@ -167,49 +173,56 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     }
   }
 
-  function validateText(): string {
-    if (step === 0 && !values.full_name.trim()) return 'Enter your name'
-    if (step === 1 && !EMAIL_RE.test(values.email.trim())) return 'Enter a valid email'
-    if (step === 2 && !isValidPhone(values.phone)) {
-      return isOverseasPhone(values.phone)
-        ? 'New Zealand numbers only — enter a NZ mobile or landline'
-        : 'Enter a real NZ phone number, e.g. 021 123 4567'
+  // Validates the whole contact block and reports the first field that fails, so the caller
+  // can highlight exactly one input rather than reddening all three.
+  function validateContact(): { message: string; field: keyof Values | '' } {
+    if (!values.full_name.trim()) return { message: 'Enter your name', field: 'full_name' }
+    if (!EMAIL_RE.test(values.email.trim())) return { message: 'Enter a valid email', field: 'email' }
+    if (!isValidPhone(values.phone)) {
+      return {
+        message: isOverseasPhone(values.phone)
+          ? 'New Zealand numbers only — enter a NZ mobile or landline'
+          : 'Enter a real NZ phone number, e.g. 021 123 4567',
+        field: 'phone',
+      }
     }
-    return ''
+    return { message: '', field: '' }
   }
 
-  async function advanceText() {
-    const validationError = validateText()
-    if (validationError) {
-      setError(validationError)
+  async function advanceContact() {
+    const { message, field } = validateContact()
+    if (message) {
+      setError(message)
+      setErrField(field)
       return
     }
 
-    if (step === 1) await ensurePartial(valuesRef.current)
     // Store E.164 so GHL, Slack and the WhatsApp bridge all get a dialable number.
-    if (step === 2) {
-      const e164 = normalizePhone(values.phone)
-      valuesRef.current = { ...valuesRef.current, phone: e164 }
-      setField('phone', e164)
-      await updateField('phone', e164)
-    }
+    const e164 = normalizePhone(values.phone)
+    valuesRef.current = { ...valuesRef.current, phone: e164 }
+    setValues(current => ({ ...current, phone: e164 }))
+
+    // One partial-contact call now carries name, email and phone together.
+    await ensurePartial(valuesRef.current)
     setStep(current => current + 1)
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter') {
       event.preventDefault()
-      advanceText()
+      advanceContact()
     }
   }
 
+  // Autofill can populate all three fields at once, so any blur on the block may be the
+  // moment the contact becomes creatable. ensurePartial self-guards against duplicates.
   async function handleBlur() {
-    if (step === 1) await ensurePartial(valuesRef.current)
-    if (step === 2 && isValidPhone(values.phone)) await updateField('phone', normalizePhone(values.phone))
+    if (step === 0) await ensurePartial(valuesRef.current)
   }
 
   function back() {
     setError('')
+    setErrField('')
     setStep(current => Math.max(0, current - 1))
   }
 
@@ -218,6 +231,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     valuesRef.current = next
     setValues(next)
     setError('')
+    setErrField('')
     triggerWarm()
     await updateField(field, value)
 
@@ -269,13 +283,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
   const pct = ((step + 1) / STAGES.length) * 100
   const stage = STAGES[step]
-  const options = step === 3
-    ? REVENUE_OPTIONS
-    : step === 4
-      ? STAFF_OPTIONS
-      : step === 5
-        ? CHALLENGE_OPTIONS
-        : HOURS_OPTIONS
+  const options = OPTIONS_BY_STEP[step - 1] ?? []
 
   return (
     <div className="lm-form" onFocusCapture={triggerWarm}>
@@ -294,6 +302,9 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
         .lm-input:hover{border-color:rgba(139,83,236,.42);background:rgba(10,10,20,.72)}
         .lm-input:focus{border-color:rgba(139,83,236,.78);background:rgba(10,10,20,.92);box-shadow:0 0 0 4px rgba(139,83,236,.16)}
         .lm-input.err{border-color:#ef4444}
+        .lm-block{display:flex;flex-direction:column;gap:12px}
+        .lm-field{display:flex;flex-direction:column;gap:6px}
+        .lm-label{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.5)}
         .lm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         .lm-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:rgba(10,10,20,.5);border:1.5px solid rgba(139,83,236,.2);border-radius:14px;padding:14px 15px;font-family:inherit;color:#fff;cursor:pointer;transition:transform .14s,border-color .2s,background .2s,box-shadow .2s;min-height:58px;justify-content:center}
         .lm-opt:hover{border-color:rgba(139,83,236,.6);background:rgba(139,83,236,.1);transform:translateY(-2px)}
@@ -324,31 +335,56 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
         <div className="lm-q">{stage.q}</div>
         <div className="lm-sub">{stage.sub}</div>
 
-        {step === 0 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="text" placeholder="Jane Smith" autoComplete="name" value={values.full_name} onChange={event => setField('full_name', event.target.value)} onKeyDown={onKeyDown} />}
-        {step === 1 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="email" placeholder="jane@company.co.nz" autoComplete="email" inputMode="email" value={values.email} onChange={event => setField('email', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
-        {step === 2 && <input ref={inputRef} className={`lm-input ${error ? 'err' : ''}`} type="tel" placeholder="+64 21 000 0000" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />}
+        {step === 0 && (
+          // A real <form> with standard autocomplete tokens is what lets the browser offer to
+          // fill all three fields in one gesture. Keep the element and the tokens together.
+          <form
+            className="lm-block"
+            autoComplete="on"
+            onSubmit={event => {
+              event.preventDefault()
+              advanceContact()
+            }}
+          >
+            <div className="lm-field">
+              <label className="lm-label" htmlFor="lm-name">Your name</label>
+              <input id="lm-name" ref={inputRef} className={`lm-input ${errField === 'full_name' ? 'err' : ''}`} type="text" name="name" placeholder="Jane Smith" autoComplete="name" value={values.full_name} onChange={event => setField('full_name', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />
+            </div>
+            <div className="lm-field">
+              <label className="lm-label" htmlFor="lm-email">Email</label>
+              <input id="lm-email" className={`lm-input ${errField === 'email' ? 'err' : ''}`} type="email" name="email" placeholder="jane@company.co.nz" autoComplete="email" inputMode="email" value={values.email} onChange={event => setField('email', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />
+            </div>
+            <div className="lm-field">
+              <label className="lm-label" htmlFor="lm-phone">Phone</label>
+              <input id="lm-phone" className={`lm-input ${errField === 'phone' ? 'err' : ''}`} type="tel" name="tel" placeholder="+64 21 000 0000" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />
+            </div>
 
-        {step >= 3 && (
-          <div className="lm-grid">
-            {options.map(option => (
-              <button key={option.value} type="button" className="lm-opt" onClick={() => pickOption(stage.key, option.value)}>
-                <span className="lm-opt-v">{option.label}</span>
-                {option.hint && <span className="lm-opt-h">{option.hint}</span>}
-              </button>
-            ))}
-          </div>
+            {error && <div className="lm-err">{error}</div>}
+
+            <div className="lm-row">
+              <button type="submit" className="lm-btn">Continue →</button>
+            </div>
+          </form>
         )}
 
-        {error && <div className="lm-err">{error}</div>}
+        {step >= 1 && (
+          <>
+            <div className="lm-grid">
+              {options.map(option => (
+                <button key={option.value} type="button" className="lm-opt" onClick={() => pickOption(stage.key as keyof Values, option.value)}>
+                  <span className="lm-opt-v">{option.label}</span>
+                  {option.hint && <span className="lm-opt-h">{option.hint}</span>}
+                </button>
+              ))}
+            </div>
 
-        {step <= 2 && (
-          <div className="lm-row">
-            {step > 0 && <button type="button" className="lm-back" onClick={back}>← Back</button>}
-            <button type="button" className="lm-btn" onClick={advanceText}>Continue →</button>
-          </div>
+            {error && <div className="lm-err">{error}</div>}
+
+            <div className="lm-row"><button type="button" className="lm-back" onClick={back}>← Back</button></div>
+          </>
         )}
-        {step >= 3 && <div className="lm-row"><button type="button" className="lm-back" onClick={back}>← Back</button></div>}
-        {step <= 1 && <div className="lm-note">Your details stay private. Unsubscribe anytime.</div>}
+
+        {step === 0 && <div className="lm-note">Your details stay private. Unsubscribe anytime.</div>}
       </div>
 
       {status === 'error' && <div className="lm-err">Something went wrong. Please try again.</div>}
