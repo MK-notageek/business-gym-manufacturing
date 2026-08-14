@@ -6,7 +6,7 @@ function GuideMockup({ className = '' }: { className?: string }) {
       <div className="guide">
         <div className="book">
           <div className="book-face">
-            <div className="book-top"><span className="book-eyebrow">Free Guide</span><img className="book-logo-img" src="/images/pba-logo-full.webp" alt="Premier Business Academy" /></div>
+            <div className="book-top"><span className="book-eyebrow">Free Guide</span><img className="book-logo-img" src="/images/pba-logo-full.png" alt="Premier Business Academy" /></div>
             <div className="book-mid">
               <div className="book-kicker">The Manufacturer’s</div>
               <div className="book-title">PROFIT<br />ROADMAP</div>
