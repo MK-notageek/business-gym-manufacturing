@@ -20,8 +20,10 @@ const VSL_POSTER = '/media/roadmap-vsl-poster.jpg'
 // The full Client Success Stories wall, newest first. Every id is a live video on
 // PBA's "Client Success Stories" playlist; the stat under each is taken from what
 // the client actually says on camera, not invented.
-// Tim's story (gAfNzSxSWP4) is deliberately absent: it is a good testimonial but it
-// is about a one-off Rotary club talk, not the program, so it does not belong here.
+// Two playlist entries are deliberately absent. Tim's story (gAfNzSxSWP4) is a good
+// testimonial but it is about a one-off Rotary club talk rather than the program.
+// Willie's (1d4Ag8VEtd0) is a podcast episode that sits on the playlist by mistake,
+// not a success story at all.
 const VIDEOS = [
   { id: 'Xycxlyff3Dw', name: 'Business Owner', stat: 'Stress From 95% to 15% in 3 Weeks' },
   { id: 'EVGF7D0GYac', name: 'Business Owner', stat: 'Joined at the Brink, Saved the Business' },
@@ -34,7 +36,6 @@ const VIDEOS = [
   { id: 'GjBrkJliHpg', name: 'Peter', stat: 'Was Ready to Give Up' },
   { id: '3HXDcI0NPQk', name: 'James', stat: 'More in 8 Weeks Than 6 Months Elsewhere' },
   { id: 'QzcCOnWlcuo', name: 'Joey', stat: 'Triple the Workload, Same Hours' },
-  { id: '1d4Ag8VEtd0', name: 'Willie', stat: 'From Workaholic to Family First' },
   { id: 'Qwy7hKm_i48', name: 'Business Owner', stat: 'Saved Us Money, Time and Pain' },
   { id: 'Y-WWSRAyAeo', name: 'Amos · USA', stat: 'From 80-Hour Weeks to Home by 3pm' },
   { id: 'wM7CsYvKyqM', name: 'Landie', stat: 'Record Results in Just 2 Months' },
