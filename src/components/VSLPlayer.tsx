@@ -23,10 +23,16 @@ export default function VSLPlayer({ src, poster }: { src: string; poster: string
     v.play().catch(() => {})
   }, [])
 
+  // Unmuting is the real start of the VSL. The muted autoplay is only there to
+  // prove the page is alive, so whatever ran while the viewer was reading the
+  // page above is not the pitch — rewind to 0 so they hear it from the hook
+  // rather than dropping in 20 seconds late.
   const unmute = () => {
     const v = ref.current
     if (!v) return
     v.muted = false
+    v.currentTime = 0
+    setPct(0)
     setMuted(false)
     if (v.paused) v.play().catch(() => {})
   }
