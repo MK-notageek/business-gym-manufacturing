@@ -17,38 +17,76 @@ declare global {
 const VSL_SRC = '/media/roadmap-vsl.mp4'
 const VSL_POSTER = '/media/roadmap-vsl-poster.jpg'
 
-// Manufacturing-specific testimonials lead, then the wider Trade Map set.
+// The full Client Success Stories wall, newest first. Every id is a live video on
+// PBA's "Client Success Stories" playlist; the stat under each is taken from what
+// the client actually says on camera, not invented.
+// Tim's story (gAfNzSxSWP4) is deliberately absent: it is a good testimonial but it
+// is about a one-off Rotary club talk, not the program, so it does not belong here.
 const VIDEOS = [
-  { id: 'hqCtdyMNOgY', name: 'Chris', stat: 'Systems Replaced Chaos' },
-  { id: 'mHGpgEVoUFY', name: 'Josh', stat: '+36 to 40% Revenue · Weekends Back' },
-  { id: 'gAfNzSxSWP4', name: 'Tim', stat: '3 Months Done in 3 Weeks' },
+  { id: 'Xycxlyff3Dw', name: 'Business Owner', stat: 'Stress From 95% to 15% in 3 Weeks' },
+  { id: 'EVGF7D0GYac', name: 'Business Owner', stat: 'Joined at the Brink, Saved the Business' },
+  { id: 'qGMpmYG0eCY', name: 'Monica', stat: 'Never Sold Before, Selling in 2 Weeks' },
+  { id: 'S20xSB2N7KE', name: 'Manufacturer · Germany', stat: '15 Years Stuck, Turned Around in 12 Months' },
+  { id: 'UVMoBY-6XEA', name: 'Carl', stat: 'First Holiday in 16 Years' },
+  { id: 'A7JWgXM1rHY', name: 'Scott · Taranaki', stat: 'Too Time-Poor? Start Here' },
+  { id: 'bvVbHzzYh8k', name: 'Haymo', stat: 'Broke Through Our Ceiling' },
+  { id: 'HqMUp3MwUFE', name: 'Josh · Live Event', stat: "You Don't Know What You Don't Know" },
+  { id: 'GjBrkJliHpg', name: 'Peter', stat: 'Was Ready to Give Up' },
+  { id: '3HXDcI0NPQk', name: 'James', stat: 'More in 8 Weeks Than 6 Months Elsewhere' },
+  { id: 'QzcCOnWlcuo', name: 'Joey', stat: 'Triple the Workload, Same Hours' },
+  { id: '1d4Ag8VEtd0', name: 'Willie', stat: 'From Workaholic to Family First' },
+  { id: 'Qwy7hKm_i48', name: 'Business Owner', stat: 'Saved Us Money, Time and Pain' },
+  { id: 'Y-WWSRAyAeo', name: 'Amos · USA', stat: 'From 80-Hour Weeks to Home by 3pm' },
+  { id: 'wM7CsYvKyqM', name: 'Landie', stat: 'Record Results in Just 2 Months' },
+  { id: 'HPIkiCDgzOw', name: 'Business Owner', stat: 'The Golden Hour Fixed Follow-Up' },
+  { id: 'Q5qPUpESams', name: 'Business Owner', stat: 'Broke Every Sales Record' },
+  { id: 'WHmiy9B5nB0', name: 'Business Owner', stat: 'Grew Cash Flow 480% in 6 Months' },
+  { id: '_pJmMLgn9LE', name: 'Leigh · Quin Global · UK', stat: 'Broke Through a $20M Ceiling' },
+  { id: 'SRP0p5GJYwY', name: 'Jonathan · USA', stat: 'Booked Out Through November' },
+  { id: 'mwVXz5kA3FM', name: 'Carlie · Canada', stat: 'A Decade of Wrong Systems, Fixed' },
+  { id: 'jguYImcbWyM', name: 'Nur · NZ', stat: 'Clarity in a Single Session' },
+  { id: 'xvsNBrj9ivU', name: 'Andy · NZ', stat: 'Grew Fast, Cut Ad Spend to Zero' },
+  { id: 'teJexLx8i8A', name: 'James · AU', stat: 'Serious About Growth, And It Works' },
+  { id: 'mt0UTryP6lk', name: 'Nathan · AU', stat: 'Stopped Leaving Money on the Table' },
+  { id: '9nEAuLyWeJQ', name: 'Vern · UK', stat: 'From Operator to Owner' },
+  { id: 'u2ZU8BPgGKQ', name: 'Matthew · UK', stat: 'The Accountability to Execute' },
+  { id: 'XL29a8JTKq8', name: 'Trent · USA', stat: 'Got His Numbers & Systems Sorted' },
+  { id: 'COGbYSoGss4', name: 'Sebastien · NZ', stat: 'A Simple Structure & More Clarity' },
   { id: 'BbcoNuMfjmw', name: 'Mitchell', stat: '9 to 11 Hours Saved Every Week' },
+  { id: 'mHGpgEVoUFY', name: 'Josh', stat: '+36 to 40% Revenue · Weekends Back' },
+  { id: 'hqCtdyMNOgY', name: 'Chris', stat: 'Systems Replaced Chaos' },
   { id: 'VfQdGgEyjdQ', name: 'Abe', stat: '100+ Improvements Without Him' },
   { id: 'rrMx4Z-ekG0', name: 'Trent', stat: '+50 to 55% Revenue · 22 to 25 Hours Back' },
-  { id: '_pJmMLgn9LE', name: 'Business Owner · UK', stat: 'Broke Through a $20M Ceiling' },
-  { id: 'xvsNBrj9ivU', name: 'Andy · NZ', stat: 'Grew Fast, Cut Ad Spend to Zero' },
-  { id: 'mt0UTryP6lk', name: 'Nathan · AU', stat: 'Stopped Leaving Money on the Table' },
-  { id: 'teJexLx8i8A', name: 'James · AU', stat: 'Serious About Growth, And It Works' },
   { id: '1go1aT89mLc', name: 'Business Owner · DE', stat: 'Lean Transformed the Floor' },
-  { id: 'u2ZU8BPgGKQ', name: 'Matthew · UK', stat: 'The Accountability to Execute' },
-  { id: '9nEAuLyWeJQ', name: 'Vern · UK', stat: 'From Operator to Owner' },
-  { id: 'COGbYSoGss4', name: 'Sebastien · NZ', stat: 'A Simple Structure & More Clarity' },
-  { id: 'XL29a8JTKq8', name: 'Trent · USA', stat: 'Got His Numbers & Systems Sorted' },
-  { id: 'Q5qPUpESams', name: 'Business Owner', stat: 'Broke Every Sales Record' },
-  { id: 'Y-WWSRAyAeo', name: 'Amos · USA', stat: 'From 80-Hour Weeks to Home by 3pm' },
-  { id: 'WHmiy9B5nB0', name: 'Business Owner', stat: 'Grew Cash Flow 480% in 6 Months' },
-  { id: 'wM7CsYvKyqM', name: 'Landie', stat: 'Record Results in Just 2 Months' },
   { id: 'G_U7acj7U3o', name: 'Matthew · Allquip', stat: '2 a Month to 50 Units in 6 Weeks' },
   { id: 'evtQQodkANk', name: 'Abe · Edusafe', stat: 'Sustaining a Lean Culture' },
 ]
 
+// Twenty of PBA's strongest five-star Google reviews, pulled from the live listing
+// on 2026-08-16. Selected for the ones that talk about the program, the system and
+// the results rather than only about Bernard; book and planner reviews are excluded
+// because they are not proof of the coaching. Text is verbatim, trimmed only.
 const REVIEWS = [
-  { name: 'Adrian Day', initials: 'AD', color: '#4285F4', text: "Bernard is all go. Full of insights and immediate action. We've been blown away by just how quickly PBA implements and starts bringing positive change." },
-  { name: 'Your Local Tyre Centre', initials: 'YL', color: '#EA4335', text: "I've been working with Bernard over the past few months. No fluff, no BS, just the things we need to hear. He has given us multiple strategies." },
-  { name: 'Tim Farland', initials: 'TF', color: '#34A853', text: "Bernard is the real deal business coach. Genuine, inspiring and full of energy and ideas. I'm seeing a real upward trend in my sales results." },
-  { name: 'Joshua Prestidge', initials: 'JP', color: '#FBBC05', text: "Joining Premier Business Academy was one of the best things we have done in years. We joined PBA as we wanted to improve the life our business gives us." },
-  { name: 'Trent Koehn', initials: 'TK', color: '#4285F4', text: "Bernard and his team are the best. In just a few minutes I received the answers I had been searching for for months." },
-  { name: "Matt O'Connor", initials: 'MO', color: '#EA4335', text: "High energy, motivational and best of all clear action that we can take to create more sales and get out of our comfort zone." },
+  { name: 'Cameron Russell', initials: 'CR', color: '#4285F4', text: "Tripled my revenue since March. Filled my sales pipeline for the next 12 months. Went from a 1 man army to a 5-person business. Home by 4pm to play with my daughter, and I've got my weekends back. Three months of working smarter, not harder." },
+  { name: 'Dean Stuart', initials: 'DS', color: '#EA4335', text: "He's put us back on the fast track to growth and reignited the excitement we had when we first started. We were doing more than OK before — now we're on steroids. If you're a business owner ready to stop coasting and start accelerating, Premier Business Academy is the catalyst you didn't know you needed." },
+  { name: 'Monika Warszawska', initials: 'MW', color: '#34A853', text: "We have only been part of the programme for a week, yet we are already seeing positive results in both sales approach and business. Daily coaching sessions that are practical, engaging and focused on helping us continually improve our sales skills, mindset and confidence." },
+  { name: 'Samantha Mauricette', initials: 'SM', color: '#FBBC05', text: "I've only had 2 sessions with PBA so far and feel compelled to write a review right away. I've been struggling to be consistent with daily sales routines and I have seen a difference in the very first week. 100% recommended to any growing sales spaces." },
+  { name: 'Monica Churstain', initials: 'MC', color: '#4285F4', text: "With PBA we are building a strong team who are part of the decision making and are now feeling empowered to do more for the business. Bernard is straight talking and to the point; compressing the learning and cutting the BS so we can all achieve our team goals faster." },
+  { name: 'Joshua Prestidge', initials: 'JP', color: '#EA4335', text: "Joining Premier Business Academy was one of the best things we have done in years. We needed more structure and discipline and to make tiny daily improvements. The business gym is where you can get instant support, normally followed up by a specific training video. The leadership and relentless follow up to keep us accountable is world-class." },
+  { name: 'Matthew Gulley', initials: 'MG', color: '#34A853', text: "The main thing for me was the accountability and building a habit of continuous learning. Getting 1% better every day was super powerful and made the difference in order to grow and scale our business fast. If you're looking for accountability, PBA's the way." },
+  { name: 'James Brownlee', initials: 'JB', color: '#FBBC05', text: "PBA is the real deal. If you are wanting to take things to the next level and get around a community of people who are passionate about moving the needle then this is for you. From my first contact I got fast action with no BS. Wish I was a part of this years ago." },
+  { name: 'Leigh Mckenzie', initials: 'LM', color: '#4285F4', text: "His ability to connect with sales teams of all experience levels, instill accountability and make the consistent practice of the core fundamentals and key sales processes engaging and fun massively sets him apart. Other sales training programmes do not come close." },
+  { name: 'Leon Willy', initials: 'LW', color: '#EA4335', text: "Bernard is a brilliant presenter — he makes business strategies easy to use and they work in everyday life too. Since applying his ideas, we've smashed our sales KPIs, boosting results by over 30% and climbing." },
+  { name: 'Yolandie Piso', initials: 'YP', color: '#34A853', text: "Bernard and the team have been fantastic at assisting me with my growing business by offering a platform where I can constantly learn, grow and be held accountable to reach my goals. If you are after a no frills get down to business with great ROI on investment, this is for you." },
+  { name: 'Patrick Whiteman', initials: 'PW', color: '#FBBC05', text: "We have had great help from Bernard at PBA shifting mindset and getting stuff done that we would have in all reality just never happened. Nothing ventured, nothing gained is how we initially looked at it, but the value we received was amazing." },
+  { name: 'Maria Taylor', initials: 'MT', color: '#4285F4', text: "My business had been struggling and I was feeling overwhelmed. Bernard not only listened to my challenges but actively worked alongside me to develop actionable solutions that made an immediate impact. I am now more focused and empowered, and my business is on a clear path toward growth." },
+  { name: 'Your Local Tyre Centre', initials: 'YL', color: '#EA4335', text: "He has been a game changer for our business with his business coaching brain and mindset. No fluff, no BS, just the things we need to hear. He has given us multiple strategies for our roadblocks. I can definitely see ROI in a short space of time." },
+  { name: 'Kathryn Evans', initials: 'KE', color: '#34A853', text: "His coaching ability, natural leadership and business development skills have been exceptional. I appreciate the no B/S conversations and commitment to helping individuals not only succeed but excel in what they do. Bring your pen and prepare to be drilled in a good way." },
+  { name: 'Hilton Calder', initials: 'HC', color: '#FBBC05', text: "He has transformed my mindset and momentum. His strategies are next-level, his support is constant, and his approach is sharp, practical and powerful. He has helped me go from zero to hero in 4 days. If you're on the fence — don't be." },
+  { name: 'Bernard Kingon', initials: 'BK', color: '#4285F4', text: "Premier Business Academy has been an excellent experience. Next-level energy — motivational, straight-talking, and always pushing you to rise above 'just okay'. If you want a boost of clarity, confidence and momentum, this is the place." },
+  { name: 'Abe Godsell-Slade', initials: 'AG', color: '#EA4335', text: "30 minutes with Bernard and the team at PBA will change your business. I left with a wealth of insights and simple, key actionable steps that we could go away and implement that same day. The result? Better culture, better people, better business." },
+  { name: 'Peter Fry Landscapes', initials: 'PF', color: '#34A853', text: "His programs are not only taught and learnt but bring real life understanding to give business owners confidence and the tools for improving any business of any size. He genuinely cares and has a good understanding of human nature and human value." },
+  { name: 'Trent Koehn', initials: 'TK', color: '#FBBC05', text: "Bernard and his team are the best. In just a few minutes I received the answers I had been searching for for months. Truly a world class team." },
 ]
 
 function TestimonialVideo({ id, name, stat }: { id: string; name: string; stat: string }) {
@@ -59,7 +97,27 @@ function TestimonialVideo({ id, name, stat }: { id: string; name: string; stat: 
         {playing
           ? <iframe src={`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`} title={`${name} testimonial`} allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen />
           : <>
-              <img src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} alt={`${name} testimonial`} loading="lazy" />
+              {/* Not every upload has a maxres thumbnail (mwVXz5kA3FM does not). YouTube
+                  answers those with a 120x90 grey placeholder at HTTP 200, so onError
+                  never fires — the tile just renders blank. Detect the placeholder by
+                  its width on load and fall back to hqdefault, which always exists. */}
+              <img
+                src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`}
+                alt={`${name} testimonial`}
+                loading="lazy"
+                onLoad={e => {
+                  const img = e.currentTarget
+                  if (img.dataset.fallback || img.naturalWidth >= 200) return
+                  img.dataset.fallback = '1'
+                  img.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+                }}
+                onError={e => {
+                  const img = e.currentTarget
+                  if (img.dataset.fallback) return
+                  img.dataset.fallback = '1'
+                  img.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+                }}
+              />
               <span className="vp" aria-hidden="true">
                 <svg width="56" height="56" viewBox="0 0 60 60"><circle cx="30" cy="30" r="30" fill="url(#testimonial-play)" /><polygon points="24,18 24,42 44,30" fill="#fff" /><defs><linearGradient id="testimonial-play" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#8b53ec" /><stop offset="100%" stopColor="#23affe" /></linearGradient></defs></svg>
               </span>
@@ -356,7 +414,7 @@ export default function ThankYouPage() {
 
           <div className="review-head">
             <span className="review-stars">★★★★★</span>
-            <span className="review-meta"><strong style={{ color: '#fff' }}>5.0</strong> · 141+ Google reviews</span>
+            <span className="review-meta"><strong style={{ color: '#fff' }}>5.0</strong> · 146 Google reviews</span>
           </div>
           <div className="review-grid">
             {REVIEWS.map(review => (
