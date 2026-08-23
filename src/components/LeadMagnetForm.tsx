@@ -147,13 +147,21 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
     }
   }
 
+  // The whole contact block must be real before a partial is worth creating. Gating on
+  // name+email alone fired on the blur of the email box, so anyone who typed an address and
+  // tabbed onward became a `partial` contact — with no phone, no nurture, and a Slack alert
+  // to Bernard's team for a lead nobody could ring. Three published GHL workflows trigger on
+  // the `partial` tag, so a phoneless partial is pure false alarm.
   async function ensurePartial(buffer: Values) {
     if (contactIdRef.current || creatingPromiseRef.current) {
       if (creatingPromiseRef.current) await creatingPromiseRef.current
       return
     }
     if (!buffer.full_name.trim() || !EMAIL_RE.test(buffer.email.trim())) return
-    creatingPromiseRef.current = createPartialContact(buffer)
+    if (!isValidPhone(buffer.phone)) return
+    // Autofill fills all three at once, so a blur can legitimately be the creating moment —
+    // but only ever with a dialable number attached.
+    creatingPromiseRef.current = createPartialContact({ ...buffer, phone: normalizePhone(buffer.phone) })
     await creatingPromiseRef.current
     creatingPromiseRef.current = null
   }
@@ -204,6 +212,11 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
 
     // One partial-contact call now carries name, email and phone together.
     await ensurePartial(valuesRef.current)
+    // ensurePartial is a no-op once the contact exists, so an already-created partial would
+    // otherwise never receive the number. The one-screen change of 14 Aug dropped this write
+    // and left every mid-survey abandon uncallable. updateField self-skips when the value has
+    // already been sent, so the normal path costs nothing.
+    await updateField('phone', e164)
     setStep(current => current + 1)
   }
 
