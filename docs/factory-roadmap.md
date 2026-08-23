@@ -254,9 +254,14 @@ manufacturer roadmap submissions.
 The landing page was creating a `partial` contact on the *blur of the email box* — gated on
 name + email, with no phone check. Anyone who typed an address and tabbed onward became a
 partial lead with no number, and three published GHL workflows fire a Slack alert on that tag,
-so Bernard's team got a lead notification for someone nobody could call. That is why partials
-outnumbered real leads. They are not a burst in time — they land hours apart; "two or three
-together" means consecutive in the Slack feed, with no real lead breaking the run up.
+so Bernard's team got a lead notification for someone nobody could call.
+
+Measured on the real feed (`#leads-`, 177 alerts over 23 Jul – 23 Aug): partials were 27% of
+all alerts, and after a partial the next alert was a partial 34% of the time against 25% after
+a lead — a 1.37x lift, with twelve runs of two or three partials back to back. The runs test is
+z = -1.33 (p = 0.18), so the clustering is real in the feed but the sample cannot prove it is
+not chance. The fix removes 20 of the 48 partial alerts and cuts those runs from 12 to 5. Every
+one of the five partial alerts on 22-23 Aug had a blank phone field.
 
 Underneath it, the one-screen contact block of 14 August (`1aea987`) dropped the phone write.
 `ensurePartial` is a no-op once the contact exists, so a partial created on the email blur
