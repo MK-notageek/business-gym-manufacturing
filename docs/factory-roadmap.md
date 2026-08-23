@@ -248,3 +248,33 @@ manufacturer roadmap submissions.
   deployment `dpl_EsHjKk4QgwfSpqSG8uiuK4LYoNuL` is `READY`, the PNG returns 200,
   and the removed WebP returns 404. A separately titled Manufacturer confirmation
   was accepted by GHL for Ayaan without adding submission or enrollment tags.
+
+## 2026-08-23 partial leads only capture once they can be rung
+
+The landing page was creating a `partial` contact on the *blur of the email box* — gated on
+name + email, with no phone check. Anyone who typed an address and tabbed onward became a
+partial lead with no number, and three published GHL workflows fire a Slack alert on that tag,
+so Bernard's team got a lead notification for someone nobody could call. That is why partials
+outnumbered real leads. They are not a burst in time — they land hours apart; "two or three
+together" means consecutive in the Slack feed, with no real lead breaking the run up.
+
+Underneath it, the one-screen contact block of 14 August (`1aea987`) dropped the phone write.
+`ensurePartial` is a no-op once the contact exists, so a partial created on the email blur
+could never receive the number even after the visitor typed a valid one and continued. 21 of
+the last 49 partials have no phone; six of those answered three survey questions each and are
+qualified but uncallable.
+
+- `ensurePartial` now also requires a valid NZ phone and sends E.164. Autofill still creates on
+  blur, since it fills all three fields in one gesture.
+- `advanceContact` writes the phone explicitly, restoring the pre-14-August behaviour.
+- Commit `0168f0b`, deployed `dpl_E777wLDTF3TqJMTxgj7fsu9ku2Lv` (`READY`). Verified on the
+  production domain with `/api/` writes intercepted: an email blur with an empty phone now
+  fires zero requests, and a completed block creates exactly one partial carrying
+  `+64211234567`. No GHL contact was created during testing.
+- Ayaan's GoDaddy TTL theory is ruled out: the CNAME is stable and the page returns 200 in
+  0.33–1.13s. The 604800s TTL is worth shortening to 3600s as hygiene, nothing more.
+- The Trade Map was brought to the same rule: commit `9efd8b7`, deployed
+  `dpl_Ges7QpjGMMh7Ju8GzXARvvLHkdqM` (`READY`). It had no traffic, but the same phoneless
+  partials would have started the moment its ads restarted.
+
+See `reports/2026-08-23-partial-lead-bursts.md`.
