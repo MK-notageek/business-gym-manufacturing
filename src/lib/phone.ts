@@ -4,22 +4,54 @@
 //
 // New Zealand numbers only: valid against the real NZ numbering plan, and not junk
 // like 2222222. See api/_lib/phone.js for the full reasoning.
-import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
 const COUNTRY = 'NZ'
 const CALLING_CODE = '64'
+const CALLABLE_TYPES = new Set(['MOBILE', 'FIXED_LINE', 'FIXED_LINE_OR_MOBILE'])
 
-function isJunkDigits(digits: string): boolean {
-  if (new Set(digits).size < 3) return true
-  if (/(\d)\1{4}/.test(digits)) return true
-  let ascending = true
-  let descending = true
+function hasSequentialRun(digits: string, minimum = 6): boolean {
+  let ascending = 1
+  let descending = 1
   for (let i = 1; i < digits.length; i++) {
     const step = (digits.charCodeAt(i) - digits.charCodeAt(i - 1) + 10) % 10
-    if (step !== 1) ascending = false
-    if (step !== 9) descending = false
+    ascending = step === 1 ? ascending + 1 : 1
+    descending = step === 9 ? descending + 1 : 1
+    if (ascending >= minimum || descending >= minimum) return true
   }
-  return ascending || descending
+  return false
+}
+
+function isShortPeriodicPattern(digits: string): boolean {
+  for (let width = 1; width <= 3; width++) {
+    if (digits.length < width * 2) continue
+    let periodic = true
+    for (let i = width; i < digits.length; i++) {
+      if (digits[i] !== digits[i % width]) {
+        periodic = false
+        break
+      }
+    }
+    if (periodic) return true
+  }
+  return false
+}
+
+function isJunkDigits(nationalDigits: string, type: string): boolean {
+  const prefixLength = type === 'MOBILE' ? 2 : 1
+  const subscriber = nationalDigits.slice(prefixLength)
+  const counts = [...subscriber].reduce<Record<string, number>>((all, digit) => {
+    all[digit] = (all[digit] || 0) + 1
+    return all
+  }, {})
+
+  if (new Set(subscriber).size < 3) return true
+  if (/(\d)\1{4}/.test(subscriber)) return true
+  if (Math.max(...Object.values(counts)) >= Math.ceil(subscriber.length * 0.75)) return true
+  if (hasSequentialRun(subscriber)) return true
+  if (isShortPeriodicPattern(subscriber)) return true
+  if (subscriber.length >= 6 && subscriber === [...subscriber].reverse().join('')) return true
+  return false
 }
 
 // True when the lead has clearly typed a foreign country code, so the form can say
@@ -46,7 +78,9 @@ export function normalizePhone(raw: string): string {
   if (!parsed || !parsed.isValid()) return ''
   if (parsed.countryCallingCode !== CALLING_CODE) return ''
   if (parsed.country && parsed.country !== COUNTRY) return ''
-  if (isJunkDigits(String(parsed.nationalNumber))) return ''
+  const type = parsed.getType()
+  if (!type || !CALLABLE_TYPES.has(type)) return ''
+  if (isJunkDigits(String(parsed.nationalNumber), type)) return ''
   return parsed.number
 }
 

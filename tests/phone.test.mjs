@@ -4,16 +4,16 @@ import { normalizePhone, isValidPhone, isOverseasPhone } from '../api/_lib/phone
 
 // Real NZ numbers, in the shapes people actually type them.
 const VALID = [
-  ['021 123 4567',    '+64211234567'],
-  ['0211234567',      '+64211234567'],
-  ['+64 21 123 4567', '+64211234567'],
-  ['64211234567',     '+64211234567'],
-  ['0064 21 123 4567', '+64211234567'],
-  ['(09) 123-4567',   '+6491234567'],
+  ['021 314 8296',    '+64213148296'],
+  ['0213148296',      '+64213148296'],
+  ['+64 21 314 8296', '+64213148296'],
+  ['64213148296',     '+64213148296'],
+  ['0064 21 314 8296', '+64213148296'],
+  ['09 376 5210',     '+6493765210'],
   ['027 555 1234',    '+64275551234'],
   ['+64-3-477-4000',  '+6434774000'],
-  ['022 123 4567',    '+64221234567'],
-  [' 021 123 4567 ',  '+64211234567'],
+  ['022 419 6385',    '+64224196385'],
+  [' 021 314 8296 ',  '+64213148296'],
 ]
 
 // The junk this validation exists to stop, plus every non-NZ country.
@@ -23,6 +23,11 @@ const INVALID = [
   '2222222222',     // right length for an NZ mobile, still one repeated digit
   '021 000 000',    // valid NZ shape, but an obvious repeated-digit placeholder
   '021 111 111',
+  '021 123 4567',   // fake sequence hidden behind a valid mobile prefix
+  '021 765 4321',
+  '021 121 2121',   // repeating short motif
+  '021 122 1221',   // palindrome
+  '0800 123 456',   // callable, but not a mobile or landline
   '1111111111',
   '0000000000',
   '1234567890',     // straight run up, wraps 9→0
@@ -64,7 +69,7 @@ test('flags a foreign country code so the form can say NZ only', () => {
   for (const input of ['+61 412 345 678', '+1 415 555 2671', '0061412345678']) {
     assert.equal(isOverseasPhone(input), true, `expected ${input} to read as overseas`)
   }
-  for (const input of ['021 123 4567', '+64 21 123 4567', '0064211234567', '2222222', '']) {
+  for (const input of ['021 314 8296', '+64 21 314 8296', '0064213148296', '2222222', '']) {
     assert.equal(isOverseasPhone(input), false, `expected ${input} not to read as overseas`)
   }
 })

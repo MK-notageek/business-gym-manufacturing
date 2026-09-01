@@ -190,7 +190,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
       return {
         message: isOverseasPhone(values.phone)
           ? 'New Zealand numbers only — enter a NZ mobile or landline'
-          : 'Enter a real NZ phone number, e.g. 021 123 4567',
+          : 'Enter a real NZ mobile or landline number',
         field: 'phone',
       }
     }
@@ -369,7 +369,7 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
             </div>
             <div className="lm-field">
               <label className="lm-label" htmlFor="lm-phone">Phone</label>
-              <input id="lm-phone" className={`lm-input ${errField === 'phone' ? 'err' : ''}`} type="tel" name="tel" placeholder="+64 21 000 0000" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />
+              <input id="lm-phone" className={`lm-input ${errField === 'phone' ? 'err' : ''}`} type="tel" name="tel" placeholder="e.g. 021 XXX XXXX" autoComplete="tel" inputMode="tel" value={values.phone} onChange={event => setField('phone', event.target.value)} onKeyDown={onKeyDown} onBlur={handleBlur} />
             </div>
 
             {error && <div className="lm-err">{error}</div>}

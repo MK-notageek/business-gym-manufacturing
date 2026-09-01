@@ -5,35 +5,65 @@
 // NZ-only, because the audience is NZ and a number we can't ring is worthless.
 //
 // Two gates, both needed:
-//   1. libphonenumber-js checks the number against the real NZ numbering plan
-//      (prefix AND length), then we require the result to actually be +64.
-//   2. The junk guard below kills the shapes a numbering plan can't rule out —
-//      repeated digits (2222222222, 021000000) and straight runs
-//      (1234567890, 9876543210).
+//   1. Full libphonenumber metadata checks the NZ prefix, length and callable
+//      type; only mobile and fixed-line numbers survive.
+//   2. The junk guard checks the subscriber part, not only the whole number, for
+//      repeated digits, long sequences, repeating motifs and palindromes.
 //
-// Accepted:  021 123 4567 · 0211234567 · (09) 123-4567 · +64 21 123 4567 · 0064 21 …
-// Rejected:  +61 412 345 678 · +1 415 555 2671 · 2222222 · asdf
+// Accepted:  021 314 8296 · 0213148296 · 09 376 5210 · +64 21 314 8296
+// Rejected:  +61 412 345 678 · 021 000 000 · 021 123 4567 · 021 121 2121
 //
 // Keep in sync with src/lib/phone.ts (same logic, TypeScript).
-import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
 const COUNTRY = 'NZ'
 const CALLING_CODE = '64'
+const CALLABLE_TYPES = new Set(['MOBILE', 'FIXED_LINE', 'FIXED_LINE_OR_MOBILE'])
 
-// Fewer than 3 distinct digits (2222222222), five identical digits in a row
-// (021000000), or a straight run up or down with wraparound
-// (1234567890, 9876543210). No useful lead number looks like this.
-function isJunkDigits(digits) {
-  if (new Set(digits).size < 3) return true
-  if (/(\d)\1{4}/.test(digits)) return true
-  let ascending = true
-  let descending = true
+function hasSequentialRun(digits, minimum = 6) {
+  let ascending = 1
+  let descending = 1
   for (let i = 1; i < digits.length; i++) {
     const step = (digits.charCodeAt(i) - digits.charCodeAt(i - 1) + 10) % 10
-    if (step !== 1) ascending = false
-    if (step !== 9) descending = false
+    ascending = step === 1 ? ascending + 1 : 1
+    descending = step === 9 ? descending + 1 : 1
+    if (ascending >= minimum || descending >= minimum) return true
   }
-  return ascending || descending
+  return false
+}
+
+function isShortPeriodicPattern(digits) {
+  for (let width = 1; width <= 3; width++) {
+    if (digits.length < width * 2) continue
+    let periodic = true
+    for (let i = width; i < digits.length; i++) {
+      if (digits[i] !== digits[i % width]) {
+        periodic = false
+        break
+      }
+    }
+    if (periodic) return true
+  }
+  return false
+}
+
+// Inspect the subscriber portion so a legitimate-looking NZ prefix cannot hide
+// a fake body: 021 000 000, 021 123 4567, 021 121 2121, or 021 122 1221.
+function isJunkDigits(nationalDigits, type) {
+  const prefixLength = type === 'MOBILE' ? 2 : 1
+  const subscriber = nationalDigits.slice(prefixLength)
+  const counts = [...subscriber].reduce((all, digit) => {
+    all[digit] = (all[digit] || 0) + 1
+    return all
+  }, {})
+
+  if (new Set(subscriber).size < 3) return true
+  if (/(\d)\1{4}/.test(subscriber)) return true
+  if (Math.max(...Object.values(counts)) >= Math.ceil(subscriber.length * 0.75)) return true
+  if (hasSequentialRun(subscriber)) return true
+  if (isShortPeriodicPattern(subscriber)) return true
+  if (subscriber.length >= 6 && subscriber === [...subscriber].reverse().join('')) return true
+  return false
 }
 
 // True when the lead has clearly typed a foreign country code, so the form can say
@@ -63,7 +93,9 @@ export function normalizePhone(raw) {
   if (parsed.countryCallingCode !== CALLING_CODE) return ''
   // +64 also covers Pitcairn; only NZ counts.
   if (parsed.country && parsed.country !== COUNTRY) return ''
-  if (isJunkDigits(String(parsed.nationalNumber))) return ''
+  const type = parsed.getType()
+  if (!CALLABLE_TYPES.has(type)) return ''
+  if (isJunkDigits(String(parsed.nationalNumber), type)) return ''
   return parsed.number
 }
 
