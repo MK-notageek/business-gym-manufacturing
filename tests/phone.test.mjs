@@ -21,6 +21,8 @@ const INVALID = [
   '2222222',        // the actual pattern seen on live leads
   '222222',
   '2222222222',     // right length for an NZ mobile, still one repeated digit
+  '021 000 000',    // valid NZ shape, but an obvious repeated-digit placeholder
+  '021 111 111',
   '1111111111',
   '0000000000',
   '1234567890',     // straight run up, wraps 9→0

@@ -11,6 +11,7 @@ const CALLING_CODE = '64'
 
 function isJunkDigits(digits: string): boolean {
   if (new Set(digits).size < 3) return true
+  if (/(\d)\1{4}/.test(digits)) return true
   let ascending = true
   let descending = true
   for (let i = 1; i < digits.length; i++) {

@@ -8,7 +8,8 @@
 //   1. libphonenumber-js checks the number against the real NZ numbering plan
 //      (prefix AND length), then we require the result to actually be +64.
 //   2. The junk guard below kills the shapes a numbering plan can't rule out —
-//      all one digit (2222222222), straight runs (1234567890, 9876543210).
+//      repeated digits (2222222222, 021000000) and straight runs
+//      (1234567890, 9876543210).
 //
 // Accepted:  021 123 4567 · 0211234567 · (09) 123-4567 · +64 21 123 4567 · 0064 21 …
 // Rejected:  +61 412 345 678 · +1 415 555 2671 · 2222222 · asdf
@@ -19,10 +20,12 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js'
 const COUNTRY = 'NZ'
 const CALLING_CODE = '64'
 
-// Fewer than 3 distinct digits (2222222222), or a straight run up or down with
-// wraparound (1234567890, 9876543210). No real number looks like this.
+// Fewer than 3 distinct digits (2222222222), five identical digits in a row
+// (021000000), or a straight run up or down with wraparound
+// (1234567890, 9876543210). No useful lead number looks like this.
 function isJunkDigits(digits) {
   if (new Set(digits).size < 3) return true
+  if (/(\d)\1{4}/.test(digits)) return true
   let ascending = true
   let descending = true
   for (let i = 1; i < digits.length; i++) {
