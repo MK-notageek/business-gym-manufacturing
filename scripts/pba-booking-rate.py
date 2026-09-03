@@ -6,8 +6,8 @@ funnel tag and counts how many carry the booking tag `call-booked`. Produces the
 numbers behind docs/audits/2026-07-22-roadmap-vs-trademap-booking-rate.md.
 
 Dependencies (external to this repo, on Ayaan's machine):
-  ~/Projects/meta-ads-dashboard/ghl_client.py  (list_contacts_in_range)
-  ~/Projects/meta-ads-dashboard/tz_util.py
+  /Users/ayaanarifaziz/Desktop/AdvLaunch Assistant/internal/advlaunch/retired-projects/dashboards/code/meta-ads-dashboard/ghl_client.py  (list_contacts_in_range)
+  /Users/ayaanarifaziz/Desktop/AdvLaunch Assistant/internal/advlaunch/retired-projects/dashboards/code/meta-ads-dashboard/tz_util.py
 
 Token: read from the PBA GHL env file (key GHL_PIT_BERNARD). Never hardcode it here.
 Reading GHL is safe; CREATING a contact fires Bernard's live Slack + WhatsApp — this
@@ -18,7 +18,7 @@ Usage:  python3 scripts/pba-booking-rate.py [since YYYY-MM-DD] [until YYYY-MM-DD
 import sys, pathlib
 from collections import Counter
 
-sys.path.insert(0, "/Users/ayaanarifaziz/Projects/meta-ads-dashboard")
+sys.path.insert(0, "/Users/ayaanarifaziz/Desktop/AdvLaunch Assistant/internal/advlaunch/retired-projects/dashboards/code/meta-ads-dashboard")
 
 LOCATION = "om6L4L1Zfk1cl0MLSbHM"   # PBA / Bernard GHL location
 BOOKING_TAG = "call-booked"

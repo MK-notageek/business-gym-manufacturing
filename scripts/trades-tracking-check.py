@@ -3,7 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from collections import Counter
 
-sys.path.insert(0, "/Users/ayaanarifaziz/Projects/meta-ads-dashboard")
+sys.path.insert(0, "/Users/ayaanarifaziz/Desktop/AdvLaunch Assistant/internal/advlaunch/retired-projects/dashboards/code/meta-ads-dashboard")
 import ghl_client
 
 LOC = "om6L4L1Zfk1cl0MLSbHM"
