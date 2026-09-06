@@ -96,7 +96,19 @@ export default async function handler(req, res) {
       }).catch(() => {})
       return res.status(200).json({ ok: true, contactId: data.contact.id })
     }
-    const existingId = data?.meta?.contactId || data?.contact?.id
+    // GHL returns the duplicate's id in meta.contactId but never says the id is the
+    // same person. A PHONE match is a different human who happens to share the number
+    // -- a shared line, a typo, or a throwaway two unrelated leads both typed. This id
+    // is handed to the page and comes back as `contactId` on submit, where submit-form
+    // overwrites that record's name, email, company and tags. Only an email match is
+    // safe to claim as ours.
+    const matchedOn = String(data?.meta?.matchingField || '').toLowerCase()
+    const duplicateId = data?.meta?.contactId
+    if (!data?.contact?.id && duplicateId && matchedOn && matchedOn !== 'email') {
+      console.error('[partial-contact] duplicate on', matchedOn, '- refusing to claim', duplicateId)
+      return res.status(200).json({ ok: true, skipped: `duplicate-${matchedOn}` })
+    }
+    const existingId = data?.contact?.id || duplicateId
     if (existingId) {
       await sendCapiEvent({
         eventName: 'InitiateCheckout',
