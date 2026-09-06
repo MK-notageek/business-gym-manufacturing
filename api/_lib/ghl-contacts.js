@@ -82,12 +82,12 @@ export async function createContactWithPhoneFallback({
     const retryData = parseJson(retryText)
     console.log(`[${logPrefix} without phone] →`, retry.status, JSON.stringify(retryData).slice(0, 400))
     if (retry.ok && retryData?.contact?.id) {
-      return { contactId: retryData.contact.id, phoneStored: false, existing: false }
+      return { contactId: retryData.contact.id, phoneStored: false, existing: false, duplicatePhoneContactId: duplicate.contactId }
     }
 
     const retryDuplicate = duplicateDetails(retryData)
     if (retryDuplicate.contactId) {
-      return { contactId: retryDuplicate.contactId, phoneStored: false, existing: true }
+      return { contactId: retryDuplicate.contactId, phoneStored: false, existing: true, duplicatePhoneContactId: duplicate.contactId }
     }
     throw new Error(`GHL contact create without phone failed (${retry.status}): ${retryText.slice(0, 200)}`)
   }

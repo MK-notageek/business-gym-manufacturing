@@ -10,6 +10,32 @@ import { ENROLLED_TAG, SUBMITTED_TAG } from './_lib/roadmap-email.js'
 const LEAD_COUNTED_TAG = 'lead-counted'
 // Marks a lead whose phone GHL refused because another contact already holds it.
 const PHONE_DUPLICATE_TAG = 'phone-duplicate'
+const SUPERSEDED_TAG = 'superseded-by-optin'
+
+// GHL allows one contact per phone number in a location. A partial captures the phone on
+// blur -- deliberately, a partial you can ring is worth having -- so if the link back to
+// that draft is lost and the lead finishes under a different email, their own draft ends
+// up holding their number and the real record is refused it. A draft is not a person yet:
+// take the number back and give it to the finished lead. A phone held by a contact that
+// has already completed a form is left alone -- that is a real person, possibly a
+// different one, and only a human should decide.
+async function releasePhoneFromPartial(ownerId, token, headers) {
+  const owner = await getContact(ownerId, token).catch(() => null)
+  if (!owner) return false
+  const tags = (owner.tags || []).map(tag => String(tag).toLowerCase())
+  if (!tags.includes('partial') || tags.includes(String(SUBMITTED_TAG).toLowerCase())) return false
+  const url = `https://services.leadconnectorhq.com/contacts/${ownerId}`
+  const cleared = await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ phone: '' }) })
+  if (!cleared.ok) return false
+  // Clear `partial` too. GHL holds that alert for five minutes so a lead who finishes in
+  // time produces one notification instead of two, and completing the form is what removes
+  // the tag. This draft will never be completed itself, so leaving the tag on lets the
+  // timer fire a stray partial alert for a lead already announced in full.
+  await fetch(`${url}/tags`, { method: 'DELETE', headers, body: JSON.stringify({ tags: ['partial'] }) }).catch(() => {})
+  await fetch(`${url}/tags`, { method: 'POST', headers, body: JSON.stringify({ tags: [SUPERSEDED_TAG] }) }).catch(() => {})
+  return true
+}
+
 import { addContactTags, enrollRoadmapContact, firstEmailStep, getContact, sendRoadmapStep } from './_lib/roadmap-email-runner.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
@@ -121,6 +147,7 @@ export default async function handler(req, res) {
   let contactId = incomingContactId || null
   let phoneStored = true
   let alreadyCounted = false
+  let duplicatePhoneOwner = null
   try {
     // Read the tags before we write ours, so a re-submit stays distinguishable.
     if (contactId) {
@@ -168,6 +195,7 @@ export default async function handler(req, res) {
           logPrefix: 'submit-form UPDATE existing',
         })
         phoneStored = updated.phoneStored
+        if (!phoneStored && updated.duplicatePhoneContactId) duplicatePhoneOwner = updated.duplicatePhoneContactId
       }
     }
 
@@ -182,6 +210,17 @@ export default async function handler(req, res) {
     // The number was given and validated; only GHL's uniqueness rule stopped it landing.
     // Tag it so these are findable rather than silently phoneless -- this funnel records
     // nothing else about a dropped phone, which is why four July leads are unrecoverable.
+    duplicatePhoneOwner = duplicatePhoneOwner || created?.duplicatePhoneContactId || null
+    if (!phoneStored && duplicatePhoneOwner && duplicatePhoneOwner !== contactId) {
+      const released = await releasePhoneFromPartial(duplicatePhoneOwner, GHL_API_KEY, headers).catch(() => false)
+      if (released) {
+        const claimed = await updateContactWithPhoneFallback({
+          contactId, body: { phone: trimmedPhone }, headers, logPrefix: 'submit-form phone reclaim',
+        }).catch(() => null)
+        phoneStored = Boolean(claimed?.phoneStored)
+      }
+    }
+
     if (!phoneStored) await addContactTags(contactId, [PHONE_DUPLICATE_TAG], GHL_API_KEY).catch(() => {})
     // Fire Lead once per person, not once per submission.
     if (!alreadyCounted) await sendCapiEvent({
