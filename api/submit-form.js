@@ -3,6 +3,13 @@ import { mirrorToTeamCrm } from './_lib/team-crm.js'
 import { createContactWithPhoneFallback, updateContactWithPhoneFallback } from './_lib/ghl-contacts.js'
 import { normalizePhone } from './_lib/phone.js'
 import { ENROLLED_TAG, SUBMITTED_TAG } from './_lib/roadmap-email.js'
+
+// Set the first time a person completes this form. Meta counts events, not people, so
+// without this an existing lead who opts in again adds another Lead against one GHL
+// contact and the ad account reports more leads than we actually hold.
+const LEAD_COUNTED_TAG = 'lead-counted'
+// Marks a lead whose phone GHL refused because another contact already holds it.
+const PHONE_DUPLICATE_TAG = 'phone-duplicate'
 import { addContactTags, enrollRoadmapContact, firstEmailStep, getContact, sendRoadmapStep } from './_lib/roadmap-email-runner.js'
 
 const LOCATION_ID = 'om6L4L1Zfk1cl0MLSbHM'
@@ -113,7 +120,15 @@ export default async function handler(req, res) {
 
   let contactId = incomingContactId || null
   let phoneStored = true
+  let alreadyCounted = false
   try {
+    // Read the tags before we write ours, so a re-submit stays distinguishable.
+    if (contactId) {
+      const priorTags = await getContact(contactId, GHL_API_KEY)
+        .then(contact => (contact?.tags || []).map(tag => String(tag).toLowerCase()))
+        .catch(() => [])
+      alreadyCounted = priorTags.includes(LEAD_COUNTED_TAG)
+    }
     const contactBody = {
       firstName, lastName,
       email: trimmedEmail,
@@ -140,6 +155,10 @@ export default async function handler(req, res) {
       contactId = created.contactId
       phoneStored = created.phoneStored
       if (created.existing) {
+        const priorTags = await getContact(contactId, GHL_API_KEY)
+          .then(contact => (contact?.tags || []).map(tag => String(tag).toLowerCase()))
+          .catch(() => [])
+        alreadyCounted = priorTags.includes(LEAD_COUNTED_TAG)
         const existingBody = phoneStored ? contactBody : { ...contactBody }
         if (!phoneStored) delete existingBody.phone
         const updated = await updateContactWithPhoneFallback({
@@ -160,7 +179,12 @@ export default async function handler(req, res) {
         phone: phoneStored ? trimmedPhone : undefined,
       }).catch(() => {})
     }
-    await sendCapiEvent({
+    // The number was given and validated; only GHL's uniqueness rule stopped it landing.
+    // Tag it so these are findable rather than silently phoneless -- this funnel records
+    // nothing else about a dropped phone, which is why four July leads are unrecoverable.
+    if (!phoneStored) await addContactTags(contactId, [PHONE_DUPLICATE_TAG], GHL_API_KEY).catch(() => {})
+    // Fire Lead once per person, not once per submission.
+    if (!alreadyCounted) await sendCapiEvent({
       eventName: 'Lead',
       eventId: meta_event_id,
       eventSourceUrl: meta_source_url,
@@ -204,8 +228,8 @@ export default async function handler(req, res) {
     // Restore the established CRM lifecycle trigger after the data and email
     // state are complete. Its email workflow is Draft; the separate published
     // Slack/WhatsApp workflow still uses this exact tag.
-    await addContactTags(contactId, [ENROLLED_TAG, SUBMITTED_TAG], GHL_API_KEY)
-    return res.status(200).json({ ok: true, contactId, phoneStored, emailQueued })
+    await addContactTags(contactId, [ENROLLED_TAG, SUBMITTED_TAG, LEAD_COUNTED_TAG], GHL_API_KEY)
+    return res.status(200).json({ ok: true, contactId, phoneStored, emailQueued, newLead: !alreadyCounted })
   } catch (err) {
     console.error('[submit-form] failed:', err.message)
     return res.status(502).json({ error: 'CRM submission failed' })

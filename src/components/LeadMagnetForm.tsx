@@ -273,7 +273,11 @@ export default function LeadMagnetForm({ variant }: { variant: string }) {
       })
       if (!response.ok) throw new Error('submit failed')
 
-      if (window.fbq) {
+      // The server tells us whether this person had already completed the form.
+      // Suppressing the browser Lead on a re-submit keeps pixel and CAPI agreeing,
+      // so Meta counts one Lead per person rather than one per submission.
+      const submitResult = await response.clone().json().catch(() => ({} as any))
+      if (window.fbq && submitResult?.newLead !== false) {
         window.fbq('init', '1420845489575315', { em: finalValues.email, ph: finalValues.phone })
         window.fbq('track', 'Lead', {}, { eventID: eventId })
       }
