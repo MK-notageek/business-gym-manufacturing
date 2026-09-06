@@ -8,10 +8,12 @@
 //   1. Full libphonenumber metadata checks the NZ prefix, length and callable
 //      type; only mobile and fixed-line numbers survive.
 //   2. The junk guard checks the subscriber part, not only the whole number, for
-//      repeated digits, long sequences, repeating motifs and palindromes.
+//      repeated digits, long runs and short repeating motifs. Deliberately NOT
+//      palindromes or 3-digit periods -- those rejected real customers.
 //
 // Accepted:  021 314 8296 · 0213148296 · 09 376 5210 · +64 21 314 8296
 // Rejected:  +61 412 345 678 · 021 000 000 · 021 123 4567 · 021 121 2121
+// Kept (real leads that a stricter guard used to reject):  027 536 6635 · 021 405 405
 //
 // Keep in sync with src/lib/phone.ts (same logic, TypeScript).
 import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
@@ -32,37 +34,26 @@ function hasSequentialRun(digits, minimum = 6) {
   return false
 }
 
-function isShortPeriodicPattern(digits) {
-  for (let width = 1; width <= 3; width++) {
-    if (digits.length < width * 2) continue
-    let periodic = true
-    for (let i = width; i < digits.length; i++) {
-      if (digits[i] !== digits[i % width]) {
-        periodic = false
-        break
-      }
-    }
-    if (periodic) return true
-  }
-  return false
+function isPeriodic(digits, width) {
+  if (digits.length < width * 2) return false
+  for (let i = width; i < digits.length; i++) if (digits[i] !== digits[i % width]) return false
+  return true
 }
 
-// Inspect the subscriber portion so a legitimate-looking NZ prefix cannot hide
-// a fake body: 021 000 000, 021 123 4567, 021 121 2121, or 021 122 1221.
+// Reject only what nobody could be dialled on. This guard used to be stricter and it was
+// rejecting real customers: `027 536 6635` and `027 836 5638` are palindromes, `021 405 405`
+// repeats on a 3-digit period, and `027 666 5565` uses only two digits. All four are real
+// leads on file with real business emails. A false positive here costs a lead, while a junk
+// number that slips through costs one uncallable record, so the bias is deliberate.
 function isJunkDigits(nationalDigits, type) {
-  const prefixLength = type === 'MOBILE' ? 2 : 1
-  const subscriber = nationalDigits.slice(prefixLength)
-  const counts = [...subscriber].reduce((all, digit) => {
-    all[digit] = (all[digit] || 0) + 1
-    return all
-  }, {})
-
-  if (new Set(subscriber).size < 3) return true
+  const subscriber = nationalDigits.slice(type === 'MOBILE' ? 2 : 1)
+  if (!subscriber) return true
+  if (new Set(subscriber).size < 2) return true
   if (/(\d)\1{4}/.test(subscriber)) return true
-  if (Math.max(...Object.values(counts)) >= Math.ceil(subscriber.length * 0.75)) return true
   if (hasSequentialRun(subscriber)) return true
-  if (isShortPeriodicPattern(subscriber)) return true
-  if (subscriber.length >= 6 && subscriber === [...subscriber].reverse().join('')) return true
+  // 1010101 / 2121212 -- a short motif repeated with almost no variety. A 3-digit period
+  // is NOT junk: 405405 is a normal NZ mobile.
+  if (new Set(subscriber).size <= 3 && (isPeriodic(subscriber, 1) || isPeriodic(subscriber, 2))) return true
   return false
 }
 
